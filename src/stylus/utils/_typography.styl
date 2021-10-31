@@ -1,0 +1,62 @@
+// Typography
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+// Typographic Variables
+//////////////////////////////////////////////////////
+
+// Guide
+
+$font-family = "Ubuntu"
+
+$font-weight = {
+  regular: 400,
+  bold: 700,
+}
+
+$letter-spacing = {
+  normal: normal
+}
+
+// Universal Typographic Mixin
+//////////////////////////////////////////////////////
+
+// We use one, only one, Karl, a universal mixin for all cases!
+
+$text($name)
+  font-family $font-family
+  letter-spacing $letter-spacing.normal
+
+  if $name == "elena"
+    font-size 72px
+    line-height 72px
+    font-weight $font-weight.bold
+  if $name == "olga"
+    font-size 56px
+    line-height 56px
+    font-weight $font-weight.bold
+  if $name == "anna"
+    font-size 40px
+    line-height 44px
+    font-weight $font-weight.bold
+  if $name == "maria"
+    font-size 32px
+    line-height 36px
+    font-weight $font-weight.bold
+  if $name == "katya"
+    font-size 24px
+    line-height 28px
+    font-weight $font-weight.regular
+  if $name == "alena"
+    font-size 20px
+    line-height 28px
+    font-weight $font-weight.regular
+  if $name == "natasha"
+    font-size 16px
+    line-height 28px
+    font-weight $font-weight.regular
+  if $name == "nina"
+    font-size 13px
+    line-height 16px
+    font-weight $font-weight.regular

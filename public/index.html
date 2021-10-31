@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+
+    <link type="image/x-icon" rel="shortcut icon" href="<%= BASE_URL %>favicon.ico">
+
+    <!-- <link type="image/png" sizes="16x16" rel="icon" href="<%= BASE_URL %>/images/favicons/favicon-16x16.png">
+    <link type="image/png" sizes="32x32" rel="icon" href="<%= BASE_URL %>/images/favicons/favicon-32x32.png">
+    <link type="image/png" sizes="96x96" rel="icon" href="<%= BASE_URL %>/images/favicons/favicon-96x96.png">
+    <link type="image/png" sizes="120x120" rel="icon" href="<%= BASE_URL %>/images/favicons/favicon-120x120.png"> -->
+
+    <style type="text/css">
+      /* Import font */
+      @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+      html {
+        height: 100%;
+      }
+
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+
+      #loading {
+        height: 100%;
+        padding-top: 15%;
+        background-color: #000000;
+        color: #ffffff;
+        text-align: center;
+        font-size: large;
+      }
+
+      @supports (height: 100vh) {
+        html,
+        body,
+        #loading {
+          height: 100vh;
+        }
+      }
+
+      @supports (display: flex) {
+        #loading {
+          padding-top: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app">
+      <div id="loading">Loading...</div>
+    </div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

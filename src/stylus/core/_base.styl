@@ -1,0 +1,77 @@
+// Base normalize and fonts to body
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+// Attention! You shouldn't add anything to this file,
+// except what should be absolutely accurate everywhere!
+// No "styling", just normalization and preparation!
+
+*
+  margin 0
+  padding 0
+  box-sizing border-box
+
+img,
+picture
+  max-width 100%
+  display block
+
+a
+  color inherit
+
+address
+  font-style normal
+
+// No outline on focus controls!!!
+button,
+input,
+textarea,
+a
+  outline none !important
+
+  &:hover,
+  &:active,
+  &:focus
+    outline none !important
+
+table
+  width 100%
+
+
+// CSS Scrollbar
+//////////////////////////////////////////////////////
+
+::-webkit-scrollbar
+  width 10px
+  height 10px
+
+// Track
+::-webkit-scrollbar-track
+  background transparent
+
+// Handle
+::-webkit-scrollbar-thumb
+  background $colors.primary
+
+
+// Customize Placeholder
+//////////////////////////////////////////////////////
+
+::-webkit-input-placeholder
+  color $colors.placeholder !important
+::-moz-placeholder
+  color: $colors.placeholder !important
+:-moz-placeholder
+  color $colors.placeholder !important
+:-ms-input-placeholder
+  color $colors.placeholder !important
+
+:focus::-webkit-input-placeholder
+  color transparent
+:focus::-moz-placeholder
+  color transparent
+:focus:-moz-placeholder
+  color: transparent
+:focus:-ms-input-placeholder
+  color transparent
+

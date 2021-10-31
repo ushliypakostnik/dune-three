@@ -1,0 +1,107 @@
+@import "./_mixins";
+@import "./_typography";
+
+// Project placeholders
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+// Utilities
+//////////////////////////////////////////////////////
+
+$flex--center
+  display flex
+  align-items center
+  justify-content center
+
+// Ellipsis to long string
+$lineOverflow
+  display block
+  white-space nowrap
+  overflow hidden
+  text-overflow ellipsis
+
+// Защита для больших блоков текста, например в гридах
+$longLettersProtection
+  -ms-word-break break-all
+  word-break break-all
+  word-break break-word
+  -webkit-hyphens auto
+  -moz-hyphens auto
+  -ms-hyphens auto
+  hyphens auto
+
+
+// Elements
+//////////////////////////////////////////////////////
+
+// Buttons
+$button
+  user-select none
+  cursor pointer
+  border none
+  text-decoration none
+  white-space nowrap
+  outline none
+  text-align center
+  transition background $effects.duration
+
+
+// Forms
+
+$input__background($background)
+  background $background
+
+  &:hover
+    background lighten($background, $effects.amount)
+
+  &:active,
+  &:focus
+    background darken($background, $effects.amount)
+
+$input
+  width 100%
+  appearance none
+  -webkit-appearance inherit
+  border none
+  padding-left $inputs.padding
+  padding-right $inputs.padding
+  $border-radius("swimming")
+  $text("alena")
+  $input__background($inputs.background--default)
+
+  &__wrapper
+    position relative
+    width 100%
+    padding-bottom 32px
+
+    &--disabled
+      pointer-events none
+      cursor default
+      user-select none
+      $opacity("psy")
+
+    &--error
+      .input__control,
+      .textarea__control
+        color $colors.prestige
+        $input__background($inputs.background--error)
+
+      .vs__dropdown-toggle
+        $input__background($inputs.background--error)
+
+      .vs__selected
+        color $colors.bird
+
+  &__error
+    @extend $lineOverflow
+    position absolute
+    left $inputs.padding
+    max-width "calc(100% - %s)" % $inputs.padding
+    color $colors.bird
+    $text("natasha")
+
+
+// Shadows
+$shadow
+  box-shadow 0 10px 32px $colors.shadows

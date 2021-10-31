@@ -1,0 +1,77 @@
+// Project mixins
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+// The fundamental difference between mixins and placeholders is that, in addition to compilation nuances -
+// placeholders, unlike mixin parameters, are not included in media queries,
+// but themselves, at the same time, can use them. Mixins can take arguments, and most importantly, content.
+
+// Media
+//////////////////////////////////////////////////////
+
+$no-gadgets()
+  @media only screen and (max-width $breakpoints.desktop--max)
+    {block}
+
+$desktop()
+  @media only screen and (min-width $breakpoints.desktop)
+    {block}
+
+$gadgets()
+  @media only screen and (max-width $breakpoints.tablet--max)
+    {block}
+
+$tablet()
+  @media only screen and (min-width $breakpoints.tablet) and (max-width $breakpoints.tablet--max)
+    {block}
+
+$not-mobile()
+  @media only screen and (min-width $breakpoints.tablet)
+    {block}
+
+$mobile()
+  @media only screen and (max-width $breakpoints.mobile--max)
+    {block}
+
+
+// Rounding
+//////////////////////////////////////////////////////
+
+$border-radius($name)
+  if $name == "soccer"
+    border-radius $border-radiuses.soccer // 0
+  if $name == "dancing"
+    border-radius $border-radiuses.dancing // 2px
+  if $name == "swimming"
+    border-radius $border-radiuses.swimming // 3px
+  if $name == "shooting"
+    border-radius $border-radiuses.shooting // 10px
+
+
+// Opacity
+//////////////////////////////////////////////////////
+
+$opacity($name)
+  if $name == "waltz"
+    opacity $opacites.waltz // 1
+  if $name == "funky"
+    opacity $opacites.funky // 0.75
+  if $name == "rock"
+    opacity $opacites.rock // 0.66
+  if $name == "psy"
+    opacity $opacites.psy // 0.45
+  if $name == "pop"
+    opacity $opacites.pop // 0.2
+  if $name == "reggae"
+    opacity $opacites.reggae // 0
+
+
+// Utilities
+//////////////////////////////////////////////////////
+// Mixins without arguments duplicate placeholders,
+// so it can be passed to media mixins
+
+$flex--center()
+  display flex
+  align-items center
+  justify-content center
