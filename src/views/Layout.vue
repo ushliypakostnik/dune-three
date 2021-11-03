@@ -22,19 +22,11 @@ export default defineComponent({
 
 .layout
   position fixed
+  overflow hidden
   top 0
   left 0
   right 0
   bottom 0
   width 100vw
   height: 100vh
-
-  img
-    margin-top 10vh
-    position relative
-
-h1
-  font-size 40px
-  position relative
-  color #ffffff
 </style>

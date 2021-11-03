@@ -1,22 +1,29 @@
 import { Tanks } from '@/components/Three/Scene/Tanks';
-import { Scene } from 'three';
+import { Atmosphere } from '@/components/Three/Scene/Atmosphere';
 
-import { IAnimatedModule } from '@/models/modules';
+// Types
+import { ISelf, IAnimatedModule, AnimatedModule } from '@/models/modules';
 
-class World implements IAnimatedModule {
-  private tanks: any;
+class World extends AnimatedModule {
+  private tanks: IAnimatedModule;
+  private athmosphere: IAnimatedModule;
 
   constructor() {
+    super();
+
+    this.athmosphere = new Atmosphere();
     this.tanks = new Tanks();
   }
 
-  public init(scene: Scene) {
-    this.tanks = new Tanks();
-    this.tanks.init(scene);
+  public init(self: ISelf): void {
+    // Checking
+    this.athmosphere.init(self);
+    this.tanks.init(self);
   }
 
-  public animate() {
-    this.tanks.animate();
+  public animate(self: ISelf): void {
+    this.athmosphere.animate(self);
+    this.tanks.animate(self);
   }
 }
 
