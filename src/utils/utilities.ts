@@ -16,8 +16,15 @@ export const distance2D = (
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 };
 
-export const getRandomPosition = (): TPosition => {
-  return [Math.random() * 100, Math.random() * 100];
+export const getRandomPosition = (
+  centerX: number,
+  centerY: number,
+  radius: number,
+): TPosition => {
+  return [
+    centerX + Math.random() * plusOrMinus() * radius,
+    centerY + Math.random() * plusOrMinus() * radius,
+  ];
 };
 
 const isBadPosition = (
@@ -33,11 +40,14 @@ const isBadPosition = (
 
 export const getUniqueRandomPosition = (
   positions: Array<TPosition>,
+  centerX: number,
+  centerY: number,
   distance: number,
+  radius: number,
 ): TPosition => {
-  let position: TPosition = getRandomPosition();
+  let position: TPosition = getRandomPosition(centerX, centerY, radius);
   while (isBadPosition(positions, position, distance)) {
-    position = getRandomPosition();
+    position = getRandomPosition(centerX, centerY, radius);
   }
   return position;
 };

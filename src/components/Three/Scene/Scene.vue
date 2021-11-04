@@ -12,8 +12,15 @@ import { DESIGN, OBJECTS } from '@/utils/constants';
 
 // Types
 import { ISelf } from '@/models/modules';
-import { PerspectiveCamera, Scene, WebGLRenderer /*, Clock */ } from 'three';
+import {
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer,
+  Mesh,
+  /*, Clock */
+} from 'three';
 import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
+import { TPosition } from '@/models/utils';
 
 // Modules
 // import AudioBus from '@/components/Three/Scene/AudioBus';
@@ -41,7 +48,13 @@ export default defineComponent({
     });
 
     let controls: MapControls = new MapControls(camera, renderer.domElement);
-    let distance: number;
+
+    // Utils
+    let distance = 0;
+    let mesh: Mesh = new THREE.Mesh();
+    let clone: Mesh = new THREE.Mesh();
+    let positions: Array<TPosition> = [];
+    let position: TPosition = [0, 0];
 
     // let clock: Clock = new THREE.Clock();
     // let delta: number;
@@ -114,11 +127,7 @@ export default defineComponent({
 
       onWindowResize();
       // Listeners
-      window.addEventListener(
-        'resize',
-        onWindowResize,
-        false,
-      );
+      window.addEventListener('resize', onWindowResize, false);
 
       // Modules
       world.init(self);
@@ -154,7 +163,7 @@ export default defineComponent({
 
     onWindowResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();;
+      camera.updateProjectionMatrix();
 
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
@@ -167,16 +176,17 @@ export default defineComponent({
     let self: ISelf = {
       scene,
       render,
+      distance,
+      mesh,
+      clone,
+      positions,
+      position,
     };
 
     onMounted(() => {
       init();
       animate();
     });
-
-    return {
-      onWindowResize,
-    };
   },
 });
 </script>

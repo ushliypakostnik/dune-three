@@ -16,7 +16,6 @@ class World extends AnimatedModule {
   }
 
   public init(self: ISelf): void {
-    // Checking
     this.athmosphere.init(self);
     this.tanks.init(self);
   }

@@ -1,8 +1,16 @@
-import { Scene } from 'three';
+import { Scene, Mesh } from 'three';
+import { TPosition } from '@/models/utils';
 
 export interface ISelf {
   scene: Scene;
   render: () => void;
+
+  // Utils
+  distance: number;
+  mesh: Mesh;
+  clone: Mesh;
+  positions: Array<TPosition>;
+  position: TPosition;
 }
 
 export interface IModule {
@@ -29,4 +37,4 @@ export abstract class AnimatedModule extends Module implements IAnimatedModule {
 export type position2D = {
   x: number;
   y: number;
-}
+};
