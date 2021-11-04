@@ -39,69 +39,46 @@ $longLettersProtection
 $button
   user-select none
   cursor pointer
-  border none
-  text-decoration none
   white-space nowrap
   outline none
   text-align center
   transition background $effects.duration
+  background transparent
+  color $colors.black
+  padding ($gutter / 4) ($gutter * 1.5)
+  border $border-width solid $colors__border
+  box-shadow none
+  text-decoration none
+  text-transform uppercase
+  $text("katya")
 
+$switch
+  margin $gutter * 2 auto 0
+  border $border-width solid $colors.black
+  width 140px
+  list-style none
+  position relative
+  display flex
+  flex-direction:row
 
-// Forms
+  &__item
+    flex-grow 1
+    text-align center
+    text-transform uppercase
+    $text("katya")
 
-$input__background($background)
-  background $background
+    span,
+    a
+      box-sizing border-box
+      display block
+      padding ($gutter / 10) ($gutter / 4)
+      text-decoration none
+      width 100%
+      height 100%
 
-  &:hover
-    background lighten($background, $effects.amount)
-
-  &:active,
-  &:focus
-    background darken($background, $effects.amount)
-
-$input
-  width 100%
-  appearance none
-  -webkit-appearance inherit
-  border none
-  padding-left $inputs.padding
-  padding-right $inputs.padding
-  $border-radius("swimming")
-  $text("alena")
-  $input__background($inputs.background--default)
+    &--active
+      background $colors.primary
 
   &__wrapper
-    position relative
-    width 100%
-    padding-bottom 32px
-
-    &--disabled
-      pointer-events none
-      cursor default
-      user-select none
-      $opacity("psy")
-
-    &--error
-      .input__control,
-      .textarea__control
-        color $colors.prestige
-        $input__background($inputs.background--error)
-
-      .vs__dropdown-toggle
-        $input__background($inputs.background--error)
-
-      .vs__selected
-        color $colors.bird
-
-  &__error
-    @extend $lineOverflow
-    position absolute
-    left $inputs.padding
-    max-width "calc(100% - %s)" % $inputs.padding
-    color $colors.bird
-    $text("natasha")
-
-
-// Shadows
-$shadow
-  box-shadow 0 10px 32px $colors.shadows
+    display flex
+    justify-content center

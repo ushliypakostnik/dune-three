@@ -112,8 +112,13 @@ export default defineComponent({
       controls.addEventListener('change', change);
       controls.update();
 
+      onWindowResize();
       // Listeners
-      window.addEventListener('res1ize', onWindowResize, false);
+      window.addEventListener(
+        'resize',
+        onWindowResize,
+        false,
+      );
 
       // Modules
       world.init(self);
@@ -149,7 +154,7 @@ export default defineComponent({
 
     onWindowResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+      camera.updateProjectionMatrix();;
 
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
@@ -168,6 +173,10 @@ export default defineComponent({
       init();
       animate();
     });
+
+    return {
+      onWindowResize,
+    };
   },
 });
 </script>

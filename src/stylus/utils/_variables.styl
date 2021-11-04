@@ -1,11 +1,10 @@
-// Test
-//////////////////////////////////////////////////////
-$var--global = #ff0000
-
 // Project variables
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
+
+$gutter = 20px
+$border-width = 3px
 
 // Palette
 //////////////////////////////////////////////////////
@@ -17,6 +16,7 @@ $colors = {
   wood: #515bd4,
   stone: #ffffff,
   sea: #13334c,
+  cosmos: #000000,
 
   sky: #dddddd,
   ball: #b1b1b1,
@@ -27,17 +27,16 @@ $colors["primary"] = $colors.cat
 $colors["secondary"] = $colors.dog
 $colors["border"] = $colors.sky
 $colors["shadows"] = $colors.ball
+$colors["white"] = $colors.stone
+$colors["black"] = $colors.cosmos
 
 
 // Breakpoints
 //////////////////////////////////////////////////////
 
 $breakpoints = {
-  tablet: 768px,
   desktop: 1025px,
 }
-$breakpoints["mobile--max"] = $breakpoints.tablet - 1
-$breakpoints["tablet--max"] = $breakpoints.desktop - 1
 
 
 // Others from guide
@@ -58,7 +57,6 @@ $opacites = {
   pop: 0.2,
   reggae: 0,
 }
-$colors["placeholder"] = rgba($colors.sea, $opacites.pop)
 
 $effects = {
   duration: 0.1s,
@@ -68,41 +66,3 @@ $effects = {
 
 // Elements
 //////////////////////////////////////////////////////
-
-$wrapper = {
-  gutter--desktop: 40px,
-  gutter--tablet: 32px,
-  gutter--mobile: 24px,
-
-  width--max: 1280px,
-}
-
-$grids = {
-  gutter--desktop: 32px,
-  gutter--tablet: 24px,
-  gutter--mobile: 16px,
-}
-
-$inputs = {
-  height--input: 40px,
-  height--textarea: 160px,
-
-  padding: 16px,
-
-  background--default: rgba($colors.wood, $opacites.pop),
-  background--error: rgba($colors.bird, $opacites.pop),
-}
-
-$buttons = {
-  height--large: 48px,
-  height--normal: 40px,
-  height--small: 24px,
-
-  height--textarea: 200px,
-
-  background--primary: $colors.primary,
-  background--secondary: $colors.secondary,
-
-  color--primary: $colors.stone,
-  color--secondary: $colors.stone,
-}

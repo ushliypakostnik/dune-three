@@ -1,11 +1,32 @@
-import { createStore } from 'vuex';
+import { InjectionKey } from 'vue';
+import { createStore, Store } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 
-import layout from './modules/layout';
+import layout from '@/store/modules/layout';
 
-const debug : boolean = process.env.NODE_ENV !== 'production';
+declare module '@vue/runtime-core' {
+  // declare your own store states
+  interface State {
+    count: number;
+  }
 
-export default createStore({
+  // provide typings for `this.$store`
+  interface ComponentCustomProperties {
+    $store: Store<State>;
+  }
+}
+
+// define your typings for the store state
+export interface State {
+  count: number;
+}
+
+// define injection key
+export const key: InjectionKey<Store<State>> = Symbol();
+
+const debug: boolean = process.env.NODE_ENV !== 'production';
+
+export const store = createStore<State>({
   strict: debug,
   modules: {
     layout,

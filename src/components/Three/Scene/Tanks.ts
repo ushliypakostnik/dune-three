@@ -6,7 +6,7 @@ import { OBJECTS } from '@/utils/constants';
 
 // Types
 import { ISelf, AnimatedModule } from '@/models/modules';
-import { position } from '@/models/utils';
+import { TPosition } from '@/models/utils';
 
 // Utils
 import { getUniqueRandomPosition } from '@/utils/utilities';
@@ -15,7 +15,7 @@ export class Tanks extends AnimatedModule {
   private tank: Mesh;
   private tankClone: Mesh;
   private direction: number;
-  private positions: Array<position>;
+  private positions: Array<TPosition>;
 
   constructor() {
     super();

@@ -1,11 +1,21 @@
+// Types
+import { TConfig, TMessages } from '@/models/utils';
+
+export const LANGUAGES: Array<TConfig> = [
+  { id: 1, name: 'en' },
+  { id: 2, name: 'ru' },
+];
+
 // Тут главный размер, относительно которого все по ширине,
 // кроме того что должно быть адекватным росту по высоте
-const size = (size: number) => {
-  return size * 4000;
+const ground = 4000;
+
+const size = (size: number): number => {
+  return size * ground;
 };
 
-export const DESIGN = {
-  V: '2.5851',
+export const DESIGN: TConfig = {
+  V: '1.0.0',
   BREAKPOINTS: {
     desktop: 1025,
   },
@@ -17,6 +27,7 @@ export const DESIGN = {
     purpleDark: 0x8267bf,
     purpleDarken: 0x413460,
   },
+  START_LANGUAGE: LANGUAGES[0].name,
   GROUND_SIZE: size(1),
   CAMERA: {
     fov: 80,
@@ -24,7 +35,7 @@ export const DESIGN = {
   },
 };
 
-export const OBJECTS = {
+export const OBJECTS: TConfig = {
   SAND: {
     radius: size(1),
     positionY: 0,
@@ -34,3 +45,13 @@ export const OBJECTS = {
     quantity: 10,
   }
 };
+
+export const MESSAGES: TMessages = {
+  en: {
+    name: 'DuneThree',
+  },
+  ru: {
+    name: 'ДюнаThree',
+  },
+};
+

@@ -1,5 +1,5 @@
 // Types
-import { position } from '@/models/utils';
+import { TPosition } from '@/models/utils';
 
 export const yesOrNo = (): boolean => Math.random() >= 0.5;
 
@@ -16,28 +16,26 @@ export const distance2D = (
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 };
 
-export const getRandomPosition = (): position => {
+export const getRandomPosition = (): TPosition => {
   return [Math.random() * 100, Math.random() * 100];
 };
 
 const isBadPosition = (
-  positions: Array<position>,
-  position: position,
+  positions: Array<TPosition>,
+  position: TPosition,
   distance: number,
 ): boolean => {
-  const place: position | undefined = positions.find(
-    (place: position) =>
+  return !!positions.find(
+    (place: TPosition) =>
       distance2D(place[0], place[1], position[0], position[1]) < distance,
   );
-  if (place) return place.length > 0;
-  return false;
 };
 
 export const getUniqueRandomPosition = (
-  positions: Array<position>,
+  positions: Array<TPosition>,
   distance: number,
-): position => {
-  let position: position = getRandomPosition();
+): TPosition => {
+  let position: TPosition = getRandomPosition();
   while (isBadPosition(positions, position, distance)) {
     position = getRandomPosition();
   }
