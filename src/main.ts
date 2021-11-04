@@ -5,14 +5,13 @@ import './registerServiceWorker';
 import { store, key } from './store';
 
 // Constants
-import { LANGUAGES, DESIGN, MESSAGES } from '@/utils/constants';
+import { LANGUAGES, MESSAGES } from '@/utils/constants';
 
 const i18n = createI18n({
   legacy: true,
-  locale: LANGUAGES[1].name,
-  fallbackLocale: DESIGN.START_LANGUAGE,
+  locale: LANGUAGES[0].name,
+  fallbackLocale: LANGUAGES[0].name,
   messages: MESSAGES,
 });
 
-i18n.global.locale = DESIGN.START_LANGUAGE;
 createApp(App).use(i18n).use(store, key).mount('#app');

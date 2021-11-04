@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted } from 'vue';
+import { computed, defineComponent, onMounted, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import { key } from '@/store';
 import { useI18n } from 'vue-i18n';
@@ -49,8 +49,12 @@ export default defineComponent({
       return language.name;
     });
 
+    // Позорный кряк ))) для подгрузки второго языка, чтобы не "моргал" при первом переключении
     onMounted(() => {
-      changeLanguage(locale.value as string);
+      changeLanguage(LANGUAGES[1].name);
+      setTimeout(() => {
+        changeLanguage(LANGUAGES[0].name);
+      }, 0);
     });
 
     return {

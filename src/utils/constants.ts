@@ -8,10 +8,9 @@ export const LANGUAGES: Array<TConfig> = [
 
 // Тут главный размер, относительно которого все по ширине,
 // кроме того что должно быть адекватным росту по высоте
-const ground = 4000;
-
+const GROUND = 4000;
 const size = (size: number): number => {
-  return size * ground;
+  return size * GROUND;
 };
 
 export const DESIGN: TConfig = {
@@ -27,7 +26,6 @@ export const DESIGN: TConfig = {
     purpleDark: 0x8267bf,
     purpleDarken: 0x413460,
   },
-  START_LANGUAGE: LANGUAGES[0].name,
   GROUND_SIZE: size(1),
   CAMERA: {
     fov: 80,
