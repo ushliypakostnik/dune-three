@@ -49,12 +49,14 @@ export default defineComponent({
       return language.name;
     });
 
-    // Позорный кряк ))) для подгрузки второго языка, чтобы не "моргал" при первом переключении
     onMounted(() => {
-      changeLanguage(LANGUAGES[1].name);
-      setTimeout(() => {
-        changeLanguage(LANGUAGES[0].name);
-      }, 0);
+      if (!language.value) {
+        // Позорный кряк ))) для подгрузки второго языка, чтобы не "моргал" при первой загрузке и первом переключении
+        changeLanguage(LANGUAGES[1].name);
+        nextTick(() => {
+          changeLanguage(LANGUAGES[0].name);
+        });
+      } else changeLanguage(locale.value as string);
     });
 
     return {

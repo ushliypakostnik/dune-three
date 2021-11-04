@@ -9,7 +9,7 @@ import { LANGUAGES, MESSAGES } from '@/utils/constants';
 
 const i18n = createI18n({
   legacy: true,
-  locale: LANGUAGES[0].name,
+  locale: store.getters['layout/language'] ? store.getters['layout/language'] : LANGUAGES[0].name,
   fallbackLocale: LANGUAGES[0].name,
   messages: MESSAGES,
 });

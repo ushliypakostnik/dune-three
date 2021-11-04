@@ -32,9 +32,3 @@ export abstract class AnimatedModule extends Module implements IAnimatedModule {
     super();
   }
 }
-
-// Utils
-export type position2D = {
-  x: number;
-  y: number;
-};
