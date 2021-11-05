@@ -8,10 +8,11 @@ import { ISelf, AnimatedModule } from '@/models/modules';
 
 // Utils
 import { getUniqueRandomPosition } from '@/utils/utilities';
+import { TPosition } from '@/models/utils';
 
 export class Tanks extends AnimatedModule {
   constructor() {
-    super();
+    super(OBJECTS.TANKS.name);
   }
 
   init(self: ISelf): void {
@@ -26,20 +27,34 @@ export class Tanks extends AnimatedModule {
     self.mesh = new THREE.Mesh(geometry, material);
     self.mesh.position.y = OBJECTS.TANKS.size / 2;
 
-    self.positions = [];
-    for (let i = 0; i < OBJECTS.TANKS.quantity; i++) {
-      self.clone = self.mesh.clone();
-      self.position = getUniqueRandomPosition(
-        self.positions,
-        0, // TODO: магическое число!!!
-        0, // TODO: магическое число!!!
-        OBJECTS.TANKS.size * 4,
-        100, // TODO: магическое число!!!
-      );
-      self.clone.position.x = self.position[0];
-      self.clone.position.z = self.position[1];
-      self.positions.push(self.position);
-      self.scene.add(self.clone);
+    self.positions = [...self.store.getters['objects/objects'][this.name]];
+    if (self.positions && self.positions.length === 0) {
+      for (let i = 0; i < OBJECTS.TANKS.quantity; i++) {
+        self.clone = self.mesh.clone();
+        self.position = getUniqueRandomPosition(
+          self.positions,
+          0, // TODO: магическое число!!!
+          0, // TODO: магическое число!!!
+          OBJECTS.TANKS.size * 4,
+          100, // TODO: магическое число!!!
+        );
+        self.clone.position.x = self.position[0];
+        self.clone.position.z = self.position[1];
+        self.positions.push(self.position);
+        self.scene.add(self.clone);
+      }
+      self.store.dispatch('objects/saveObjects', {
+        name: this.name,
+        objects: self.positions,
+      });
+    } else {
+      for (let i = 0; i < OBJECTS.TANKS.quantity; i++) {
+        self.position = self.positions[i];
+        self.clone = self.mesh.clone();
+        self.clone.position.x = self.position[0];
+        self.clone.position.z = self.position[1];
+        self.scene.add(self.clone);
+      }
     }
   }
 

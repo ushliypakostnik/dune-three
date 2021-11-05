@@ -3,7 +3,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, computed } from 'vue';
+import { useStore } from 'vuex';
+import { key } from '@/store';
 
 import * as THREE from 'three';
 
@@ -37,6 +39,8 @@ export default defineComponent({
   name: 'Scene',
 
   setup() {
+    const store = useStore(key);
+
     let container: HTMLElement;
 
     let camera: PerspectiveCamera = new THREE.PerspectiveCamera();
@@ -49,19 +53,18 @@ export default defineComponent({
 
     let controls: MapControls = new MapControls(camera, renderer.domElement);
 
-    // Utils
+    // Utils and wokrking variables
+
+    // let clock: Clock = new THREE.Clock();
+    // let delta: number;
+    // let x: Vector3 = new THREE.Vector3(1, 0, 0);
+    // let z: Vector3 = new THREE.Vector3(0, 0, 1);
+
     let distance = 0;
     let mesh: Mesh = new THREE.Mesh();
     let clone: Mesh = new THREE.Mesh();
     let positions: Array<TPosition> = [];
     let position: TPosition = [0, 0];
-
-    // let clock: Clock = new THREE.Clock();
-    // let delta: number;
-
-    // Variables
-    // let x: Vector3 = new THREE.Vector3(1, 0, 0);
-    // let z: Vector3 = new THREE.Vector3(0, 0, 1);
 
     // Modules
     let world = new World();
@@ -87,20 +90,16 @@ export default defineComponent({
         DESIGN.CAMERA.fov,
         container.clientWidth / container.clientHeight,
         0.1,
-        OBJECTS.SAND.radius,
+        OBJECTS.ATMOSPHERE.SAND.radius,
       );
-
-      camera.position.x = 0;
-      camera.position.y = 150;
-      camera.position.z = 400;
 
       // Scene
 
       scene.background = new THREE.Color(DESIGN.COLORS.blue);
       scene.fog = new THREE.Fog(
         DESIGN.CAMERA.fog,
-        OBJECTS.SAND.radius / 50,
-        OBJECTS.SAND.radius * 1.5,
+        OBJECTS.ATMOSPHERE.SAND.radius / 50,
+        OBJECTS.ATMOSPHERE.SAND.radius * 1.5,
       );
 
       self.scene = scene;
@@ -123,6 +122,20 @@ export default defineComponent({
       controls.maxPolarAngle = Math.PI / 3;
 
       controls.addEventListener('change', change);
+
+      if (!store.getters['layout/controls'].camera.x) {
+        camera.position.x = 0;
+        camera.position.y = 150;
+        camera.position.z = 400;
+      } else {
+        camera.position.x = store.getters['layout/controls'].camera.x;
+        camera.position.y = store.getters['layout/controls'].camera.y;
+        camera.position.z = store.getters['layout/controls'].camera.z;
+        controls.target.x = store.getters['layout/controls'].target.x;
+        controls.target.y = store.getters['layout/controls'].target.y;
+        controls.target.z = store.getters['layout/controls'].target.z;
+      }
+
       controls.update();
 
       onWindowResize();
@@ -141,10 +154,26 @@ export default defineComponent({
     change = () => {
       // Не выпускаем камеру слишком далеко
       distance = distance2D(0, 0, camera.position.x, camera.position.z);
-      if (distance > OBJECTS.SAND.radius) {
-        camera.position.x *= OBJECTS.SAND.radius / distance;
-        camera.position.z *= OBJECTS.SAND.radius / distance;
+      if (distance > OBJECTS.ATMOSPHERE.SAND.radius) {
+        camera.position.x *= OBJECTS.ATMOSPHERE.SAND.radius / distance;
+        camera.position.z *= OBJECTS.ATMOSPHERE.SAND.radius / distance;
       }
+
+      console.log(controls);
+
+      // TODO: для оптимизации было бы прикольно орагнизовать debouncing - чтобы вызывалось только один раз!!!
+      store.dispatch('layout/saveControls', {
+        camera: {
+          x: camera.position.x,
+          y: camera.position.y,
+          z: camera.position.z,
+        },
+        target: {
+          x: controls.target.x,
+          y: controls.target.y,
+          z: controls.target.z,
+        },
+      });
 
       render();
     };
@@ -174,6 +203,7 @@ export default defineComponent({
     };
 
     let self: ISelf = {
+      store,
       scene,
       render,
       distance,

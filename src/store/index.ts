@@ -3,11 +3,12 @@ import { createStore, Store } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 
 import layout from '@/store/modules/layout';
+import objects from '@/store/modules/objects';
 
 declare module '@vue/runtime-core' {
   // declare your own store states
   interface State {
-    count: number;
+    name: string;
   }
 
   // provide typings for `this.$store`
@@ -18,7 +19,7 @@ declare module '@vue/runtime-core' {
 
 // define your typings for the store state
 export interface State {
-  count: number;
+  name: string;
 }
 
 // define injection key
@@ -28,8 +29,12 @@ const debug: boolean = process.env.NODE_ENV !== 'production';
 
 export const store = createStore<State>({
   strict: debug,
+  state: {
+    name: 'store',
+  },
   modules: {
     layout,
+    objects,
   },
   plugins: [createPersistedState()],
 });

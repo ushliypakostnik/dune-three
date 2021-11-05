@@ -1,27 +1,29 @@
 import { Module } from 'vuex';
 
 // Types
-import { IStore, ILayout, Tlanguage } from '@/models/store.ts';
+import { IStore, IObjects, TObjectsPayload } from '@/models/store.ts';
 
 // Create a new store Modules.
-const Layout: Module<ILayout, IStore> = {
+const Оbjects: Module<IObjects, IStore> = {
   namespaced: true,
   state: {
-    language: null,
+    objects: {
+      tanks: [],
+    },
   },
   getters: {
-    language: (state: ILayout) => state.language,
+    objects: (state: IObjects) => state.objects,
   },
   actions: {
-    changeLanguage: ({ commit }, language: Tlanguage): void => {
-      commit('changeLanguage', language);
+    saveObjects: ({ commit }, payload: TObjectsPayload): void => {
+      commit('saveObjects', payload);
     },
   },
   mutations: {
-    changeLanguage: (state: ILayout, language: Tlanguage): void => {
-      state.language = language;
+    saveObjects: (state: IObjects, payload): void => {
+      state.objects[payload.name] = payload.objects;
     },
   },
 };
 
-export default Layout;
+export default Оbjects;

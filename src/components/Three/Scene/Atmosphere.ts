@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import {
-  Scene,
   HemisphereLight,
   Texture,
   MeshLambertMaterial,
@@ -25,7 +24,7 @@ export class Atmosphere extends AnimatedModule {
   private sand: Mesh | undefined;
 
   constructor() {
-    super();
+    super(OBJECTS.ATMOSPHERE.name);
 
     this.light = new THREE.HemisphereLight(0x6699ff, 0x295826, 1);
   }
@@ -58,10 +57,10 @@ export class Atmosphere extends AnimatedModule {
     });
 
     this.geometrySand = new THREE.PlaneBufferGeometry(
-      OBJECTS.SAND.radius * 10,
-      OBJECTS.SAND.radius * 10,
-      OBJECTS.SAND.radius / 10,
-      OBJECTS.SAND.radius / 10,
+      OBJECTS.ATMOSPHERE.SAND.radius * 10,
+      OBJECTS.ATMOSPHERE.SAND.radius * 10,
+      OBJECTS.ATMOSPHERE.SAND.radius / 10,
+      OBJECTS.ATMOSPHERE.SAND.radius / 10,
     );
     const vertex = new THREE.Vector3();
     const { position } = this.geometrySand.attributes;
@@ -72,8 +71,8 @@ export class Atmosphere extends AnimatedModule {
       vertex.z += (Math.random() * plusOrMinus() * OBJECTS.TANKS.size) / 3;
 
       if (
-        distance2D(0, 0, vertex.x, vertex.y) > OBJECTS.SAND.radius * 1.1 &&
-        distance2D(0, 0, vertex.x, vertex.y) < OBJECTS.SAND.radius * 3
+        distance2D(0, 0, vertex.x, vertex.y) > OBJECTS.ATMOSPHERE.SAND.radius * 1.1 &&
+        distance2D(0, 0, vertex.x, vertex.y) < OBJECTS.ATMOSPHERE.SAND.radius * 3
       )
         vertex.z *= Math.random() * 25;
 
@@ -82,7 +81,7 @@ export class Atmosphere extends AnimatedModule {
 
     this.sand = new THREE.Mesh(this.geometrySand, this.materialSand);
     this.sand.rotation.x = -Math.PI / 2;
-    this.sand.position.set(0, OBJECTS.SAND.positionY, 0);
+    this.sand.position.set(0, OBJECTS.ATMOSPHERE.SAND.positionY, 0);
 
     this.sand.updateMatrix();
 

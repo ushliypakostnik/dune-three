@@ -1,6 +1,9 @@
 import { Tanks } from '@/components/Three/Scene/Tanks';
 import { Atmosphere } from '@/components/Three/Scene/Atmosphere';
 
+// Constants
+import { OBJECTS } from '@/utils/constants';
+
 // Types
 import { ISelf, IAnimatedModule, AnimatedModule } from '@/models/modules';
 
@@ -9,7 +12,7 @@ class World extends AnimatedModule {
   private athmosphere: IAnimatedModule;
 
   constructor() {
-    super();
+    super(OBJECTS.WORLD.name);
 
     this.athmosphere = new Atmosphere();
     this.tanks = new Tanks();

@@ -34,14 +34,21 @@ export const DESIGN: TConfig = {
 };
 
 export const OBJECTS: TConfig = {
-  SAND: {
-    radius: size(1),
-    positionY: 0,
+  WORLD: {
+    name: 'world',
+  },
+  ATMOSPHERE: {
+    name: 'atmosphere',
+    SAND: {
+      radius: size(1),
+      positionY: 0,
+    },
   },
   TANKS: {
+    name: 'tanks',
     size: 5,
     quantity: 10,
-  }
+  },
 };
 
 export const MESSAGES: TMessages = {

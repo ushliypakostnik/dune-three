@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, nextTick } from 'vue';
+import { defineComponent, computed, onMounted, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import { key } from '@/store';
 import { useI18n } from 'vue-i18n';
