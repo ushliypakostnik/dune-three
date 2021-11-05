@@ -7,4 +7,9 @@ export type TMessages = {
   ru: TMessagesLanguage,
 };
 
-export type TPosition = number[];
+export type TPosition = {
+  x: number,
+  z: number,
+};
+
+export type TPositions = Array<TPosition>;

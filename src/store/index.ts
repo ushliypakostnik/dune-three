@@ -2,6 +2,7 @@ import { InjectionKey } from 'vue';
 import { createStore, Store } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 
+import preloader from '@/store/modules/preloader';
 import layout from '@/store/modules/layout';
 import objects from '@/store/modules/objects';
 
@@ -33,8 +34,11 @@ export const store = createStore<State>({
     name: 'store',
   },
   modules: {
+    preloader,
     layout,
     objects,
   },
-  plugins: [createPersistedState()],
+  plugins: [createPersistedState({
+    paths: ['layout', 'objects'],
+  })],
 });

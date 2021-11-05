@@ -1,7 +1,8 @@
 import { Store } from 'vuex';
 import { State } from '@/store';
-import { TPosition } from '@/models/utils';
+import { TPosition, TPositions } from '@/models/utils';
 import { Scene, Mesh } from 'three';
+import { TObjectField } from '@/models/store';
 
 export interface ISelf {
   store: Store<State>;
@@ -10,10 +11,12 @@ export interface ISelf {
 
   // Utils
   distance: number;
+  rotate: number;
   mesh: Mesh;
   clone: Mesh;
-  positions: Array<TPosition>;
+  positions: TPositions;
   position: TPosition;
+  objects: TObjectField;
 }
 
 export interface IModule {

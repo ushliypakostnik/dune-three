@@ -22,7 +22,8 @@ import {
   /*, Clock */
 } from 'three';
 import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
-import { TPosition } from '@/models/utils';
+import { TPosition, TPositions } from '@/models/utils';
+import { TObjectField } from '@/models/store';
 
 // Modules
 // import AudioBus from '@/components/Three/Scene/AudioBus';
@@ -30,7 +31,7 @@ import { TPosition } from '@/models/utils';
 import World from '@/components/Three/Scene/World';
 
 // Utils
-import { distance2D } from '@/utils/utilities';
+import { distance2D} from '@/utils/utilities';
 
 // Stats
 import Stats from 'three/examples/jsm/libs/stats.module';
@@ -61,10 +62,12 @@ export default defineComponent({
     // let z: Vector3 = new THREE.Vector3(0, 0, 1);
 
     let distance = 0;
+    let rotate = 0;
     let mesh: Mesh = new THREE.Mesh();
     let clone: Mesh = new THREE.Mesh();
-    let positions: Array<TPosition> = [];
-    let position: TPosition = [0, 0];
+    let positions: TPositions = [];
+    let position: TPosition = { x: 0, z: 0 };
+    let objects: TObjectField = [];
 
     // Modules
     let world = new World();
@@ -159,8 +162,6 @@ export default defineComponent({
         camera.position.z *= OBJECTS.ATMOSPHERE.SAND.radius / distance;
       }
 
-      console.log(controls);
-
       // TODO: для оптимизации было бы прикольно орагнизовать debouncing - чтобы вызывалось только один раз!!!
       store.dispatch('layout/saveControls', {
         camera: {
@@ -207,10 +208,12 @@ export default defineComponent({
       scene,
       render,
       distance,
+      rotate,
       mesh,
       clone,
       positions,
       position,
+      objects,
     };
 
     onMounted(() => {

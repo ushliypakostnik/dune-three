@@ -7,8 +7,11 @@ import { OBJECTS } from '@/utils/constants';
 import { ISelf, AnimatedModule } from '@/models/modules';
 
 // Utils
-import { getUniqueRandomPosition } from '@/utils/utilities';
-import { TPosition } from '@/models/utils';
+import {
+  randomInteger,
+  degreesToRadians,
+  getUniqueRandomPosition,
+} from '@/utils/utilities';
 
 export class Tanks extends AnimatedModule {
   constructor() {
@@ -27,32 +30,46 @@ export class Tanks extends AnimatedModule {
     self.mesh = new THREE.Mesh(geometry, material);
     self.mesh.position.y = OBJECTS.TANKS.size / 2;
 
-    self.positions = [...self.store.getters['objects/objects'][this.name]];
-    if (self.positions && self.positions.length === 0) {
+    self.objects = [...self.store.getters['objects/objects'][this.name]];
+
+    if (self.objects && self.objects.length === 0) {
+      self.objects = [];
       for (let i = 0; i < OBJECTS.TANKS.quantity; i++) {
         self.clone = self.mesh.clone();
+
+        self.positions = [];
         self.position = getUniqueRandomPosition(
           self.positions,
           0, // TODO: магическое число!!!
           0, // TODO: магическое число!!!
-          OBJECTS.TANKS.size * 4,
+          OBJECTS.TANKS.size * 5,
           100, // TODO: магическое число!!!
         );
-        self.clone.position.x = self.position[0];
-        self.clone.position.z = self.position[1];
+        self.clone.position.x = self.position.x;
+        self.clone.position.z = self.position.z;
+
+        self.rotate = degreesToRadians(randomInteger(-1, 360));
+        self.clone.rotateY(self.rotate);
+
         self.positions.push(self.position);
         self.scene.add(self.clone);
+        self.objects.push({
+          id: self.clone.id,
+          x: self.position.x,
+          z: self.position.z,
+          r: self.rotate,
+        });
       }
       self.store.dispatch('objects/saveObjects', {
         name: this.name,
-        objects: self.positions,
+        objects: self.objects,
       });
     } else {
       for (let i = 0; i < OBJECTS.TANKS.quantity; i++) {
-        self.position = self.positions[i];
         self.clone = self.mesh.clone();
-        self.clone.position.x = self.position[0];
-        self.clone.position.z = self.position[1];
+        self.clone.position.x = self.objects[i].x;
+        self.clone.position.z = self.objects[i].z;
+        self.clone.rotateY(self.objects[i].r);
         self.scene.add(self.clone);
       }
     }

@@ -11,7 +11,7 @@ import {
 import { DESIGN, OBJECTS } from '@/utils/constants';
 
 // Utils
-import { plusOrMinus, distance2D } from '@/utils/utilities';
+import { loaderDispatchHelper, plusOrMinus, distance2D } from '@/utils/utilities';
 
 // Types
 import { ISelf, AnimatedModule } from '@/models/modules';
@@ -44,7 +44,7 @@ export class Atmosphere extends AnimatedModule {
       () => {
         self.render();
 
-        // loaderDispatchHelper(scope.$store, 'isSandLoaded1');
+        loaderDispatchHelper(self.store, 'isSand1Loaded');
       },
     );
     this.mapSand.repeat.set(4096, 4096);
@@ -86,6 +86,8 @@ export class Atmosphere extends AnimatedModule {
     this.sand.updateMatrix();
 
     self.scene.add(this.sand);
+
+    loaderDispatchHelper(self.store, 'isAtmosphereBuild');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function

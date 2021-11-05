@@ -1,6 +1,11 @@
 // Root
 export interface IStore {}
 
+// Preloader
+
+type TPreloaderField = boolean;
+export interface IPreloader extends IStore { [key: string]: TPreloaderField }
+
 // Layout
 
 export type Tlanguage = string | null;
@@ -25,13 +30,18 @@ export interface ILayout extends IStore {
 
 // Objects
 
-type TObject = { [key: string]: number[] };
-export type TObjects = { [key: string]: Array<TObject> };
-
-type TObjectField = Array<TObject>;
+export type TObject = {
+  id: number,
+  x: number;
+  z: number;
+  r: number,
+};
+export type TObjectField = Array<TObject>;
 export type TObjectsPayload = { name: string; objects: TObjectField };
 
+type TObjects = { [key: string]: Array<TObjectField> };
 export interface IObjects extends IStore {
   objects: TObjects;
 }
-// @ts-ignore
+
+
