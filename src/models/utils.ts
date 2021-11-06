@@ -1,6 +1,7 @@
 export type TConfig = { [key: string]: any };
 
-type TMessagesLanguage = { [key: string]: string };
+type TMessagesLanguageField = string | { [key: string]: string };
+type TMessagesLanguage = { [key: string]: TMessagesLanguageField  };
 
 export type TMessages = {
   en: TMessagesLanguage,

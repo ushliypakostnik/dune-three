@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
 import { useStore } from 'vuex';
 import { key } from '@/store';
 
@@ -40,17 +40,9 @@ export default defineComponent({
 
 .preloader
   &__gate
-    position fixed
-    top 0
-    left 0
-    right 0
-    bottom 0
+    @extend $viewport
+    @extend $flexCenter
     color $colors.white
     background $colors.black
-    display flex
-    justify-content center
-    align-items center
     z-index 2000
-    width 100%
-    height 100%
 </style>

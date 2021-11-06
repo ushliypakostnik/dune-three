@@ -22,8 +22,10 @@ import { defineComponent, computed, onMounted, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import { key } from '@/store';
 import { useI18n } from 'vue-i18n';
+
 // Constants
 import { LANGUAGES } from '@/utils/constants';
+
 // Types
 import { Tlanguage } from '@/models/store.ts';
 
@@ -69,7 +71,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="stylus">
+<style lang="stylus" scoped>
 @import "~/src/stylus/_stylebase.styl"
 
 .switch

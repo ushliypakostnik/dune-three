@@ -17,19 +17,6 @@ $gadgets()
   @media only screen and (max-width $breakpoints.tablet--max)
     {block}
 
-// Rounding
-//////////////////////////////////////////////////////
-
-$border-radius($name)
-  if $name == "soccer"
-    border-radius $border-radiuses.soccer // 0
-  if $name == "dancing"
-    border-radius $border-radiuses.dancing // 2px
-  if $name == "swimming"
-    border-radius $border-radiuses.swimming // 3px
-  if $name == "shooting"
-    border-radius $border-radiuses.shooting // 10px
-
 
 // Opacity
 //////////////////////////////////////////////////////
@@ -47,14 +34,3 @@ $opacity($name)
     opacity $opacites.pop // 0.2
   if $name == "reggae"
     opacity $opacites.reggae // 0
-
-
-// Utilities
-//////////////////////////////////////////////////////
-// Mixins without arguments duplicate placeholders,
-// so it can be passed to media mixins
-
-$flex--center()
-  display flex
-  align-items center
-  justify-content center

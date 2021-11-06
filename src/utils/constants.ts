@@ -8,8 +8,8 @@ export const LANGUAGES: Array<TConfig> = [
 
 // Тут главный размер, относительно которого все по ширине,
 // кроме того что должно быть адекватным росту по высоте
-const GROUND = 4000;
-const size = (size: number): number => {
+export const GROUND = 4000;
+export const size = (size: number): number => {
   return size * GROUND;
 };
 
@@ -25,8 +25,10 @@ export const DESIGN: TConfig = {
     purple: 0xa48ed8,
     purpleDark: 0x8267bf,
     purpleDarken: 0x413460,
+    panels: 0x13334c,
   },
-  GROUND_SIZE: size(1),
+  SIZE: size(1),
+  CELL: 20,
   CAMERA: {
     fov: 80,
     fog: 0xa48ed8,
@@ -40,23 +42,41 @@ export const OBJECTS: TConfig = {
   ATMOSPHERE: {
     name: 'atmosphere',
     SAND: {
-      radius: size(1),
+      radius: size(0.5),
       positionY: 0,
     },
   },
-  TANKS: {
-    name: 'tanks',
-    size: 5,
-    quantity: 10,
+  STORE: {
+    PLAYERUNITS: {
+      name: 'playerUnits',
+      size: 5,
+      quantity: 10,
+    },
   },
 };
 
 export const MESSAGES: TMessages = {
   en: {
-    name: 'DuneThree',
+    layout: {
+      name: 'DuneThree',
+      gadgetsgate: 'The game is for desktop browsers only!',
+      chromegate: 'In order to play, open in the Google Chrome (or Yandex) browser (Firefox not recommended)',
+      startbutton: 'Play',
+      restartbutton: 'Start over',
+      key1: 'Ecs - pause',
+      copyright: '© Levon Gambaryan Bro Games',
+    },
   },
   ru: {
-    name: 'ДюнаThree',
+    layout: {
+      name: 'ДюнаThree',
+      gadgetsgate: 'Игра только для десктопных браузеров!',
+      chromegate: 'Для того чтобы играть откройте в браузере Google Chrome (или Яндекс), Firefox не рекомендуется',
+      startbutton: 'Играть',
+      restartbutton: 'Начать сначала',
+      key1: 'Ecs - пауза',
+      copyright: '© Levon Gambaryan Bro Games',
+    },
   },
 };
 

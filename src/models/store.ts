@@ -26,6 +26,7 @@ export type TControls = {
 export interface ILayout extends IStore {
   language: Tlanguage;
   controls: TControls;
+  isPause: boolean,
 }
 
 // Objects

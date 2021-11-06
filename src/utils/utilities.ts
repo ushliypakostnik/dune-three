@@ -1,3 +1,6 @@
+// Constants
+import { DESIGN } from '@/utils/constants';
+
 // Types
 import { TPosition } from '@/models/utils';
 import { Store } from 'vuex';
@@ -35,12 +38,12 @@ export const radiansToDegrees = (radians: number): number => {
 
 export const getRandomPosition = (
   centerX: number,
-  centerY: number,
+  centerZ: number,
   radius: number,
 ): TPosition => {
   return {
     x: centerX + Math.random() * plusOrMinus() * radius,
-    z: centerY + Math.random() * plusOrMinus() * radius,
+    z: centerZ + Math.random() * plusOrMinus() * radius,
   };
 };
 
@@ -58,13 +61,13 @@ const isBadPosition = (
 export const getUniqueRandomPosition = (
   positions: Array<TPosition>,
   centerX: number,
-  centerY: number,
+  centerZ: number,
   distance: number,
   radius: number,
 ): TPosition => {
-  let position: TPosition = getRandomPosition(centerX, centerY, radius);
+  let position: TPosition = getRandomPosition(centerX, centerZ, radius);
   while (isBadPosition(positions, position, distance)) {
-    position = getRandomPosition(centerX, centerY, radius);
+    position = getRandomPosition(centerX, centerZ, radius);
   }
   return position;
 };
@@ -76,3 +79,33 @@ export const loaderDispatchHelper = (store: Store<State>, field: string) => {
     store.dispatch('preloader/isAllLoadedAndBuilt');
   }).catch((error) => { console.log(error); });
 };
+
+export const restartDispatchHelper = (store: Store<State>) => {
+  store.dispatch('objects/reload').then(() => {
+    store.dispatch('layout/reload').then(() => {
+      setTimeout(() => {
+        window.location.reload(true);
+      }, 100);
+    }).catch((error) => { console.log(error); });;
+  }).catch((error) => { console.log(error); });
+};
+
+export const ScreenHelper = (() => {
+  const DESKTOP = DESIGN.BREAKPOINTS.desktop;
+
+  const isDesktop = () => {
+    return window.matchMedia(`(min-width: ${DESKTOP}px)`).matches;
+  };
+
+  const isBro = () => {
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    const isYandex = navigator.userAgent.search(/YaBrowser/) > 0;
+    const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+    return isChrome || isYandex || isFirefox;
+  };
+
+  return {
+    isDesktop,
+    isBro,
+  };
+})();

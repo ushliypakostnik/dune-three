@@ -10,7 +10,7 @@ import { key } from '@/store';
 import * as THREE from 'three';
 
 // Constants
-import { DESIGN, OBJECTS } from '@/utils/constants';
+import { DESIGN } from '@/utils/constants';
 
 // Types
 import { ISelf } from '@/models/modules';
@@ -31,7 +31,7 @@ import { TObjectField } from '@/models/store';
 import World from '@/components/Three/Scene/World';
 
 // Utils
-import { distance2D} from '@/utils/utilities';
+import { distance2D } from '@/utils/utilities';
 
 // Stats
 import Stats from 'three/examples/jsm/libs/stats.module';
@@ -78,6 +78,11 @@ export default defineComponent({
     let render: () => void;
     let change: () => void;
     let onWindowResize: () => void;
+    // let onKeyDown: (event: any) => void;
+    let onKeyUp: (event: any) => void;
+
+    // Store getters
+    const isPause = computed(() => store.getters['layout/isPause']);
 
     // Stats
     let stats = Stats();
@@ -93,7 +98,7 @@ export default defineComponent({
         DESIGN.CAMERA.fov,
         container.clientWidth / container.clientHeight,
         0.1,
-        OBJECTS.ATMOSPHERE.SAND.radius,
+        DESIGN.SIZE * 0.75,
       );
 
       // Scene
@@ -101,8 +106,8 @@ export default defineComponent({
       scene.background = new THREE.Color(DESIGN.COLORS.blue);
       scene.fog = new THREE.Fog(
         DESIGN.CAMERA.fog,
-        OBJECTS.ATMOSPHERE.SAND.radius / 50,
-        OBJECTS.ATMOSPHERE.SAND.radius * 1.5,
+        DESIGN.SIZE / 100,
+        DESIGN.SIZE * 0.75,
       );
 
       self.scene = scene;
@@ -112,8 +117,8 @@ export default defineComponent({
 
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(container.clientWidth, container.clientHeight);
-      renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.shadowMap.enabled = false;
+      // renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       container.appendChild(renderer.domElement);
       scene.add(camera);
 
@@ -144,6 +149,8 @@ export default defineComponent({
       onWindowResize();
       // Listeners
       window.addEventListener('resize', onWindowResize, false);
+      // document.addEventListener('keydown', (event) => onKeyDown(event), false);
+      document.addEventListener('keyup', (event) => onKeyUp(event), false);
 
       // Modules
       world.init(self);
@@ -157,9 +164,9 @@ export default defineComponent({
     change = () => {
       // Не выпускаем камеру слишком далеко
       distance = distance2D(0, 0, camera.position.x, camera.position.z);
-      if (distance > OBJECTS.ATMOSPHERE.SAND.radius) {
-        camera.position.x *= OBJECTS.ATMOSPHERE.SAND.radius / distance;
-        camera.position.z *= OBJECTS.ATMOSPHERE.SAND.radius / distance;
+      if (distance > DESIGN.SIZE / 2) {
+        camera.position.x *= DESIGN.SIZE / distance / 2;
+        camera.position.z *= DESIGN.SIZE / distance / 2;
       }
 
       // TODO: для оптимизации было бы прикольно орагнизовать debouncing - чтобы вызывалось только один раз!!!
@@ -179,14 +186,36 @@ export default defineComponent({
       render();
     };
 
+    /* onKeyDown = (event) => {
+      switch (event.keyCode) {
+        case 27: // Esc
+          if (!isPause.value) store.dispatch('layout/togglePause', !isPause.value);
+          break;
+        default:
+          break;
+      }
+    }; */
+
+    onKeyUp = (event) => {
+      switch (event.keyCode) {
+        case 27: // Esc
+          store.dispatch('layout/togglePause', !isPause.value);
+          break;
+        default:
+          break;
+      }
+    };
+
     animate = () => {
       // delta = clock.getDelta();
 
+      if (!isPause.value) {
+        world.animate(self);
+
+        render();
+      }
+
       stats.update();
-
-      world.animate(self);
-
-      render();
 
       requestAnimationFrame(animate);
     };

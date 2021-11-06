@@ -9,7 +9,7 @@
 // Utilities
 //////////////////////////////////////////////////////
 
-$flex--center
+$flexCenter
   display flex
   align-items center
   justify-content center
@@ -35,8 +35,22 @@ $longLettersProtection
 // Elements
 //////////////////////////////////////////////////////
 
-// Buttons
+$viewport
+  position fixed
+  overflow hidden
+  top 0
+  left 0
+  right 0
+  bottom 0
+  width 100vw
+  height 100vh
+
+$button--hover
+  &:hover
+    background rgba($colors.panels, $opacites.pop)
+
 $button
+  @extend $button--hover
   user-select none
   cursor pointer
   white-space nowrap
@@ -44,17 +58,19 @@ $button
   text-align center
   transition background $effects.duration
   background transparent
-  color $colors.black
+  color $colors.panels
   padding ($gutter / 4) ($gutter * 1.5)
-  border $border-width solid $colors__border
+  border $border-width solid $colors.panels
   box-shadow none
   text-decoration none
   text-transform uppercase
+  outline none
   $text("katya")
 
 $switch
+  @extend $button--hover
   margin $gutter * 2 auto 0
-  border $border-width solid $colors.black
+  border $border-width solid $colors.panels
   width 140px
   list-style none
   position relative
@@ -65,10 +81,11 @@ $switch
     flex-grow 1
     text-align center
     text-transform uppercase
-    $text("katya")
+    $text("maria")
 
     span,
     a
+      color $colors.panels
       box-sizing border-box
       display block
       padding ($gutter / 10) ($gutter / 4)
