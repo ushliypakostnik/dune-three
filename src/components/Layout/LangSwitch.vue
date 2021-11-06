@@ -52,13 +52,18 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      if (!language.value) {
-        // Позорный кряк ))) для подгрузки второго языка, чтобы не "моргал" при первой загрузке и первом переключении
+      // Позорный кряк ))) для подгрузки второго языка, чтобы не "моргал" при первой загрузке и первом переключении
+      if (language.value === LANGUAGES[0].name) {
         changeLanguage(LANGUAGES[1].name);
         nextTick(() => {
           changeLanguage(LANGUAGES[0].name);
         });
-      } else changeLanguage(locale.value as string);
+      } else {
+        changeLanguage(LANGUAGES[0].name);
+        nextTick(() => {
+          changeLanguage(LANGUAGES[1].name);
+        });
+      }
     });
 
     return {
