@@ -19,9 +19,9 @@ import {
 } from '@/utils/utilities';
 
 // Types
-import { ISelf, AnimatedModule } from '@/models/modules';
+import { ISelf, Module } from '@/models/modules';
 
-export class Atmosphere extends AnimatedModule {
+export class Atmosphere extends Module {
   private light: HemisphereLight;
   private mapSand: Texture | undefined;
   private materialSand: MeshLambertMaterial | undefined;
@@ -106,7 +106,4 @@ export class Atmosphere extends AnimatedModule {
 
     loaderDispatchHelper(self.store, 'isAtmosphereBuild');
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  animate(self: ISelf): void {}
 }
