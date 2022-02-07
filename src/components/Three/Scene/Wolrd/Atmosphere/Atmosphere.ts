@@ -19,15 +19,15 @@ import {
 } from '@/utils/utilities';
 
 // Types
-import { ISelf, AnimatedModule } from '@/models/modules';
+import { ISelf, Module } from '@/models/modules';
 
-export class Atmosphere extends AnimatedModule {
+export class Atmosphere extends Module {
   private light: HemisphereLight;
-  private mapSand: Texture | undefined;
-  private materialSand: MeshLambertMaterial | undefined;
-  private geometrySand: PlaneBufferGeometry | undefined;
-  private sand: Mesh | undefined;
-  private grid: GridHelper | undefined;
+  private mapSand!: Texture;
+  private materialSand!: MeshLambertMaterial;
+  private geometrySand!: PlaneBufferGeometry;
+  private sand!: Mesh;
+  private grid!: GridHelper;
 
   constructor() {
     super(OBJECTS.ATMOSPHERE.name);
@@ -49,8 +49,7 @@ export class Atmosphere extends AnimatedModule {
       './images/textures/sand.jpg',
       () => {
         self.render();
-
-        loaderDispatchHelper(self.store, 'isSand1Loaded');
+        loaderDispatchHelper(self.store, 'isSandLoaded');
       },
     );
     this.mapSand.repeat.set(4096, 4096);
@@ -58,7 +57,7 @@ export class Atmosphere extends AnimatedModule {
     this.mapSand.encoding = THREE.sRGBEncoding;
 
     this.materialSand = new THREE.MeshLambertMaterial({
-      color: 0xf0bf7d,
+      color: DESIGN.COLORS.yellowLight,
       map: this.mapSand,
     });
 
@@ -72,9 +71,12 @@ export class Atmosphere extends AnimatedModule {
     const { position } = this.geometrySand.attributes;
     for (let i = 0, l = position.count; i < l; i++) {
       vertex.fromBufferAttribute(position, i);
-      vertex.x += (Math.random() * plusOrMinus() * OBJECTS.STORE.PLAYERUNITS.size) / 3;
-      vertex.y += (Math.random() * plusOrMinus() * OBJECTS.STORE.PLAYERUNITS.size) / 3;
-      vertex.z += (Math.random() * plusOrMinus() * OBJECTS.STORE.PLAYERUNITS.size) / 3;
+      vertex.x +=
+        (Math.random() * plusOrMinus() * OBJECTS.STORE.PLAYERUNITS.size) / 3;
+      vertex.y +=
+        (Math.random() * plusOrMinus() * OBJECTS.STORE.PLAYERUNITS.size) / 3;
+      vertex.z +=
+        (Math.random() * plusOrMinus() * OBJECTS.STORE.PLAYERUNITS.size) / 3;
 
       if (
         distance2D(0, 0, vertex.x, vertex.y) >
@@ -98,15 +100,12 @@ export class Atmosphere extends AnimatedModule {
     this.grid = new THREE.GridHelper(
       DESIGN.SIZE,
       DESIGN.SIZE / DESIGN.CELL,
-      new THREE.Color(DESIGN.COLORS.panels),
-      new THREE.Color(DESIGN.COLORS.panels),
+      new THREE.Color(DESIGN.COLORS.dark),
+      new THREE.Color(DESIGN.COLORS.dark),
     );
     this.grid.position.y += 1;
-    self.scene.add(this.grid);
+    // self.scene.add(this.grid);
 
     loaderDispatchHelper(self.store, 'isAtmosphereBuild');
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  animate(self: ISelf): void {}
 }

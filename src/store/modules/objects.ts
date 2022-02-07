@@ -4,11 +4,11 @@ import { Module } from 'vuex';
 import { OBJECTS } from '@/utils/constants';
 
 // Types
-import { IStore, IObjects, TObjectsPayload } from '@/models/store.ts';
+import { IStore, IObjects, TObjectsPayload } from '@/models/store';
 
 const initialState: IObjects = {
   objects: {
-    [`${OBJECTS.STORE.PLAYERUNITS.name}`]: [],
+    [`${OBJECTS.STORE.PLATES.name}`]: [],
   },
 };
 

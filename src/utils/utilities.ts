@@ -72,22 +72,74 @@ export const getUniqueRandomPosition = (
   return position;
 };
 
-// Helpers
-
-export const loaderDispatchHelper = (store: Store<State>, field: string) => {
-  store.dispatch('preloader/preloadOrBuilt', field).then(() => {
-    store.dispatch('preloader/isAllLoadedAndBuilt');
-  }).catch((error) => { console.log(error); });
+export const getIntegerRandomPosition = (
+  centerX: number,
+  centerZ: number,
+  radius: number,
+): TPosition => {
+  return {
+    x: Math.round(centerX + Math.random() * plusOrMinus() * radius),
+    z: Math.round(centerX + Math.random() * plusOrMinus() * radius),
+  };
 };
 
-export const restartDispatchHelper = (store: Store<State>) => {
-  store.dispatch('objects/reload').then(() => {
-    store.dispatch('layout/reload').then(() => {
-      setTimeout(() => {
-        window.location.reload(true);
-      }, 100);
-    }).catch((error) => { console.log(error); });;
-  }).catch((error) => { console.log(error); });
+const isBadSpicePosition = (
+  positions: Array<TPosition>,
+  position: TPosition,
+): boolean => {
+  return !!positions.find(() => positions.includes(position));
+};
+
+export const getUniqueRandomPositionSpice = (
+  positions: Array<TPosition>,
+): TPosition => {
+  let position: TPosition = getIntegerRandomPosition(
+    0,
+    0,
+    DESIGN.SIZE / DESIGN.CELL / 2,
+  );
+  while (isBadSpicePosition(positions, position)) {
+    position = getIntegerRandomPosition(0, 0, DESIGN.SIZE / DESIGN.CELL / 2);
+  }
+  return position;
+};
+
+// Helpers
+
+export const loaderDispatchHelper = (
+  store: Store<State>,
+  field: string,
+): void => {
+  store
+    .dispatch('preloader/preloadOrBuilt', field)
+    .then(() => {
+      store.dispatch('preloader/isAllLoadedAndBuilt');
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
+
+export const restartDispatchHelper = (store: Store<State>): void => {
+  store
+    .dispatch('objects/reload')
+    .then(() => {
+      store
+        .dispatch('layout/reload')
+        .then(() => {
+          setTimeout(() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            window.location.reload(true);
+          }, 100);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
 
 export const ScreenHelper = (() => {
@@ -98,7 +150,8 @@ export const ScreenHelper = (() => {
   };
 
   const isBro = () => {
-    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    const isChrome =
+      /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     const isYandex = navigator.userAgent.search(/YaBrowser/) > 0;
     const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     return isChrome || isYandex || isFirefox;

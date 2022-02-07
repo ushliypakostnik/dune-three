@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 // Constants
-import {DESIGN, OBJECTS} from '@/utils/constants';
+import { DESIGN, OBJECTS } from '@/utils/constants';
 
 // Types
 import { ISelf, AnimatedModule } from '@/models/modules';
@@ -25,7 +25,7 @@ export class PlayerUnits extends AnimatedModule {
       OBJECTS.STORE.PLAYERUNITS.size,
     );
     const material = new THREE.MeshPhongMaterial();
-    material.color.set(DESIGN.COLORS.panels);
+    material.color.set(DESIGN.COLORS.dark);
 
     self.mesh = new THREE.Mesh(geometry, material);
     self.mesh.position.y = OBJECTS.STORE.PLAYERUNITS.size / 2;
@@ -53,9 +53,11 @@ export class PlayerUnits extends AnimatedModule {
         self.scene.add(self.clone);
         self.objects.push({
           id: self.clone.id,
+          name: this.name,
           x: self.position.x,
           z: self.position.z,
           r: self.rotate,
+          health: 100,
         });
       }
       self.store.dispatch('objects/saveObjects', {
@@ -73,6 +75,7 @@ export class PlayerUnits extends AnimatedModule {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   animate(self: ISelf): void {
     // console.log('Tanks');
   }

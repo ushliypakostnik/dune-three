@@ -78,7 +78,9 @@ export default defineComponent({
     let render: () => void;
     let change: () => void;
     let onWindowResize: () => void;
-    // let onKeyDown: (event: any) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let onKeyDown: (event: any) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let onKeyUp: (event: any) => void;
 
     // Store getters
@@ -149,7 +151,7 @@ export default defineComponent({
       onWindowResize();
       // Listeners
       window.addEventListener('resize', onWindowResize, false);
-      // document.addEventListener('keydown', (event) => onKeyDown(event), false);
+      document.addEventListener('keydown', (event) => onKeyDown(event), false);
       document.addEventListener('keyup', (event) => onKeyUp(event), false);
 
       // Modules
@@ -177,29 +179,34 @@ export default defineComponent({
           z: camera.position.z,
         },
         target: {
-          x: controls.target.x,
-          y: controls.target.y,
-          z: controls.target.z,
+          x: controls?.target.x,
+          y: controls?.target.y,
+          z: controls?.target.z,
         },
       });
 
       render();
     };
 
-    /* onKeyDown = (event) => {
+    onKeyDown = (event) => {
       switch (event.keyCode) {
-        case 27: // Esc
-          if (!isPause.value) store.dispatch('layout/togglePause', !isPause.value);
+        case 32: // Shift
+          event.preventDefault();
+          if (controls.enabled) controls.enabled = false;
           break;
         default:
           break;
       }
-    }; */
+    };
 
     onKeyUp = (event) => {
       switch (event.keyCode) {
         case 27: // Esc
           store.dispatch('layout/togglePause', !isPause.value);
+          break;
+        case 32: // Tab
+          event.preventDefault();
+          if (!controls.enabled) controls.enabled = true;
           break;
         default:
           break;

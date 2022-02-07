@@ -1,7 +1,7 @@
 import { Module } from 'vuex';
 
 // Types
-import { IStore, IPreloader } from '@/models/store.ts';
+import { IStore, IPreloader } from '@/models/store';
 
 let stateCopy;
 let result;
@@ -13,7 +13,8 @@ const Preloader: Module<IPreloader, IStore> = {
     isGameLoaded: false,
 
     // Textures
-    isSand1Loaded: false,
+    isSandLoaded: false,
+    isConcrete1Loaded: false,
 
     // Models
 
@@ -21,6 +22,7 @@ const Preloader: Module<IPreloader, IStore> = {
 
     // World build
     isAtmosphereBuild: false,
+    isPlatesBuild: false,
   },
   getters: {
     isGameLoaded: (state: IPreloader) => state.isGameLoaded,
@@ -40,7 +42,7 @@ const Preloader: Module<IPreloader, IStore> = {
     isAllLoadedAndBuilt: (state: IPreloader) => {
       stateCopy = Object.assign({}, state);
       delete stateCopy.isGameLoaded;
-      result = Object.values(stateCopy).every(field => field === true);
+      result = Object.values(stateCopy).every((field) => field === true);
       if (result) state.isGameLoaded = true;
     },
   },

@@ -112,7 +112,7 @@ export default defineComponent({
   @extend $viewport
 
   &__name
-    color $colors.panels
+    color $colors.dark
     text-align center
     margin-top 15vh
     position relative
@@ -136,7 +136,7 @@ export default defineComponent({
 
   p
     margin-bottom $gutter
-    color $colors.panels
+    color $colors.dark
     $text("nina")
 
   &__help

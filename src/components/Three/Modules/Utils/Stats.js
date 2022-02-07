@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 var Stats = function() {
   let mode = 0;
 
@@ -91,6 +92,7 @@ var Stats = function() {
   };
 };
 
+// eslint-disable-next-line prettier/prettier
 Stats.Panel = function(name, fg, bg) {
   let min = Infinity;
   let max = 0;

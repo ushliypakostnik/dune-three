@@ -1,7 +1,7 @@
 import { Module } from 'vuex';
 
 // Types
-import { IStore, ILayout, Tlanguage, TControls } from '@/models/store.ts';
+import { IStore, ILayout, TLanguage, TControls } from '@/models/store';
 
 const initialState: ILayout = {
   language: null,
@@ -29,7 +29,7 @@ const Layout: Module<ILayout, IStore> = {
     isPause: (state: ILayout) => state.isPause,
   },
   actions: {
-    changeLanguage: ({ commit }, language: Tlanguage): void => {
+    changeLanguage: ({ commit }, language: TLanguage): void => {
       commit('changeLanguage', language);
     },
     saveControls: ({ commit }, payload: TControls): void => {
@@ -43,7 +43,7 @@ const Layout: Module<ILayout, IStore> = {
     },
   },
   mutations: {
-    changeLanguage: (state: ILayout, language: Tlanguage): void => {
+    changeLanguage: (state: ILayout, language: TLanguage): void => {
       state.language = language;
     },
     saveControls: (state: ILayout, payload: TControls): void => {
