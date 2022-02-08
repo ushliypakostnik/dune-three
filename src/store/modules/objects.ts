@@ -8,7 +8,7 @@ import { IStore, IObjects, TObjectsPayload } from '@/models/store';
 
 const initialState: IObjects = {
   objects: {
-    [`${OBJECTS.STORE.PLATES.name}`]: [],
+    [`${OBJECTS.PLATES.name}`]: [],
   },
 };
 

@@ -25,6 +25,7 @@ enum Colors {
   yellowLight = 0xffe064,
   dark = 0x13334c,
   concrete1 = 0xf0bf7d,
+  selection = 0xaa0000,
 }
 
 export const DESIGN: TConfig = {
@@ -56,27 +57,23 @@ export const OBJECTS: TConfig = {
   },
   ATMOSPHERE: {
     name: 'atmosphere',
-    SAND: {
-      radius: size(0.5),
-      positionY: 0,
-    },
+  },
+  SAND: {
+    name: 'sand',
+    radius: size(0.5),
+    positionY: 0,
   },
   BUILDS: {
     name: 'builds',
   },
-  STORE: {
-    PLATES: {
-      name: 'plates',
-      size: DESIGN.CELL,
-      positionY: 1,
-    },
-    PLAYERUNITS: {
-      name: 'playerUnits',
-      size: 5,
-      quantity: 10,
-    },
+  PLATES: {
+    name: 'plates',
+    size: DESIGN.CELL,
+    positionY: 1,
   },
 };
+
+export const SELECTABLE_OBJECTS: string[] = [OBJECTS.PLATES.name];
 
 export const MESSAGES: TMessages = {
   en: {
@@ -88,6 +85,7 @@ export const MESSAGES: TMessages = {
       startbutton: 'Play',
       restartbutton: 'Start over',
       key1: 'Ecs - pause',
+      key2: 'Space - group selection',
       copyright: '© Levon Gambaryan Bro Games',
     },
   },
@@ -100,6 +98,7 @@ export const MESSAGES: TMessages = {
       startbutton: 'Играть',
       restartbutton: 'Начать сначала',
       key1: 'Ecs - пауза',
+      key2: 'Space - групповое выделение',
       copyright: '© Levon Gambaryan Bro Games',
     },
   },

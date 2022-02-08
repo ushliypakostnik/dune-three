@@ -79,29 +79,8 @@ export const getIntegerRandomPosition = (
 ): TPosition => {
   return {
     x: Math.round(centerX + Math.random() * plusOrMinus() * radius),
-    z: Math.round(centerX + Math.random() * plusOrMinus() * radius),
+    z: Math.round(centerZ + Math.random() * plusOrMinus() * radius),
   };
-};
-
-const isBadSpicePosition = (
-  positions: Array<TPosition>,
-  position: TPosition,
-): boolean => {
-  return !!positions.find(() => positions.includes(position));
-};
-
-export const getUniqueRandomPositionSpice = (
-  positions: Array<TPosition>,
-): TPosition => {
-  let position: TPosition = getIntegerRandomPosition(
-    0,
-    0,
-    DESIGN.SIZE / DESIGN.CELL / 2,
-  );
-  while (isBadSpicePosition(positions, position)) {
-    position = getIntegerRandomPosition(0, 0, DESIGN.SIZE / DESIGN.CELL / 2);
-  }
-  return position;
 };
 
 // Helpers

@@ -15,8 +15,8 @@ import { Builds } from '@/components/Three/Scene/Wolrd/Builds';
 
 class World extends AnimatedModule {
   // Modules
-  private athmosphere: IModule;
-  private builds: IModule;
+  private _athmosphere: IModule;
+  private _builds: IModule;
 
   // Animated modules
 
@@ -24,14 +24,14 @@ class World extends AnimatedModule {
     super(OBJECTS.WORLD.name);
 
     // Modules
-    this.athmosphere = new Atmosphere();
-    this.builds = new Builds();
+    this._athmosphere = new Atmosphere();
+    this._builds = new Builds();
   }
 
   public init(self: ISelf): void {
     // Modules
-    this.athmosphere.init(self);
-    this.builds.init(self);
+    this._athmosphere.init(self);
+    this._builds.init(self);
 
     // Animated modules
   }

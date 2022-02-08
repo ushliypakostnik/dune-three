@@ -8,15 +8,15 @@ import { ISelf, Module } from '@/models/modules';
 import { Plates } from '@/components/Three/Scene/Wolrd/Builds/Plates';
 
 export class Builds extends Module {
-  private plates: Module;
+  private _plates: Module;
 
   constructor() {
     super(OBJECTS.BUILDS.name);
 
-    this.plates = new Plates();
+    this._plates = new Plates();
   }
 
   public init(self: ISelf): void {
-    this.plates.init(self);
+    this._plates.init(self);
   }
 }
