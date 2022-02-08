@@ -5,19 +5,35 @@
 
       <div v-if="isPause && isGameLoaded" class="layout__blocker">
         <div class="layout__name">{{ t('layout.name') }}</div>
+
         <LangSwitch />
+
         <div class="layout__buttons">
-          <button class="layout__button" type="button" @click.prevent.stop="play">
+          <button
+            class="layout__button"
+            type="button"
+            @click.prevent.stop="play"
+          >
             {{ $t('layout.startbutton') }}
           </button>
-          <button class="layout__button" type="button" @click.prevent.stop="restart">
+          <button
+            class="layout__button"
+            type="button"
+            @click.prevent.stop="restart"
+          >
             {{ $t('layout.restartbutton') }}
           </button>
         </div>
+
         <div class="layout__help">
           <div class="layout__keys">
             <p>{{ $t('layout.key1') }}</p>
           </div>
+
+          <div class="layout__keys">
+            <p>{{ $t('layout.key2') }}</p>
+          </div>
+
           <div class="layout__copy">
             <p>{{ $t('layout.copyright') }}</p>
           </div>
@@ -112,7 +128,7 @@ export default defineComponent({
   @extend $viewport
 
   &__name
-    color $colors.panels
+    color $colors.dark
     text-align center
     margin-top 15vh
     position relative
@@ -136,12 +152,15 @@ export default defineComponent({
 
   p
     margin-bottom $gutter
-    color $colors.panels
+    color $colors.dark
     $text("nina")
 
   &__help
     margin-top $gutter * 2
 
   &__keys
-    margin-bottom $gutter * 2
+    margin-bottom $gutter / 2
+
+  &__copy
+    margin-top $gutter * 2
 </style>

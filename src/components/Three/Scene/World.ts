@@ -1,40 +1,44 @@
-import { Atmosphere } from '@/components/Three/Scene/Atmosphere';
-import { PlayerUnits } from '@/components/Three/Scene/PlayerUnits';
-
 // Constants
 import { OBJECTS } from '@/utils/constants';
 
 // Types
-import { ISelf, IModule, IAnimatedModule, AnimatedModule } from '@/models/modules';
+import {
+  ISelf,
+  IModule,
+  AnimatedModule /*, IAnimatedModule */,
+} from '@/models/modules';
+
+// Modules
+import { Atmosphere } from '@/components/Three/Scene/Wolrd/Atmosphere/Atmosphere';
+import { Builds } from '@/components/Three/Scene/Wolrd/Builds';
+// import { PlayerUnits } from '@/components/Three/Scene/PlayerUnits';
 
 class World extends AnimatedModule {
   // Modules
-  private athmosphere: IModule;
+  private _athmosphere: IModule;
+  private _builds: IModule;
 
   // Animated modules
-  private playerUnits: IAnimatedModule;
 
   constructor() {
-    super(OBJECTS.WORLD.name);
+    super(OBJECTS.world.name);
 
     // Modules
-    this.athmosphere = new Atmosphere();
-
-    // Animated modules
-    this.playerUnits = new PlayerUnits();
+    this._athmosphere = new Atmosphere();
+    this._builds = new Builds();
   }
 
   public init(self: ISelf): void {
     // Modules
-    this.athmosphere.init(self);
+    this._athmosphere.init(self);
+    this._builds.init(self);
 
     // Animated modules
-    this.playerUnits.init(self);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public animate(self: ISelf): void {
     // Animated modules
-    this.playerUnits.animate(self);
   }
 }
 

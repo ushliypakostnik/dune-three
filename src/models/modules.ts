@@ -1,7 +1,7 @@
 import { Store } from 'vuex';
 import { State } from '@/store';
 import { TPosition, TPositions } from '@/models/utils';
-import { Scene, Mesh } from 'three';
+import { Scene, MeshLambertMaterial, Mesh } from 'three';
 import { TObjectField } from '@/models/store';
 
 export interface ISelf {
@@ -12,6 +12,7 @@ export interface ISelf {
   // Utils
   distance: number;
   rotate: number;
+  material: MeshLambertMaterial;
   mesh: Mesh;
   clone: Mesh;
   positions: TPositions;
@@ -27,22 +28,25 @@ export interface IAnimatedModule extends IModule {
   animate(self: ISelf): void;
 }
 
+// Статичный модуль
 export abstract class Module implements IModule {
-  public name: string;
-
-  constructor(name: string) {
+  constructor(public name: string) {
     this.name = name;
   }
 
-  abstract init(self: ISelf): void;
+  public abstract init(self: ISelf): void;
 }
 
+// Статичные модули
+export abstract class Modules extends Module {
+  public abstract initItem(
+    self: ISelf,
+    item: TPosition,
+    isStart: boolean,
+  ): void;
+}
+
+// Анимированный модуль
 export abstract class AnimatedModule extends Module implements IAnimatedModule {
-  abstract animate(self: ISelf): void;
-
-  constructor(name: string) {
-    super(name);
-
-    this.name = name;
-  }
+  public abstract animate(self: ISelf): void;
 }

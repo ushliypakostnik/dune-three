@@ -27,7 +27,7 @@ import { useI18n } from 'vue-i18n';
 import { LANGUAGES } from '@/utils/constants';
 
 // Types
-import { Tlanguage } from '@/models/store.ts';
+import { TLanguage } from '@/models/store';
 
 export default defineComponent({
   name: 'LangSwitch',
@@ -42,26 +42,26 @@ export default defineComponent({
 
     const language = computed(() => store.getters['layout/language']);
 
-    const changeLanguage = (value: Tlanguage) => {
+    const changeLanguage = (value: TLanguage) => {
       locale.value = value;
       store.dispatch('layout/changeLanguage', value);
     };
 
-    const languages = LANGUAGES.map((language): Tlanguage => {
-      return language.name;
+    const languages = LANGUAGES.map((language): TLanguage => {
+      return language;
     });
 
     onMounted(() => {
       // Позорный кряк ))) для подгрузки второго языка, чтобы не "моргал" при первой загрузке и первом переключении
-      if (language.value === LANGUAGES[0].name) {
-        changeLanguage(LANGUAGES[1].name);
+      if (language.value === LANGUAGES[0]) {
+        changeLanguage(LANGUAGES[1]);
         nextTick(() => {
-          changeLanguage(LANGUAGES[0].name);
+          changeLanguage(LANGUAGES[0]);
         });
       } else {
-        changeLanguage(LANGUAGES[0].name);
+        changeLanguage(LANGUAGES[0]);
         nextTick(() => {
-          changeLanguage(LANGUAGES[1].name);
+          changeLanguage(LANGUAGES[1]);
         });
       }
     });

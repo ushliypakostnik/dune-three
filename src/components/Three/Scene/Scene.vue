@@ -1,16 +1,16 @@
 <template>
-  <div id="scene" class="scene" />
+  <div id="scene" class="scene" :class="isSelection && 'scene--selection'" />
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, computed } from 'vue';
+import { defineComponent, onMounted, computed, ref } from 'vue';
 import { useStore } from 'vuex';
 import { key } from '@/store';
 
 import * as THREE from 'three';
 
 // Constants
-import { DESIGN } from '@/utils/constants';
+import { DESIGN, SELECTABLE_OBJECTS } from '@/utils/constants';
 
 // Types
 import { ISelf } from '@/models/modules';
@@ -18,9 +18,12 @@ import {
   PerspectiveCamera,
   Scene,
   WebGLRenderer,
+  MeshLambertMaterial,
   Mesh,
   /*, Clock */
 } from 'three';
+import { SelectionBox } from 'three/examples/jsm/interactive/SelectionBox';
+import { SelectionHelper } from 'three/examples/jsm/interactive/SelectionHelper';
 import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
 import { TPosition, TPositions } from '@/models/utils';
 import { TObjectField } from '@/models/store';
@@ -32,6 +35,10 @@ import World from '@/components/Three/Scene/World';
 
 // Utils
 import { distance2D } from '@/utils/utilities';
+
+// Three
+import { SelectionBox as Selection } from '@/components/Three/Modules/Interactive/SelectionBox';
+import { SelectionHelper as Helper } from '@/components/Three/Modules/Interactive/SelectionHelper';
 
 // Stats
 import Stats from 'three/examples/jsm/libs/stats.module';
@@ -53,6 +60,9 @@ export default defineComponent({
     });
 
     let controls: MapControls = new MapControls(camera, renderer.domElement);
+    let selection: SelectionBox;
+    let helper: SelectionHelper;
+    let isSelection = ref(false);
 
     // Utils and wokrking variables
 
@@ -63,6 +73,7 @@ export default defineComponent({
 
     let distance = 0;
     let rotate = 0;
+    let material: MeshLambertMaterial = new THREE.MeshLambertMaterial();
     let mesh: Mesh = new THREE.Mesh();
     let clone: Mesh = new THREE.Mesh();
     let positions: TPositions = [];
@@ -78,8 +89,11 @@ export default defineComponent({
     let render: () => void;
     let change: () => void;
     let onWindowResize: () => void;
-    // let onKeyDown: (event: any) => void;
-    let onKeyUp: (event: any) => void;
+    let onKeyDown: (event: KeyboardEvent) => void;
+    let onKeyUp: (event: KeyboardEvent) => void;
+    let onPointerDown: (event: MouseEvent) => void;
+    let onPointerMove: (event: MouseEvent) => void;
+    // let onPointerUp: (event: MouseEvent) => void;
 
     // Store getters
     const isPause = computed(() => store.getters['layout/isPause']);
@@ -89,11 +103,9 @@ export default defineComponent({
 
     init = () => {
       // Core
-
       container = document.getElementById('scene') as HTMLElement;
 
       // Camera
-
       camera = new THREE.PerspectiveCamera(
         DESIGN.CAMERA.fov,
         container.clientWidth / container.clientHeight,
@@ -102,19 +114,16 @@ export default defineComponent({
       );
 
       // Scene
-
       scene.background = new THREE.Color(DESIGN.COLORS.blue);
       scene.fog = new THREE.Fog(
         DESIGN.CAMERA.fog,
         DESIGN.SIZE / 100,
         DESIGN.SIZE * 0.75,
       );
-
       self.scene = scene;
       self.render = render;
 
       // Renderer
-
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.setSize(container.clientWidth, container.clientHeight);
       renderer.shadowMap.enabled = false;
@@ -146,11 +155,31 @@ export default defineComponent({
 
       controls.update();
 
+      // Selection
+      selection = new Selection(camera, scene);
+      helper = new Helper(selection, renderer, 'selection');
+
       onWindowResize();
+
       // Listeners
       window.addEventListener('resize', onWindowResize, false);
-      // document.addEventListener('keydown', (event) => onKeyDown(event), false);
+      document.addEventListener('keydown', (event) => onKeyDown(event), false);
       document.addEventListener('keyup', (event) => onKeyUp(event), false);
+      document.addEventListener(
+        'pointerdown',
+        (event) => onPointerDown(event),
+        false,
+      );
+      document.addEventListener(
+        'pointermove',
+        (event) => onPointerMove(event),
+        false,
+      );
+      /* document.addEventListener(
+        'pointerup',
+        (event) => onPointerUp(event),
+        false,
+      ); */
 
       // Modules
       world.init(self);
@@ -177,34 +206,111 @@ export default defineComponent({
           z: camera.position.z,
         },
         target: {
-          x: controls.target.x,
-          y: controls.target.y,
-          z: controls.target.z,
+          x: controls?.target.x,
+          y: controls?.target.y,
+          z: controls?.target.z,
         },
       });
 
       render();
     };
 
-    /* onKeyDown = (event) => {
+    onKeyDown = (event) => {
       switch (event.keyCode) {
-        case 27: // Esc
-          if (!isPause.value) store.dispatch('layout/togglePause', !isPause.value);
+        case 32: // Shift
+          event.preventDefault();
+          if (controls.enabled) {
+            controls.enabled = false;
+            isSelection.value = true;
+          }
           break;
         default:
           break;
       }
-    }; */
+    };
 
     onKeyUp = (event) => {
       switch (event.keyCode) {
         case 27: // Esc
           store.dispatch('layout/togglePause', !isPause.value);
           break;
+        case 32: // Shift
+          event.preventDefault();
+          if (!controls.enabled) {
+            controls.enabled = true;
+            isSelection.value = false;
+          }
+          break;
         default:
           break;
       }
     };
+
+    onPointerDown = (event) => {
+      for (const item of selection.collection) {
+        if (SELECTABLE_OBJECTS.includes(item.name))
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          item.material.emissive.set(DESIGN.COLORS.black);
+      }
+
+      selection.startPoint.set(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1,
+        0.5,
+      );
+    };
+
+    onPointerMove = (event) => {
+      if (!controls.enabled && helper.isDown) {
+        for (let i = 0; i < selection.collection.length; i++) {
+          if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            selection.collection[i].material.emissive.set(DESIGN.COLORS.black);
+        }
+
+        selection.endPoint.set(
+          (event.clientX / window.innerWidth) * 2 - 1,
+          -(event.clientY / window.innerHeight) * 2 + 1,
+          0.5,
+        );
+
+        const allSelected = selection.select();
+        for (let i = 0; i < allSelected.length; i++) {
+          if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            allSelected[i].material.emissive.set(DESIGN.COLORS.selection);
+        }
+      }
+    };
+
+    /* onPointerUp = (event) => {
+      if (helper.isDown) {
+        for (let i = 0; i < selection.collection.length; i++) {
+          if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            selection.collection[i].material.emissive.set(DESIGN.COLORS.black);
+        }
+
+        selection.endPoint.set(
+          (event.clientX / window.innerWidth) * 2 - 1,
+          -(event.clientY / window.innerHeight) * 2 + 1,
+          0.5,
+        );
+
+        const allSelected = selection.select();
+        for (let i = 0; i < allSelected.length; i++) {
+          if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
+            console.log('3333333333333333333333', allSelected[i]);
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          allSelected[i].material.emissive.set(DESIGN.COLORS.selection);
+        }
+      }
+    }; */
 
     animate = () => {
       // delta = clock.getDelta();
@@ -238,6 +344,7 @@ export default defineComponent({
       render,
       distance,
       rotate,
+      material,
       mesh,
       clone,
       positions,
@@ -249,12 +356,16 @@ export default defineComponent({
       init();
       animate();
     });
+
+    return {
+      isSelection,
+    };
   },
 });
 </script>
 
-<style scoped lang="stylus">
-// @import "~/src/stylus/_stylebase.styl";
+<style lang="stylus">
+@import "~/src/stylus/_stylebase.styl";
 
 .scene
   position absolute
@@ -264,4 +375,15 @@ export default defineComponent({
   bottom 0
   width 100vw
   height: 100vh
+
+  &--selection
+    .selection
+      display block
+
+.selection
+  display none
+  position: fixed
+  z-index 99999
+  border 1px solid $colors.bird
+  background-color rgba($colors.bird, $opacites.jazz )
 </style>
