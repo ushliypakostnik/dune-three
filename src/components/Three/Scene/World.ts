@@ -21,7 +21,7 @@ class World extends AnimatedModule {
   // Animated modules
 
   constructor() {
-    super(OBJECTS.WORLD.name);
+    super(OBJECTS.world.name);
 
     // Modules
     this._athmosphere = new Atmosphere();

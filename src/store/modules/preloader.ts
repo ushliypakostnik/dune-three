@@ -3,47 +3,55 @@ import { Module } from 'vuex';
 // Types
 import { IStore, IPreloader } from '@/models/store';
 
+const FLAG = 'isGameLoaded';
+
 let stateCopy;
 let result;
 
-// Create a new store Modules.
+const initialState: IPreloader = {
+  [`${FLAG}`]: false,
+
+  // Textures
+  sandIsLoaded: false,
+  platesIsLoaded: false,
+
+  // Models
+
+  // Audio
+
+  // World build
+  atmosphereIsBuild: false,
+  platesIsBuild: false,
+};
+
 const Preloader: Module<IPreloader, IStore> = {
   namespaced: true,
-  state: {
-    isGameLoaded: false,
+  state: initialState,
 
-    // Textures
-    isSandLoaded: false,
-    isConcrete1Loaded: false,
-
-    // Models
-
-    // Audio
-
-    // World build
-    isAtmosphereBuild: false,
-    isPlatesBuild: false,
-  },
   getters: {
-    isGameLoaded: (state: IPreloader) => state.isGameLoaded,
+    isGameLoaded: (state: IPreloader) => state[FLAG],
   },
+
   actions: {
     preloadOrBuilt: ({ commit }, field: string): void => {
       commit('preloadOrBuilt', field);
     },
+
     isAllLoadedAndBuilt: ({ commit }): void => {
       commit('isAllLoadedAndBuilt');
     },
   },
+
   mutations: {
     preloadOrBuilt: (state: IPreloader, field: string) => {
       state[field] = true;
     },
+
     isAllLoadedAndBuilt: (state: IPreloader) => {
       stateCopy = Object.assign({}, state);
-      delete stateCopy.isGameLoaded;
+      delete stateCopy[FLAG];
       result = Object.values(stateCopy).every((field) => field === true);
-      if (result) state.isGameLoaded = true;
+      if (result) state[FLAG] = true;
     },
   },
 };

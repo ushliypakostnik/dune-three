@@ -11,7 +11,7 @@ export class Builds extends Module {
   private _plates: Module;
 
   constructor() {
-    super(OBJECTS.BUILDS.name);
+    super(OBJECTS.builds.name);
 
     this._plates = new Plates();
   }

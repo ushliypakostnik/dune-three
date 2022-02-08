@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 // Constants
 import { DESIGN } from '@/utils/constants';
 
@@ -5,6 +7,9 @@ import { DESIGN } from '@/utils/constants';
 import { TPosition } from '@/models/utils';
 import { Store } from 'vuex';
 import { State } from '@/store';
+import { Texture } from 'three';
+import { ISelf, Modules } from '@/models/modules';
+import { TObject } from '@/models/store';
 
 // Math
 
@@ -85,6 +90,7 @@ export const getIntegerRandomPosition = (
 
 // Helpers
 
+// Помощник прелодера
 export const loaderDispatchHelper = (
   store: Store<State>,
   field: string,
@@ -99,6 +105,62 @@ export const loaderDispatchHelper = (
     });
 };
 
+// Помощник загрузки и установки текстур
+export const setMapHelper = (
+  self: ISelf,
+  name: string,
+  repeat: number,
+): Texture => {
+  const map = new THREE.TextureLoader().load(
+    `./images/textures/${name}.jpg`,
+    () => {
+      self.render();
+      loaderDispatchHelper(self.store, `${name}IsLoaded`);
+    },
+  );
+  map.repeat.set(repeat, repeat);
+  map.wrapS = map.wrapT = THREE.RepeatWrapping;
+  map.encoding = THREE.sRGBEncoding;
+
+  return map;
+};
+
+// Помощник инициализации множественного модуля
+export const initModulesHelper = (self: ISelf, that: Modules): void => {
+  self.objects = [...self.store.getters['objects/objects'][that.name]];
+
+  if (self.objects && self.objects.length === 0) {
+    DESIGN.START[that.name].forEach((item: TPosition) => {
+      that.initItem(self, item, true);
+    });
+    self.store.dispatch('objects/saveObjects', {
+      name: that.name,
+      objects: self.objects,
+    });
+  } else {
+    self.objects.forEach((item: TObject) => {
+      that.initItem(self, item, false);
+    });
+  }
+};
+
+// Помощник сохранения объекта
+export const saveItemHelper = (
+  self: ISelf,
+  name: string,
+  item: TPosition,
+): void => {
+  self.objects.push({
+    id: self.clone.id,
+    name: name,
+    x: item.x,
+    z: item.z,
+    r: 0,
+    health: 100,
+  });
+};
+
+// Помощник перезагрузки
 export const restartDispatchHelper = (store: Store<State>): void => {
   store
     .dispatch('objects/reload')
@@ -121,6 +183,7 @@ export const restartDispatchHelper = (store: Store<State>): void => {
     });
 };
 
+// Экранный помощник
 export const ScreenHelper = (() => {
   const DESKTOP = DESIGN.BREAKPOINTS.desktop;
 

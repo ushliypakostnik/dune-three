@@ -8,28 +8,33 @@ import { IStore, IObjects, TObjectsPayload } from '@/models/store';
 
 const initialState: IObjects = {
   objects: {
-    [`${OBJECTS.PLATES.name}`]: [],
+    [`${OBJECTS.plates.name}`]: [],
   },
 };
 
 const Оbjects: Module<IObjects, IStore> = {
   namespaced: true,
   state: initialState,
+
   getters: {
     objects: (state: IObjects) => state.objects,
   },
+
   actions: {
     saveObjects: ({ commit }, payload: TObjectsPayload): void => {
       commit('saveObjects', payload);
     },
+
     reload: ({ commit }): void => {
       commit('reload');
     },
   },
+
   mutations: {
     saveObjects: (state: IObjects, payload): void => {
       state.objects[payload.name] = payload.objects;
     },
+
     reload: (state: IObjects): void => {
       state.objects = initialState.objects;
     },

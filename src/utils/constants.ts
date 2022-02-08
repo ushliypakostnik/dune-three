@@ -24,8 +24,10 @@ enum Colors {
   yellow = 0xfed564,
   yellowLight = 0xffe064,
   dark = 0x13334c,
-  concrete1 = 0xf0bf7d,
   selection = 0xaa0000,
+
+  // objects
+  plates = 0xf0bf7d,
 }
 
 export const DESIGN: TConfig = {
@@ -38,42 +40,46 @@ export const DESIGN: TConfig = {
     fov: 80,
     fog: 0xa48ed8,
   },
-  START: [
-    { x: -1, z: -1 },
-    { x: -1, z: 0 },
-    { x: -1, z: 1 },
-    { x: 0, z: -1 },
-    { x: 0, z: 0 },
-    { x: 0, z: 1 },
-    { x: 1, z: 0 },
-    { x: 1, z: 1 },
-    { x: 1, z: -1 },
-  ],
+  // Дефолтные установки сцены
+  START: {
+    plates: [
+      { x: -1, z: -1 },
+      { x: -1, z: 0 },
+      { x: -1, z: 1 },
+      { x: 0, z: -1 },
+      { x: 0, z: 0 },
+      { x: 0, z: 1 },
+      { x: 1, z: 0 },
+      { x: 1, z: 1 },
+      { x: 1, z: -1 },
+    ],
+  },
 };
 
 export const OBJECTS: TConfig = {
-  WORLD: {
+  world: {
     name: 'world',
   },
-  ATMOSPHERE: {
+  atmosphere: {
     name: 'atmosphere',
   },
-  SAND: {
+  sand: {
     name: 'sand',
     radius: size(0.5),
     positionY: 0,
   },
-  BUILDS: {
+  builds: {
     name: 'builds',
   },
-  PLATES: {
+  plates: {
     name: 'plates',
     size: DESIGN.CELL,
     positionY: 1,
+    isStartRotate: false,
   },
 };
 
-export const SELECTABLE_OBJECTS: string[] = [OBJECTS.PLATES.name];
+export const SELECTABLE_OBJECTS: string[] = [OBJECTS.plates.name];
 
 export const MESSAGES: TMessages = {
   en: {

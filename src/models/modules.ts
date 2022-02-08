@@ -34,10 +34,19 @@ export abstract class Module implements IModule {
     this.name = name;
   }
 
-  abstract init(self: ISelf): void;
+  public abstract init(self: ISelf): void;
+}
+
+// Статичные модули
+export abstract class Modules extends Module {
+  public abstract initItem(
+    self: ISelf,
+    item: TPosition,
+    isStart: boolean,
+  ): void;
 }
 
 // Анимированный модуль
 export abstract class AnimatedModule extends Module implements IAnimatedModule {
-  abstract animate(self: ISelf): void;
+  public abstract animate(self: ISelf): void;
 }

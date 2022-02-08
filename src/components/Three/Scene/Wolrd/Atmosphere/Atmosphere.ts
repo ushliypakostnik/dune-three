@@ -13,6 +13,7 @@ import { DESIGN, OBJECTS } from '@/utils/constants';
 
 // Utils
 import {
+  setMapHelper,
   loaderDispatchHelper,
   plusOrMinus,
   distance2D,
@@ -23,14 +24,14 @@ import { ISelf, Module } from '@/models/modules';
 
 export class Atmosphere extends Module {
   private _light: HemisphereLight;
-  private _mapSand!: Texture;
-  private _materialSand!: MeshLambertMaterial;
-  private _geometrySand!: PlaneBufferGeometry;
+  private _map!: Texture;
+  private _material!: MeshLambertMaterial;
+  private _geometry!: PlaneBufferGeometry;
   private _sand!: Mesh;
   private _grid!: GridHelper;
 
   constructor() {
-    super(OBJECTS.ATMOSPHERE.name);
+    super(OBJECTS.atmosphere.name);
 
     this._light = new THREE.HemisphereLight(0x6699ff, 0x295826, 1);
   }
@@ -45,30 +46,23 @@ export class Atmosphere extends Module {
     // Ambient
     self.scene.add(new THREE.AmbientLight(DESIGN.COLORS.white));
 
-    this._mapSand = new THREE.TextureLoader().load(
-      './images/textures/sand.jpg',
-      () => {
-        self.render();
-        loaderDispatchHelper(self.store, 'isSandLoaded');
-      },
-    );
-    this._mapSand.repeat.set(4096, 4096);
-    this._mapSand.wrapS = this._mapSand.wrapT = THREE.RepeatWrapping;
-    this._mapSand.encoding = THREE.sRGBEncoding;
+    // Текстура
+    this._map = setMapHelper(self, OBJECTS.sand.name, 4096);
 
-    this._materialSand = new THREE.MeshLambertMaterial({
+    this._material = new THREE.MeshLambertMaterial({
       color: DESIGN.COLORS.yellowLight,
-      map: this._mapSand,
+      map: this._map,
     });
 
-    this._geometrySand = new THREE.PlaneBufferGeometry(
-      OBJECTS.SAND.radius * 10,
-      OBJECTS.SAND.radius * 10,
-      OBJECTS.SAND.radius / 10,
-      OBJECTS.SAND.radius / 10,
+    this._geometry = new THREE.PlaneBufferGeometry(
+      OBJECTS.sand.radius * 10,
+      OBJECTS.sand.radius * 10,
+      OBJECTS.sand.radius / 10,
+      OBJECTS.sand.radius / 10,
     );
+
     const vertex = new THREE.Vector3();
-    const { position } = this._geometrySand.attributes;
+    const { position } = this._geometry.attributes;
     for (let i = 0, l = position.count; i < l; i++) {
       vertex.fromBufferAttribute(position, i);
       vertex.x += (Math.random() * plusOrMinus() * DESIGN.CELL) / 10;
@@ -76,18 +70,18 @@ export class Atmosphere extends Module {
       vertex.z += (Math.random() * plusOrMinus() * DESIGN.CELL) / 10;
 
       if (
-        distance2D(0, 0, vertex.x, vertex.y) > OBJECTS.SAND.radius * 1.1 &&
-        distance2D(0, 0, vertex.x, vertex.y) < OBJECTS.SAND.radius * 3
+        distance2D(0, 0, vertex.x, vertex.y) > OBJECTS.sand.radius * 1.1 &&
+        distance2D(0, 0, vertex.x, vertex.y) < OBJECTS.sand.radius * 3
       )
         vertex.z *= Math.random() * 33;
 
       position.setXYZ(i, vertex.x, vertex.y, vertex.z);
     }
 
-    this._sand = new THREE.Mesh(this._geometrySand, this._materialSand);
+    this._sand = new THREE.Mesh(this._geometry, this._material);
     this._sand.rotation.x = -Math.PI / 2;
-    this._sand.position.set(0, OBJECTS.SAND.positionY, 0);
-    this._sand.name = OBJECTS.SAND.name;
+    this._sand.position.set(0, OBJECTS.sand.positionY, 0);
+    this._sand.name = OBJECTS.sand.name;
 
     this._sand.updateMatrix();
 
@@ -102,6 +96,6 @@ export class Atmosphere extends Module {
     this._grid.position.y += 1;
     // self.scene.add(this._grid);
 
-    loaderDispatchHelper(self.store, 'isAtmosphereBuild');
+    loaderDispatchHelper(self.store, 'atmosphereIsBuild');
   }
 }
