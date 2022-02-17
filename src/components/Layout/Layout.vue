@@ -3,42 +3,52 @@
     <Preloader>
       <Scene />
 
-      <div v-if="isPause && isGameLoaded" class="layout__blocker">
-        <div class="layout__name">{{ t('layout.name') }}</div>
+      <transition name="fade2">
+        <DesignPanel v-if="isDesignPanel" />
+      </transition>
 
-        <LangSwitch />
+      <transition name="fade">
+        <div v-if="isPause && isGameLoaded" class="layout__blocker">
+          <div class="layout__name">{{ t('layout.name') }}</div>
 
-        <div class="layout__buttons">
-          <button
-            class="layout__button"
-            type="button"
-            @click.prevent.stop="play"
-          >
-            {{ $t('layout.startbutton') }}
-          </button>
-          <button
-            class="layout__button"
-            type="button"
-            @click.prevent.stop="restart"
-          >
-            {{ $t('layout.restartbutton') }}
-          </button>
+          <LangSwitch />
+
+          <div class="layout__buttons">
+            <button
+              class="layout__button"
+              type="button"
+              @click.prevent.stop="play"
+            >
+              {{ $t('layout.startbutton') }}
+            </button>
+            <button
+              class="layout__button"
+              type="button"
+              @click.prevent.stop="restart"
+            >
+              {{ $t('layout.restartbutton') }}
+            </button>
+          </div>
+
+          <div class="layout__help">
+            <div class="layout__keys">
+              <p>{{ $t('layout.key1') }}</p>
+            </div>
+
+            <div class="layout__keys">
+              <p>{{ $t('layout.key2') }}</p>
+            </div>
+
+            <div class="layout__keys">
+              <p>{{ $t('layout.key3') }}</p>
+            </div>
+
+            <div class="layout__copy">
+              <p>{{ $t('layout.copyright') }}</p>
+            </div>
+          </div>
         </div>
-
-        <div class="layout__help">
-          <div class="layout__keys">
-            <p>{{ $t('layout.key1') }}</p>
-          </div>
-
-          <div class="layout__keys">
-            <p>{{ $t('layout.key2') }}</p>
-          </div>
-
-          <div class="layout__copy">
-            <p>{{ $t('layout.copyright') }}</p>
-          </div>
-        </div>
-      </div>
+      </transition>
     </Preloader>
   </div>
 
@@ -57,6 +67,7 @@ import Preloader from '@/components/Layout/Preloader.vue';
 import Gate from '@/components/Layout/Gate.vue';
 import Scene from '@/components/Three/Scene/Scene.vue';
 import LangSwitch from '@/components/Layout/LangSwitch.vue';
+import DesignPanel from '@/components/Layout/DesignPanel.vue';
 
 // Utils
 import { ScreenHelper, restartDispatchHelper } from '@/utils/utilities';
@@ -69,6 +80,7 @@ export default defineComponent({
     Scene,
     LangSwitch,
     Gate,
+    DesignPanel,
   },
 
   setup() {
@@ -90,6 +102,7 @@ export default defineComponent({
     );
 
     const isPause = computed(() => store.getters['layout/isPause']);
+    const isDesignPanel = computed(() => store.getters['layout/isDesignPanel']);
 
     onMounted(() => {
       onWindowResize();
@@ -101,7 +114,10 @@ export default defineComponent({
     };
 
     play = () => {
-      store.dispatch('layout/togglePause', !isPause.value);
+      store.dispatch('layout/setField', {
+        field: 'isPause',
+        value: !isPause.value,
+      });
     };
 
     restart = () => {
@@ -114,6 +130,7 @@ export default defineComponent({
       isBro,
       isGameLoaded,
       isPause,
+      isDesignPanel,
       play,
       restart,
     };

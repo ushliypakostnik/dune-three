@@ -4,7 +4,7 @@
       class="switch__item"
       :class="value === language && 'switch__item--active'"
       v-for="value in languages"
-      :key="value"
+      :key="`language${value}`"
     >
       <a
         v-if="value !== language"
@@ -44,7 +44,7 @@ export default defineComponent({
 
     const changeLanguage = (value: TLanguage) => {
       locale.value = value;
-      store.dispatch('layout/changeLanguage', value);
+      store.dispatch('layout/setField', { field: 'language', value });
     };
 
     const languages = LANGUAGES.map((language): TLanguage => {

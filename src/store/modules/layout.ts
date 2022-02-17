@@ -1,7 +1,7 @@
 import { Module } from 'vuex';
 
 // Types
-import { IStore, ILayout, TLanguage, TControls } from '@/models/store';
+import { IStore, ILayout, TFieldPayload } from '@/models/store';
 
 const initialState: ILayout = {
   language: null,
@@ -18,6 +18,7 @@ const initialState: ILayout = {
     },
   },
   isPause: true,
+  isDesignPanel: false,
 };
 
 const Layout: Module<ILayout, IStore> = {
@@ -28,19 +29,12 @@ const Layout: Module<ILayout, IStore> = {
     language: (state: ILayout) => state.language,
     controls: (state: ILayout) => state.controls,
     isPause: (state: ILayout) => state.isPause,
+    isDesignPanel: (state: ILayout) => state.isDesignPanel,
   },
 
   actions: {
-    changeLanguage: ({ commit }, language: TLanguage): void => {
-      commit('changeLanguage', language);
-    },
-
-    saveControls: ({ commit }, payload: TControls): void => {
-      commit('saveControls', payload);
-    },
-
-    togglePause: ({ commit }, isPause: boolean): void => {
-      commit('togglePause', isPause);
+    setField: ({ commit }, payload: TFieldPayload): void => {
+      commit('setField', payload);
     },
 
     reload: ({ commit }): void => {
@@ -49,16 +43,8 @@ const Layout: Module<ILayout, IStore> = {
   },
 
   mutations: {
-    changeLanguage: (state: ILayout, language: TLanguage): void => {
-      state.language = language;
-    },
-
-    saveControls: (state: ILayout, payload: TControls): void => {
-      state.controls = payload;
-    },
-
-    togglePause: (state: ILayout, isPause: boolean): void => {
-      state.isPause = isPause;
+    setField: (state: ILayout, payload: TFieldPayload): void => {
+      state[payload.field] = payload.value;
     },
 
     reload: (state: ILayout): void => {

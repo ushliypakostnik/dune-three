@@ -13,23 +13,23 @@ export interface IPreloader extends IStore {
 
 export type TLanguage = string | null;
 
+type TControlCoords = {
+  x: number | null;
+  y: number | null;
+  z: number | null;
+};
 export type TControls = {
-  camera: {
-    x: number | null;
-    y: number | null;
-    z: number | null;
-  };
-  target: {
-    x: number | null;
-    y: number | null;
-    z: number | null;
-  };
+  camera: TControlCoords;
+  target: TControlCoords;
+};
+
+export type TFieldPayload = {
+  field: string;
+  value: boolean;
 };
 
 export interface ILayout extends IStore {
-  language: TLanguage;
-  controls: TControls;
-  isPause: boolean;
+  [key: string]: boolean | TControls | TLanguage;
 }
 
 // Objects

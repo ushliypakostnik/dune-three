@@ -19,6 +19,13 @@
 
 .fade
   &-enter-active
+    animation fade $effects.duration forwards
+
+  &-leave-active
+    animation fade $effects.duration reverse
+
+.fade2
+  &-enter-active
     animation fade ($effects.duration * 2) forwards
 
   &-leave-active

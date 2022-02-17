@@ -1,14 +1,7 @@
 // Types
 import { TConfig, TMessages } from '@/models/utils';
 
-export const LANGUAGES: string[] = ['en', 'ru'];
-
-// Тут главный размер, относительно которого все по ширине,
-// кроме того что должно быть адекватным росту по высоте
-export const GROUND = 4000;
-export const size = (size: number): number => {
-  return size * GROUND;
-};
+// Enums
 
 enum Breakpoints {
   desktop = 1025,
@@ -30,6 +23,25 @@ enum Colors {
   plates = 0xf0bf7d,
 }
 
+enum Names {
+  world = 'world',
+  atmosphere = 'atmosphere',
+  sand = 'sand',
+  builds = 'builds',
+  plates = 'plates',
+}
+
+// Configuration
+
+export const LANGUAGES: string[] = ['en', 'ru'];
+
+// Тут главный размер, относительно которого все по ширине,
+// кроме того что должно быть адекватным росту по высоте
+export const GROUND = 4000;
+export const size = (size: number): number => {
+  return size * GROUND;
+};
+
 export const DESIGN: TConfig = {
   V: '1.0.0',
   BREAKPOINTS: Breakpoints,
@@ -42,7 +54,7 @@ export const DESIGN: TConfig = {
   },
   // Дефолтные установки сцены
   START: {
-    plates: [
+    [Names.plates]: [
       { x: -1, z: -1 },
       { x: -1, z: 0 },
       { x: -1, z: 1 },
@@ -56,30 +68,37 @@ export const DESIGN: TConfig = {
   },
 };
 
+// Все объекты
 export const OBJECTS: TConfig = {
-  world: {
-    name: 'world',
+  [Names.world]: {
+    name: Names.world,
   },
-  atmosphere: {
-    name: 'atmosphere',
+  [Names.atmosphere]: {
+    name: Names.atmosphere,
   },
-  sand: {
-    name: 'sand',
+  [Names.sand]: {
+    name: Names.sand,
     radius: size(0.5),
     positionY: 0,
   },
-  builds: {
-    name: 'builds',
+  [Names.builds]: {
+    name: Names.builds,
   },
-  plates: {
-    name: 'plates',
+  [Names.plates]: {
+    name: Names.plates,
     size: DESIGN.CELL,
     positionY: 1,
     isStartRotate: false,
   },
 };
 
-export const SELECTABLE_OBJECTS: string[] = [OBJECTS.plates.name];
+// Объекты которые можно строить
+export const CAN_BUILD: string[] = [Names.plates];
+
+// Объекты которые можно выделять
+export const SELECTABLE_OBJECTS: string[] = [Names.plates];
+
+// Переводы
 
 export const MESSAGES: TMessages = {
   en: {
@@ -92,6 +111,7 @@ export const MESSAGES: TMessages = {
       restartbutton: 'Start over',
       key1: 'Ecs - pause',
       key2: 'Space - group selection',
+      key3: 'Tab - design mode',
       copyright: '© Levon Gambaryan Bro Games',
     },
   },
@@ -105,6 +125,7 @@ export const MESSAGES: TMessages = {
       restartbutton: 'Начать сначала',
       key1: 'Ecs - пауза',
       key2: 'Space - групповое выделение',
+      key3: 'Tab - режим конструктора',
       copyright: '© Levon Gambaryan Bro Games',
     },
   },

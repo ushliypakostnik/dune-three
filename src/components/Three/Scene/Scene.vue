@@ -63,6 +63,7 @@ export default defineComponent({
     let selection: SelectionBox;
     let helper: SelectionHelper;
     let isSelection = ref(false);
+    let isCreate = ref(false);
 
     // Utils and wokrking variables
 
@@ -199,16 +200,19 @@ export default defineComponent({
       }
 
       // TODO: для оптимизации было бы прикольно орагнизовать debouncing - чтобы вызывалось только один раз!!!
-      store.dispatch('layout/saveControls', {
-        camera: {
-          x: camera.position.x,
-          y: camera.position.y,
-          z: camera.position.z,
-        },
-        target: {
-          x: controls?.target.x,
-          y: controls?.target.y,
-          z: controls?.target.z,
+      store.dispatch('layout/setField', {
+        field: 'controls',
+        value: {
+          camera: {
+            x: camera.position.x,
+            y: camera.position.y,
+            z: camera.position.z,
+          },
+          target: {
+            x: controls?.target.x,
+            y: controls?.target.y,
+            z: controls?.target.z,
+          },
         },
       });
 
@@ -219,9 +223,20 @@ export default defineComponent({
       switch (event.keyCode) {
         case 32: // Shift
           event.preventDefault();
-          if (controls.enabled) {
+          if (controls.enabled && !isCreate.value) {
             controls.enabled = false;
             isSelection.value = true;
+          }
+          break;
+        case 9: // Tab
+          event.preventDefault();
+          if (controls.enabled && !isSelection.value) {
+            controls.enabled = false;
+            isCreate.value = true;
+            store.dispatch('layout/setField', {
+              field: 'isDesignPanel',
+              value: true,
+            });
           }
           break;
         default:
@@ -232,13 +247,27 @@ export default defineComponent({
     onKeyUp = (event) => {
       switch (event.keyCode) {
         case 27: // Esc
-          store.dispatch('layout/togglePause', !isPause.value);
+          store.dispatch('layout/setField', {
+            field: 'isPause',
+            value: !isPause.value,
+          });
           break;
         case 32: // Shift
           event.preventDefault();
-          if (!controls.enabled) {
+          if (!controls.enabled && !isCreate.value) {
             controls.enabled = true;
             isSelection.value = false;
+          }
+          break;
+        case 9: // Tab
+          event.preventDefault();
+          if (!controls.enabled && !isSelection.value) {
+            controls.enabled = true;
+            isCreate.value = false;
+            store.dispatch('layout/setField', {
+              field: 'isDesignPanel',
+              value: false,
+            });
           }
           break;
         default:
@@ -247,22 +276,24 @@ export default defineComponent({
     };
 
     onPointerDown = (event) => {
-      for (const item of selection.collection) {
-        if (SELECTABLE_OBJECTS.includes(item.name))
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          item.material.emissive.set(DESIGN.COLORS.black);
-      }
+      if (isSelection.value) {
+        for (const item of selection.collection) {
+          if (SELECTABLE_OBJECTS.includes(item.name))
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            item.material.emissive.set(DESIGN.COLORS.black);
+        }
 
-      selection.startPoint.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1,
-        0.5,
-      );
+        selection.startPoint.set(
+          (event.clientX / window.innerWidth) * 2 - 1,
+          -(event.clientY / window.innerHeight) * 2 + 1,
+          0.5,
+        );
+      }
     };
 
     onPointerMove = (event) => {
-      if (!controls.enabled && helper.isDown) {
+      if (isSelection.value && helper.isDown) {
         for (let i = 0; i < selection.collection.length; i++) {
           if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -359,6 +390,7 @@ export default defineComponent({
 
     return {
       isSelection,
+      isCreate,
     };
   },
 });

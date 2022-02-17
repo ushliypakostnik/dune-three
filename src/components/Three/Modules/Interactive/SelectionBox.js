@@ -48,8 +48,6 @@ class SelectionBox {
     this.updateFrustum(this.startPoint, this.endPoint);
     this.searchChildInFrustum(_frustum, this.scene);
 
-    console.log('AAAAAAAAAAAAAAAAAAAAAAA', this.collection);
-
     return this.collection;
   }
 
