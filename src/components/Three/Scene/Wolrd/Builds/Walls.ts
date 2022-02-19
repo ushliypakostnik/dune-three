@@ -23,13 +23,13 @@ import {
   initItemHelper,
 } from '@/utils/utilities';
 
-export class Plates extends Modules {
+export class Walls extends Modules {
   private _map!: Texture;
   private _material!: MeshLambertMaterial;
   private _geometry!: BoxBufferGeometry;
 
   constructor() {
-    super(Names.plates);
+    super(Names.walls);
 
     // Форма
     this._geometry = getGeometryByName(this.name);
@@ -68,6 +68,8 @@ export class Plates extends Modules {
 
   // Добавить объект
   public add(self: ISelf, vector: Vector3): void {
+    self.logger.log('Walls', 'add', self.position);
+
     addItemHelper(self, this, vector);
   }
 }

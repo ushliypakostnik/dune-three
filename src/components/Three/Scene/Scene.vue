@@ -10,31 +10,40 @@ import { key } from '@/store';
 import * as THREE from 'three';
 
 // Constants
-import { DESIGN, SELECTABLE_OBJECTS } from '@/utils/constants';
+import { DESIGN, OBJECTS, SELECTABLE_OBJECTS } from '@/utils/constants';
 
 // Types
-import { ISelf } from '@/models/modules';
-import {
+import type { ISelf } from '@/models/modules';
+import type {
   PerspectiveCamera,
   Scene,
   WebGLRenderer,
   MeshLambertMaterial,
   Mesh,
+  Vector2,
+  Vector3,
+  Raycaster,
+  Intersection,
+  Object3D,
+  Event,
+  BufferGeometry,
   /*, Clock */
 } from 'three';
-import { SelectionBox } from 'three/examples/jsm/interactive/SelectionBox';
-import { SelectionHelper } from 'three/examples/jsm/interactive/SelectionHelper';
-import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
-import { TPosition, TPositions } from '@/models/utils';
-import { TObjectField } from '@/models/store';
+import type { SelectionBox } from 'three/examples/jsm/interactive/SelectionBox';
+import type { SelectionHelper } from 'three/examples/jsm/interactive/SelectionHelper';
+import type { TPosition, TPositions } from '@/models/utils';
+import type { TObjectField } from '@/models/store';
 
 // Modules
+import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
+
 // import AudioBus from '@/components/Three/Scene/AudioBus';
 // import EventsBus from '@/components/Three/Scene/EventsBus';
 import World from '@/components/Three/Scene/World';
 
 // Utils
-import { distance2D } from '@/utils/utilities';
+import Logger from '@/utils/logger';
+import { distance2D, getGeometryByName, getPositionYByName } from '@/utils/utilities';
 
 // Three
 import { SelectionBox as Selection } from '@/components/Three/Modules/Interactive/SelectionBox';
@@ -74,12 +83,24 @@ export default defineComponent({
 
     let distance = 0;
     let rotate = 0;
+    let geometry: BufferGeometry;
     let material: MeshLambertMaterial = new THREE.MeshLambertMaterial();
     let mesh: Mesh = new THREE.Mesh();
     let clone: Mesh = new THREE.Mesh();
     let positions: TPositions = [];
     let position: TPosition = { x: 0, z: 0 };
     let objects: TObjectField = [];
+
+    let pointer: Vector2 = new THREE.Vector2();
+    let raycaster: Raycaster = new THREE.Raycaster();
+    let intersects: Intersection<Object3D<Event>>[];
+    let intersect: Intersection<Object3D<Event>>;
+    let plane: Mesh = new THREE.Mesh();
+    let box: Mesh = new THREE.Mesh();
+    let vector: Vector3 = new THREE.Vector3();
+    let setCreate: (event: MouseEvent) => void;
+
+    let logger: Logger = new Logger();
 
     // Modules
     let world = new World();
@@ -94,10 +115,10 @@ export default defineComponent({
     let onKeyUp: (event: KeyboardEvent) => void;
     let onPointerDown: (event: MouseEvent) => void;
     let onPointerMove: (event: MouseEvent) => void;
-    // let onPointerUp: (event: MouseEvent) => void;
 
     // Store getters
     const isPause = computed(() => store.getters['layout/isPause']);
+    const activeBuild = computed(() => store.getters['layout/activeBuild']);
 
     // Stats
     let stats = Stats();
@@ -160,6 +181,34 @@ export default defineComponent({
       selection = new Selection(camera, scene);
       helper = new Helper(selection, renderer, 'selection');
 
+      // Create
+
+      // Plane
+      geometry = new THREE.PlaneBufferGeometry(
+        OBJECTS.sand.radius * 10,
+        OBJECTS.sand.radius * 10,
+        OBJECTS.sand.radius / 10,
+        OBJECTS.sand.radius / 10,
+      );
+      material = new THREE.MeshLambertMaterial({ visible: false });
+      plane = new THREE.Mesh(geometry, material);
+      plane.rotation.x = -Math.PI / 2;
+      plane.position.set(0, OBJECTS.sand.positionY + 0.5, 0);
+      plane.name = 'plane';
+      scene.add(plane);
+
+      // Create pointer
+      geometry = new THREE.BoxGeometry(DESIGN.CELL, DESIGN.CELL, DESIGN.CELL);
+      material = new THREE.MeshLambertMaterial({
+        color: DESIGN.COLORS.pointer,
+        opacity: 0.5,
+        transparent: true,
+      });
+      box = new THREE.Mesh(geometry, material);
+      box.visible = false;
+      box.position.set(DESIGN.CELL / 2, OBJECTS.sand.positionY + 1, DESIGN.CELL / 2);
+      scene.add(box);
+
       onWindowResize();
 
       // Listeners
@@ -176,11 +225,6 @@ export default defineComponent({
         (event) => onPointerMove(event),
         false,
       );
-      /* document.addEventListener(
-        'pointerup',
-        (event) => onPointerUp(event),
-        false,
-      ); */
 
       // Modules
       world.init(self);
@@ -223,16 +267,19 @@ export default defineComponent({
       switch (event.keyCode) {
         case 32: // Shift
           event.preventDefault();
-          if (controls.enabled && !isCreate.value) {
+          if (!isPause.value && controls.enabled && !isCreate.value) {
             controls.enabled = false;
             isSelection.value = true;
           }
           break;
         case 9: // Tab
           event.preventDefault();
-          if (controls.enabled && !isSelection.value) {
+          if (!isPause.value && controls.enabled && !isSelection.value) {
             controls.enabled = false;
             isCreate.value = true;
+            box.geometry = getGeometryByName(activeBuild.value);
+            box.position.y = getPositionYByName(activeBuild.value);
+            box.visible = true;
             store.dispatch('layout/setField', {
               field: 'isDesignPanel',
               value: true,
@@ -254,16 +301,17 @@ export default defineComponent({
           break;
         case 32: // Shift
           event.preventDefault();
-          if (!controls.enabled && !isCreate.value) {
+          if (!isPause.value && !controls.enabled && !isCreate.value) {
             controls.enabled = true;
             isSelection.value = false;
           }
           break;
         case 9: // Tab
           event.preventDefault();
-          if (!controls.enabled && !isSelection.value) {
+          if (!isPause.value && !controls.enabled && !isSelection.value) {
             controls.enabled = true;
             isCreate.value = false;
+            box.visible = false;
             store.dispatch('layout/setField', {
               field: 'isDesignPanel',
               value: false,
@@ -275,7 +323,43 @@ export default defineComponent({
       }
     };
 
+    setCreate = (event) => {
+      pointer.set(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1,
+      );
+      raycaster.setFromCamera(pointer, camera);
+      intersects = raycaster.intersectObjects([plane], false);
+    };
+
     onPointerDown = (event) => {
+      if (isCreate.value) {
+        setCreate(event);
+
+        if (intersects.length > 0) {
+          intersect = intersects[0];
+
+          switch (event.button) {
+            case 0:
+              if (intersect.face) {
+                vector.copy(intersect.point).add(intersect.face.normal);
+                vector
+                  .divideScalar(DESIGN.CELL)
+                  .floor()
+                  .multiplyScalar(DESIGN.CELL)
+                  .addScalar(DESIGN.CELL / 2);
+
+                world.add(self, activeBuild.value, vector);
+              }
+              break;
+
+            /* case 2:
+              // console.log('Нажата правая кнопка.');
+              break; */
+          }
+        }
+      }
+
       if (isSelection.value) {
         for (const item of selection.collection) {
           if (SELECTABLE_OBJECTS.includes(item.name))
@@ -293,6 +377,22 @@ export default defineComponent({
     };
 
     onPointerMove = (event) => {
+      if (isCreate.value) {
+        setCreate(event);
+
+        if (intersects.length > 0) {
+          intersect = intersects[0];
+          if (intersect.face) {
+            box.position.copy(intersect.point).add(intersect.face.normal);
+            box.position
+              .divideScalar(DESIGN.CELL)
+              .floor()
+              .multiplyScalar(DESIGN.CELL);
+            box.position.y = getPositionYByName(activeBuild.value);
+          }
+        }
+      }
+
       if (isSelection.value && helper.isDown) {
         for (let i = 0; i < selection.collection.length; i++) {
           if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
@@ -316,32 +416,6 @@ export default defineComponent({
         }
       }
     };
-
-    /* onPointerUp = (event) => {
-      if (helper.isDown) {
-        for (let i = 0; i < selection.collection.length; i++) {
-          if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            selection.collection[i].material.emissive.set(DESIGN.COLORS.black);
-        }
-
-        selection.endPoint.set(
-          (event.clientX / window.innerWidth) * 2 - 1,
-          -(event.clientY / window.innerHeight) * 2 + 1,
-          0.5,
-        );
-
-        const allSelected = selection.select();
-        for (let i = 0; i < allSelected.length; i++) {
-          if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
-            console.log('3333333333333333333333', allSelected[i]);
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          allSelected[i].material.emissive.set(DESIGN.COLORS.selection);
-        }
-      }
-    }; */
 
     animate = () => {
       // delta = clock.getDelta();
@@ -370,6 +444,7 @@ export default defineComponent({
     };
 
     let self: ISelf = {
+      logger,
       store,
       scene,
       render,
@@ -417,5 +492,5 @@ export default defineComponent({
   position: fixed
   z-index 99999
   border 1px solid $colors.bird
-  background-color rgba($colors.bird, $opacites.jazz )
+  background-color rgba($colors.bird, $opacites.jazz)
 </style>

@@ -1,7 +1,7 @@
 import { Module } from 'vuex';
 
 // Types
-import { IStore, IPreloader } from '@/models/store';
+import type { IStore, IPreloader } from '@/models/store';
 
 const FLAG = 'isGameLoaded';
 
@@ -14,6 +14,7 @@ const initialState: IPreloader = {
   // Textures
   sandIsLoaded: false,
   platesIsLoaded: false,
+  wallsIsLoaded: false,
 
   // Models
 
@@ -22,6 +23,7 @@ const initialState: IPreloader = {
   // World build
   atmosphereIsBuild: false,
   platesIsBuild: false,
+  wallsIsBuild: false,
 };
 
 const Preloader: Module<IPreloader, IStore> = {

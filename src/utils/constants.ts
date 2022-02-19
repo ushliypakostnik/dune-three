@@ -1,5 +1,5 @@
 // Types
-import { TConfig, TMessages } from '@/models/utils';
+import type { TConfig, TMessages } from '@/models/utils';
 
 // Enums
 
@@ -18,17 +18,21 @@ enum Colors {
   yellowLight = 0xffe064,
   dark = 0x13334c,
   selection = 0xaa0000,
+  pointer = 0xff2500,
 
   // objects
-  plates = 0xf0bf7d,
+  plates = 0xdfbf7d,
+  walls = 0xf0bf7d,
 }
 
-enum Names {
+export enum Names {
   world = 'world',
   atmosphere = 'atmosphere',
   sand = 'sand',
   builds = 'builds',
   plates = 'plates',
+  walls = 'walls',
+  station = 'station',
 }
 
 // Configuration
@@ -89,44 +93,63 @@ export const OBJECTS: TConfig = {
     size: DESIGN.CELL,
     positionY: 1,
     isStartRotate: false,
+    price: 1,
+  },
+  [Names.walls]: {
+    name: Names.walls,
+    size: DESIGN.CELL,
+    positionY: 1,
+    isStartRotate: false,
+    price: 5,
+  },
+  [Names.station]: {
+    name: Names.station,
+    size: DESIGN.CELL,
+    positionY: 1,
+    isStartRotate: false,
+    price: 15,
   },
 };
 
 // Объекты которые можно строить
-export const CAN_BUILD: string[] = [Names.plates];
+export const CAN_BUILD: string[] = [Names.plates, Names.walls, Names.station];
 
 // Объекты которые можно выделять
-export const SELECTABLE_OBJECTS: string[] = [Names.plates];
+export const SELECTABLE_OBJECTS: string[] = [...CAN_BUILD];
 
 // Переводы
 
 export const MESSAGES: TMessages = {
   en: {
-    layout: {
-      name: 'DuneThree',
-      gadgetsgate: 'The game is for desktop browsers only!',
-      chromegate:
-        'In order to play, open in the Google Chrome (or Yandex) browser (Firefox not recommended)',
-      startbutton: 'Play',
-      restartbutton: 'Start over',
-      key1: 'Ecs - pause',
-      key2: 'Space - group selection',
-      key3: 'Tab - design mode',
-      copyright: '© Levon Gambaryan Bro Games',
-    },
+    name: 'DuneThree',
+    gadgetsgate: 'The game is for desktop browsers only!',
+    chromegate:
+      'In order to play, open in the Google Chrome (or Yandex) browser (Firefox not recommended)',
+    startbutton: 'Play',
+    restartbutton: 'Start over',
+    key1: 'Ecs - pause',
+    key2: 'Space - group selection',
+    key3: 'Tab - design mode',
+    copyright: '© Levon Gambaryan Bro Games',
+
+    [Names.plates]: 'Plate',
+    [Names.walls]: 'Wall',
+    [Names.station]: 'Power station',
   },
   ru: {
-    layout: {
-      name: 'ДюнаThree',
-      gadgetsgate: 'Игра только для десктопных браузеров!',
-      chromegate:
-        'Для того чтобы играть откройте в браузере Google Chrome (или Яндекс), Firefox не рекомендуется',
-      startbutton: 'Играть',
-      restartbutton: 'Начать сначала',
-      key1: 'Ecs - пауза',
-      key2: 'Space - групповое выделение',
-      key3: 'Tab - режим конструктора',
-      copyright: '© Levon Gambaryan Bro Games',
-    },
+    name: 'ДюнаThree',
+    gadgetsgate: 'Игра только для десктопных браузеров!',
+    chromegate:
+      'Для того чтобы играть откройте в браузере Google Chrome (или Яндекс), Firefox не рекомендуется',
+    startbutton: 'Играть',
+    restartbutton: 'Начать сначала',
+    key1: 'Ecs - пауза',
+    key2: ' Space - групповое выделение',
+    key3: 'Tab - режим конструктора',
+    copyright: '© Levon Gambaryan Bro Games',
+
+    [Names.plates]: 'Плита',
+    [Names.walls]: 'Стена',
+    [Names.station]: 'Электростанция',
   },
 };

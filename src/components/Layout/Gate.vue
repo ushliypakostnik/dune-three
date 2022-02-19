@@ -2,10 +2,10 @@
   <div class="gate">
     <div class="gate__wrapper">
       <h3 class="gate__text" v-if="face === 'gadgets'">
-        {{ $t('layout.gadgetsgate') }}
+        {{ $t('gadgetsgate') }}
       </h3>
       <h3 class="gate__text" v-else-if="face === 'chrome'">
-        {{ $t('layout.chromegate') }}
+        {{ $t('chromegate') }}
       </h3>
     </div>
   </div>

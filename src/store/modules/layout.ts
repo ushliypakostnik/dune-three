@@ -1,7 +1,10 @@
 import { Module } from 'vuex';
 
 // Types
-import { IStore, ILayout, TFieldPayload } from '@/models/store';
+import type { IStore, ILayout, TFieldPayload } from '@/models/store';
+
+// Constants
+import { Names } from '@/utils/constants';
 
 const initialState: ILayout = {
   language: null,
@@ -19,6 +22,8 @@ const initialState: ILayout = {
   },
   isPause: true,
   isDesignPanel: false,
+  activeBuild: Names.plates,
+  buildStatus: 2,
 };
 
 const Layout: Module<ILayout, IStore> = {
@@ -30,6 +35,8 @@ const Layout: Module<ILayout, IStore> = {
     controls: (state: ILayout) => state.controls,
     isPause: (state: ILayout) => state.isPause,
     isDesignPanel: (state: ILayout) => state.isDesignPanel,
+    activeBuild: (state: ILayout) => state.activeBuild,
+    buildStatus: (state: ILayout) => state.buildStatus,
   },
 
   actions: {

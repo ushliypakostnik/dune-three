@@ -29,7 +29,7 @@ export type TFieldPayload = {
 };
 
 export interface ILayout extends IStore {
-  [key: string]: boolean | TControls | TLanguage;
+  [key: string]: boolean | number | TControls | TLanguage;
 }
 
 // Objects
@@ -47,5 +47,6 @@ export type TObjectsPayload = { name: string; objects: TObjectField };
 
 type TObjects = { [key: string]: Array<TObjectField> };
 export interface IObjects extends IStore {
+  isStart: boolean;
   objects: TObjects;
 }

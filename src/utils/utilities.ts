@@ -1,15 +1,20 @@
 import * as THREE from 'three';
 
 // Constants
-import { DESIGN } from '@/utils/constants';
+import { Names, DESIGN, OBJECTS } from '@/utils/constants';
 
 // Types
-import { TPosition } from '@/models/utils';
-import { Store } from 'vuex';
-import { State } from '@/store';
-import { Texture } from 'three';
-import { ISelf, Modules } from '@/models/modules';
-import { TObject } from '@/models/store';
+import type { TPosition } from '@/models/utils';
+import type { Store } from 'vuex';
+import type { State } from '@/store';
+import type {
+  Texture,
+  Vector3,
+  BoxBufferGeometry,
+  MeshLambertMaterial,
+} from 'three';
+import type { ISelf, Modules } from '@/models/modules';
+import type { TObject } from '@/models/store';
 
 // Math
 
@@ -88,7 +93,21 @@ export const getIntegerRandomPosition = (
   };
 };
 
+// Design (for logger)
+export const paddy = (number: number, padlen = 4, padchar = '0'): string => {
+  const pad = new Array(1 + padlen).join(padchar);
+  return (pad + number).slice(-pad.length);
+};
+
 // Helpers
+
+// Получить координаты в сетке по вектору
+export const objectCoordsHelper = (vector: Vector3): TPosition => {
+  return {
+    x: (vector.x - DESIGN.CELL / 2) / DESIGN.CELL,
+    z: (vector.z - DESIGN.CELL / 2) / DESIGN.CELL,
+  };
+};
 
 // Помощник прелодера
 export const loaderDispatchHelper = (
@@ -125,11 +144,35 @@ export const setMapHelper = (
   return map;
 };
 
+// Помощник инициализации одного объекта
+export const initItemHelper = (
+  self: ISelf,
+  name: Names,
+  item: TPosition,
+  isStart: boolean,
+  material: MeshLambertMaterial,
+  geometry: BoxBufferGeometry,
+): void => {
+  self.material = material.clone();
+  self.mesh = new THREE.Mesh(geometry, self.material);
+  self.clone = self.mesh.clone();
+  self.clone.position.x = item.x * DESIGN.CELL;
+  self.clone.position.z = item.z * DESIGN.CELL;
+  if (name !== Names.plates)
+    self.clone.position.y = OBJECTS.plates.positionY + OBJECTS.plates.size + 1;
+  else self.clone.position.y = OBJECTS.plates.positionY;
+  self.clone.name = name;
+  self.scene.add(self.clone);
+
+  // Если стартовая инициализация или добавление нового объекта - сохраняем объект
+  if (isStart) saveItemHelper(self, name, item);
+};
+
 // Помощник инициализации множественного модуля
 export const initModulesHelper = (self: ISelf, that: Modules): void => {
   self.objects = [...self.store.getters['objects/objects'][that.name]];
 
-  if (self.objects && self.objects.length === 0) {
+  if (self.store.getters['objects/isStart'] && that.name === Names.plates) {
     DESIGN.START[that.name].forEach((item: TPosition) => {
       that.initItem(self, item, true);
     });
@@ -137,10 +180,70 @@ export const initModulesHelper = (self: ISelf, that: Modules): void => {
       name: that.name,
       objects: self.objects,
     });
+    self.store.dispatch('objects/setStart');
   } else {
     self.objects.forEach((item: TObject) => {
       that.initItem(self, item, false);
     });
+  }
+};
+
+// Геометрия по имени
+export const getGeometryByName = (name: Names): BoxBufferGeometry => {
+  switch (name) {
+    case Names.walls:
+    default:
+      return new THREE.BoxBufferGeometry(
+        OBJECTS.plates.size,
+        OBJECTS.plates.size * 2,
+        OBJECTS.plates.size,
+      );
+    case Names.plates:
+      return new THREE.BoxGeometry(OBJECTS.plates.size, 2, OBJECTS.plates.size);
+  }
+};
+
+// Y координата по имени
+export const getPositionYByName = (name: Names): number => {
+  switch (name) {
+    case Names.walls:
+    default:
+      return OBJECTS.plates.positionY + OBJECTS.plates.size + 1;
+    case Names.plates:
+      return OBJECTS.plates.positionY;
+  }
+};
+
+// Проверки
+
+export const isPlateOnCoords = (self: ISelf): boolean => {
+  self.objects = [...self.store.getters['objects/objects'][Names.plates]];
+  return !!self.objects.find(
+    (object) => object.x === self.position.x && object.z === self.position.z,
+  );
+};
+
+// Помощник добавления объекта
+export const addItemHelper = (
+  self: ISelf,
+  that: Modules,
+  vector: Vector3,
+): void => {
+  self.position = objectCoordsHelper(vector);
+  if (
+    (that.name === Names.plates && !isPlateOnCoords(self)) ||
+    isPlateOnCoords(self)
+  ) {
+    self.objects = [...self.store.getters['objects/objects'][that.name]];
+    that.initItem(self, self.position, true);
+    self.store.dispatch('objects/saveObjects', {
+      name: that.name,
+      objects: self.objects,
+    });
+  } else {
+    if (that.name === Names.plates)
+      self.logger.log('Plates', 'Тут плита уже есть!!!');
+    else self.logger.log('Walls', 'Тут плиты нет!!!');
   }
 };
 

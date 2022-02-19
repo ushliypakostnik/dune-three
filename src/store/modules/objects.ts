@@ -1,14 +1,16 @@
 import { Module } from 'vuex';
 
 // Constants
-import { OBJECTS } from '@/utils/constants';
+import { Names } from '@/utils/constants';
 
 // Types
-import { IStore, IObjects, TObjectsPayload } from '@/models/store';
+import type { IStore, IObjects, TObjectsPayload } from '@/models/store';
 
 const initialState: IObjects = {
+  isStart: true,
   objects: {
-    [`${OBJECTS.plates.name}`]: [],
+    [`${Names.plates}`]: [],
+    [`${Names.walls}`]: [],
   },
 };
 
@@ -17,12 +19,17 @@ const Оbjects: Module<IObjects, IStore> = {
   state: initialState,
 
   getters: {
+    isStart: (state: IObjects) => state.isStart,
     objects: (state: IObjects) => state.objects,
   },
 
   actions: {
     saveObjects: ({ commit }, payload: TObjectsPayload): void => {
       commit('saveObjects', payload);
+    },
+
+    setStart: ({ commit }): void => {
+      commit('setStart');
     },
 
     reload: ({ commit }): void => {
@@ -35,7 +42,12 @@ const Оbjects: Module<IObjects, IStore> = {
       state.objects[payload.name] = payload.objects;
     },
 
+    setStart: (state: IObjects): void => {
+      state.isStart = false;
+    },
+
     reload: (state: IObjects): void => {
+      state.isStart = true;
       state.objects = initialState.objects;
     },
   },

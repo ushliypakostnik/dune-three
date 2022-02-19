@@ -4,12 +4,12 @@
       <Scene />
 
       <transition name="fade2">
-        <DesignPanel v-if="isDesignPanel" />
+        <DesignPanel v-show="isDesignPanel" />
       </transition>
 
       <transition name="fade">
         <div v-if="isPause && isGameLoaded" class="layout__blocker">
-          <div class="layout__name">{{ t('layout.name') }}</div>
+          <div class="layout__name">{{ $t('name') }}</div>
 
           <LangSwitch />
 
@@ -19,32 +19,32 @@
               type="button"
               @click.prevent.stop="play"
             >
-              {{ $t('layout.startbutton') }}
+              {{ $t('startbutton') }}
             </button>
             <button
               class="layout__button"
               type="button"
               @click.prevent.stop="restart"
             >
-              {{ $t('layout.restartbutton') }}
+              {{ $t('restartbutton') }}
             </button>
           </div>
 
           <div class="layout__help">
             <div class="layout__keys">
-              <p>{{ $t('layout.key1') }}</p>
+              <p>{{ $t('key1') }}</p>
             </div>
 
             <div class="layout__keys">
-              <p>{{ $t('layout.key2') }}</p>
+              <p>{{ $t('key2') }}</p>
             </div>
 
             <div class="layout__keys">
-              <p>{{ $t('layout.key3') }}</p>
+              <p>{{ $t('key3') }}</p>
             </div>
 
             <div class="layout__copy">
-              <p>{{ $t('layout.copyright') }}</p>
+              <p>{{ $t('copyright') }}</p>
             </div>
           </div>
         </div>
@@ -84,10 +84,7 @@ export default defineComponent({
   },
 
   setup() {
-    const { t } = useI18n({
-      inheritLocale: true,
-      useScope: 'global',
-    });
+    const { t } = useI18n();
 
     const store = useStore(key);
 

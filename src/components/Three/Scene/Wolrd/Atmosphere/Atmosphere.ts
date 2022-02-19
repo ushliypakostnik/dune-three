@@ -1,5 +1,10 @@
 import * as THREE from 'three';
-import {
+// Constants
+import { Names, DESIGN, OBJECTS } from '@/utils/constants';
+
+// Types
+import type { ISelf } from '@/models/modules';
+import type {
   HemisphereLight,
   Texture,
   MeshLambertMaterial,
@@ -8,8 +13,8 @@ import {
   GridHelper,
 } from 'three';
 
-// Constants
-import { DESIGN, OBJECTS } from '@/utils/constants';
+// Modules
+import { Module } from '@/models/modules';
 
 // Utils
 import {
@@ -18,9 +23,6 @@ import {
   plusOrMinus,
   distance2D,
 } from '@/utils/utilities';
-
-// Types
-import { ISelf, Module } from '@/models/modules';
 
 export class Atmosphere extends Module {
   private _light: HemisphereLight;
@@ -31,9 +33,16 @@ export class Atmosphere extends Module {
   private _grid!: GridHelper;
 
   constructor() {
-    super(OBJECTS.atmosphere.name);
+    super(Names.atmosphere);
 
     this._light = new THREE.HemisphereLight(0x6699ff, 0x295826, 1);
+
+    this._geometry = new THREE.PlaneBufferGeometry(
+      OBJECTS.sand.radius * 10,
+      OBJECTS.sand.radius * 10,
+      OBJECTS.sand.radius / 10,
+      OBJECTS.sand.radius / 10,
+    );
   }
 
   init(self: ISelf): void {
@@ -54,13 +63,7 @@ export class Atmosphere extends Module {
       map: this._map,
     });
 
-    this._geometry = new THREE.PlaneBufferGeometry(
-      OBJECTS.sand.radius * 10,
-      OBJECTS.sand.radius * 10,
-      OBJECTS.sand.radius / 10,
-      OBJECTS.sand.radius / 10,
-    );
-
+    // Искажение
     const vertex = new THREE.Vector3();
     const { position } = this._geometry.attributes;
     for (let i = 0, l = position.count; i < l; i++) {
@@ -78,15 +81,15 @@ export class Atmosphere extends Module {
       position.setXYZ(i, vertex.x, vertex.y, vertex.z);
     }
 
+    // Песок
     this._sand = new THREE.Mesh(this._geometry, this._material);
     this._sand.rotation.x = -Math.PI / 2;
     this._sand.position.set(0, OBJECTS.sand.positionY, 0);
-    this._sand.name = OBJECTS.sand.name;
-
+    this._sand.name = Names.sand;
     this._sand.updateMatrix();
-
     self.scene.add(this._sand);
 
+    // Вспомогательная сетка
     this._grid = new THREE.GridHelper(
       DESIGN.SIZE,
       DESIGN.SIZE / DESIGN.CELL,
@@ -94,6 +97,8 @@ export class Atmosphere extends Module {
       new THREE.Color(DESIGN.COLORS.dark),
     );
     this._grid.position.y += 1;
+    this._grid.position.x += DESIGN.CELL / 2;
+    this._grid.position.z += DESIGN.CELL / 2;
     // self.scene.add(this._grid);
 
     loaderDispatchHelper(self.store, 'atmosphereIsBuild');
