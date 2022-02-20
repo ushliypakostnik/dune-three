@@ -139,16 +139,19 @@ export default class Helper {
     );
   }
 
-  // Доступна ли новая постройка?
-  public isNewBuildingAvailableHelper(self: ISelf, name: Names): void {
-    this._number = self.store.getters['layout/buildStatus'];
-    this._is = this._number === CAN_BUILD.indexOf(name) + 1;
-    if (this._is) {
-      self.store.dispatch('layout/setField', {
-        field: 'buildStatus',
-        value: ++this._number,
-      });
-    }
+  // Есть ли постройка на координатах?
+  public isBuildNotOnCoords(self: ISelf): boolean {
+    this._is = true;
+    CAN_BUILD.filter((name) => name !== Names.plates).forEach((name) => {
+      this._objects = [...self.store.getters['objects/objects'][name]];
+      if (this._objects?.length > 0) {
+        this._is = this._objects.every(
+          (object) =>
+            !(object.x === this._position.x && object.z === this._position.z),
+        );
+      }
+    });
+    return this._is;
   }
 
   // Помощник добавления объекта
@@ -157,7 +160,9 @@ export default class Helper {
     // self.logger.log('Helper', 'addItemHelper', that.name, self.position);
     if (
       (that.name === Names.plates && !this.isPlateOnCoords(self)) ||
-      (that.name !== Names.plates && this.isPlateOnCoords(self))
+      (that.name !== Names.plates &&
+        this.isPlateOnCoords(self) &&
+        this.isBuildNotOnCoords(self))
     ) {
       this._objects = [...self.store.getters['objects/objects'][that.name]];
       that.initItem(self, this._position, true);
@@ -167,9 +172,24 @@ export default class Helper {
       });
     } else {
       if (that.name === Names.plates && this.isPlateOnCoords(self))
-        self.logger.log('utilities.ts', 'Тут плита уже есть!!!');
-      else if (!this.isPlateOnCoords(self))
-        self.logger.log('utilities.ts', 'Тут плиты нет!!!');
+        self.logger.log('Helper', 'Тут плита уже есть!!!');
+      else if (that.name !== Names.plates && !this.isPlateOnCoords(self))
+        self.logger.log('Helper', 'Тут плиты нет!!!');
+      else if (that.name !== Names.plates && !this.isBuildNotOnCoords(self)) {
+        self.logger.log('Helper', 'Тут уже есть строение!!!');
+      }
+    }
+  }
+
+  // Доступна ли новая постройка?
+  public isNewBuildingAvailableHelper(self: ISelf, name: Names): void {
+    this._number = self.store.getters['layout/buildStatus'];
+    this._is = this._number === CAN_BUILD.indexOf(name) + 1;
+    if (this._is) {
+      self.store.dispatch('layout/setField', {
+        field: 'buildStatus',
+        value: ++this._number,
+      });
     }
   }
 }

@@ -11,6 +11,7 @@ const initialState: IObjects = {
   objects: {
     [`${Names.plates}`]: [],
     [`${Names.walls}`]: [],
+    [`${Names.station}`]: [],
   },
 };
 
