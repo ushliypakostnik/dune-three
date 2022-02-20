@@ -4,27 +4,20 @@ import { Names } from '@/utils/constants';
 // Types
 import type { Store } from 'vuex';
 import type { State } from '@/store';
-import type { TPosition, TPositions } from '@/models/utils';
-import type { Scene, MeshLambertMaterial, Mesh, Vector3 } from 'three';
-import type { TObjectField } from '@/models/store';
+import type { TPosition } from '@/models/utils';
+import type { Scene, Vector3 } from 'three';
 import type Logger from '@/utils/logger';
+import type Helper from '@/utils/helper';
 
 export interface ISelf {
+  // Utils
   logger: Logger;
+  helper: Helper;
 
+  // Core
   store: Store<State>;
   scene: Scene;
   render: () => void;
-
-  // Utils
-  distance: number;
-  rotate: number;
-  material: MeshLambertMaterial;
-  mesh: Mesh;
-  clone: Mesh;
-  positions: TPositions;
-  position: TPosition;
-  objects: TObjectField;
 }
 
 export interface IModule {

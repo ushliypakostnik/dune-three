@@ -1,7 +1,23 @@
+// Prohects еnums ans constants
+//////////////////////////////////////////////////////
+
 // Types
 import type { TConfig, TMessages } from '@/models/utils';
 
 // Enums
+
+// Modules
+export enum Names {
+  world = 'world',
+  atmosphere = 'atmosphere',
+  sand = 'sand',
+  builds = 'builds',
+  plates = 'plates',
+  walls = 'walls',
+  station = 'station',
+}
+
+// GUI
 
 enum Breakpoints {
   desktop = 1025,
@@ -25,19 +41,14 @@ enum Colors {
   walls = 0xf0bf7d,
 }
 
-export enum Names {
-  world = 'world',
-  atmosphere = 'atmosphere',
-  sand = 'sand',
-  builds = 'builds',
-  plates = 'plates',
-  walls = 'walls',
-  station = 'station',
+enum Languages {
+  en = 'en',
+  ru = 'ru',
 }
 
 // Configuration
 
-export const LANGUAGES: string[] = ['en', 'ru'];
+export const LANGUAGES: string[] = [Languages.en, Languages.ru];
 
 // Тут главный размер, относительно которого все по ширине,
 // кроме того что должно быть адекватным росту по высоте
@@ -46,6 +57,7 @@ export const size = (size: number): number => {
   return size * GROUND;
 };
 
+// Конфиг
 export const DESIGN: TConfig = {
   V: '1.0.0',
   BREAKPOINTS: Breakpoints,
@@ -74,36 +86,26 @@ export const DESIGN: TConfig = {
 
 // Все объекты
 export const OBJECTS: TConfig = {
-  [Names.world]: {
-    name: Names.world,
-  },
-  [Names.atmosphere]: {
-    name: Names.atmosphere,
-  },
+  // [Names.world]: {},
+  // [Names.atmosphere]: {},
+  // [Names.builds]: {},
   [Names.sand]: {
-    name: Names.sand,
     radius: size(0.5),
     positionY: 0,
   },
-  [Names.builds]: {
-    name: Names.builds,
-  },
   [Names.plates]: {
-    name: Names.plates,
     size: DESIGN.CELL,
     positionY: 1,
     isStartRotate: false,
     price: 1,
   },
   [Names.walls]: {
-    name: Names.walls,
     size: DESIGN.CELL,
     positionY: 1,
     isStartRotate: false,
     price: 5,
   },
   [Names.station]: {
-    name: Names.station,
     size: DESIGN.CELL,
     positionY: 1,
     isStartRotate: false,
@@ -111,7 +113,7 @@ export const OBJECTS: TConfig = {
   },
 };
 
-// Объекты которые можно строить
+// Объекты которые можно строить, в том порядке в котором они становятся доступными - слабо, но чтобы не усложнять!!!
 export const CAN_BUILD: string[] = [Names.plates, Names.walls, Names.station];
 
 // Объекты которые можно выделять
@@ -120,7 +122,7 @@ export const SELECTABLE_OBJECTS: string[] = [...CAN_BUILD];
 // Переводы
 
 export const MESSAGES: TMessages = {
-  en: {
+  [Languages.en]: {
     name: 'DuneThree',
     gadgetsgate: 'The game is for desktop browsers only!',
     chromegate:
@@ -136,7 +138,7 @@ export const MESSAGES: TMessages = {
     [Names.walls]: 'Wall',
     [Names.station]: 'Power station',
   },
-  ru: {
+  [Languages.ru]: {
     name: 'ДюнаThree',
     gadgetsgate: 'Игра только для десктопных браузеров!',
     chromegate:

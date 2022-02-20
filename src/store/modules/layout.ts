@@ -6,6 +6,11 @@ import type { IStore, ILayout, TFieldPayload } from '@/models/store';
 // Constants
 import { Names } from '@/utils/constants';
 
+const START_STATUS = {
+  activeBuild: Names.plates,
+  buildStatus: 2,
+};
+
 const initialState: ILayout = {
   language: null,
   controls: {
@@ -22,8 +27,8 @@ const initialState: ILayout = {
   },
   isPause: true,
   isDesignPanel: false,
-  activeBuild: Names.plates,
-  buildStatus: 2,
+  activeBuild: START_STATUS.activeBuild,
+  buildStatus: START_STATUS.buildStatus,
 };
 
 const Layout: Module<ILayout, IStore> = {
@@ -56,6 +61,8 @@ const Layout: Module<ILayout, IStore> = {
 
     reload: (state: ILayout): void => {
       state.controls = initialState.controls;
+      state.activeBuild = START_STATUS.activeBuild,
+      state.buildStatus = START_STATUS.buildStatus,
       state.isPause = true;
     },
   },

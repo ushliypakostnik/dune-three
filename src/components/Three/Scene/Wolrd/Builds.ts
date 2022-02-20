@@ -35,6 +35,7 @@ export class Builds extends AnimatedModule {
         this._walls.add(self, vector);
         break;
     }
+    self.helper.isNewBuildingAvailableHelper(self, name);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

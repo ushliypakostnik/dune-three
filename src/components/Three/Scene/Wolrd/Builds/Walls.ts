@@ -14,14 +14,7 @@ import type { Vector3 } from 'three';
 import { Modules } from '@/models/modules';
 
 // Utils
-import {
-  setMapHelper,
-  initModulesHelper,
-  loaderDispatchHelper,
-  getGeometryByName,
-  addItemHelper,
-  initItemHelper,
-} from '@/utils/utilities';
+import { getGeometryByName } from '@/utils/utilities';
 
 export class Walls extends Modules {
   private _map!: Texture;
@@ -41,7 +34,7 @@ export class Walls extends Modules {
     item: TPosition | TObject,
     isStart: boolean,
   ): void {
-    initItemHelper(
+    self.helper.initItemHelper(
       self,
       this.name,
       item,
@@ -54,7 +47,7 @@ export class Walls extends Modules {
   // Инициализация
   public init(self: ISelf): void {
     // Текстура
-    this._map = setMapHelper(self, this.name, 2);
+    this._map = self.helper.setMapHelper(self, this.name, 2);
 
     // Материал
     this._material = new THREE.MeshLambertMaterial({
@@ -62,14 +55,12 @@ export class Walls extends Modules {
       map: this._map,
     });
 
-    initModulesHelper(self, this);
-    loaderDispatchHelper(self.store, `${this.name}IsBuild`);
+    self.helper.initModulesHelper(self, this);
+    self.helper.loaderDispatchHelper(self.store, `${this.name}IsBuild`);
   }
 
   // Добавить объект
   public add(self: ISelf, vector: Vector3): void {
-    self.logger.log('Walls', 'add', self.position);
-
-    addItemHelper(self, this, vector);
+    self.helper.addItemHelper(self, this, vector);
   }
 }

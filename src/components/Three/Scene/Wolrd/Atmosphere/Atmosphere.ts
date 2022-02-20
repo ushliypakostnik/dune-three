@@ -17,12 +17,7 @@ import type {
 import { Module } from '@/models/modules';
 
 // Utils
-import {
-  setMapHelper,
-  loaderDispatchHelper,
-  plusOrMinus,
-  distance2D,
-} from '@/utils/utilities';
+import { plusOrMinus, distance2D } from '@/utils/utilities';
 
 export class Atmosphere extends Module {
   private _light: HemisphereLight;
@@ -56,7 +51,7 @@ export class Atmosphere extends Module {
     self.scene.add(new THREE.AmbientLight(DESIGN.COLORS.white));
 
     // Текстура
-    this._map = setMapHelper(self, OBJECTS.sand.name, 4096);
+    this._map = self.helper.setMapHelper(self, Names.sand, 4096);
 
     this._material = new THREE.MeshLambertMaterial({
       color: DESIGN.COLORS.yellowLight,
@@ -101,6 +96,6 @@ export class Atmosphere extends Module {
     this._grid.position.z += DESIGN.CELL / 2;
     // self.scene.add(this._grid);
 
-    loaderDispatchHelper(self.store, 'atmosphereIsBuild');
+    self.helper.loaderDispatchHelper(self.store, 'atmosphereIsBuild');
   }
 }

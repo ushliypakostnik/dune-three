@@ -5,11 +5,6 @@ declare module '*.vue' {
   export default component;
 }
 
+// Three examples/jsm modules
 declare module '@/components/Three/Modules/Interactive/SelectionBox';
 declare module '@/components/Three/Modules/Interactive/SelectionHelper';
-
-declare module 'vue/types/vue' {
-  interface Vue {
-    $log: () => void;
-  }
-}

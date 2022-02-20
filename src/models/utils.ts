@@ -5,10 +5,10 @@ export type TPosition = {
 export type TPositions = Array<TPosition>;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TConfig = { [key: string]: any };
+export type TConfig = { readonly [key: string]: any };
 
 type TMessagesLanguage = { [key: string]: string };
 export type TMessages = {
-  en: TMessagesLanguage;
-  ru: TMessagesLanguage;
+  readonly en: TMessagesLanguage;
+  readonly ru: TMessagesLanguage;
 };

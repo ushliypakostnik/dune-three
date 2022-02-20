@@ -146,7 +146,7 @@ export default defineComponent({
     text-align center
     margin-top 15vh
     position relative
-    $text("elena")
+    $text("olga")
 
   &__blocker
     @extend $viewport
