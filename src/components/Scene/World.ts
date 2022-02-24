@@ -7,8 +7,8 @@ import type { Vector3 } from 'three';
 
 // Modules
 import { AnimatedModule } from '@/models/modules';
-import { Atmosphere } from '@/components/Three/Scene/Wolrd/Atmosphere/Atmosphere';
-import { Builds } from '@/components/Three/Scene/Wolrd/Builds';
+import Atmosphere from '@/components/Scene/Wolrd/Atmosphere/Atmosphere';
+import Builds from '@/components/Scene/Wolrd/Builds';
 
 class World extends AnimatedModule {
   // Modules

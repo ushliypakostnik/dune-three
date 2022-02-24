@@ -14,10 +14,17 @@ export enum Names {
   builds = 'builds',
   plates = 'plates',
   walls = 'walls',
+  command = 'command',
   station = 'station',
 }
 
 // GUI
+
+export enum Textures {
+  concrette = 'concrette',
+  sand = 'sand',
+  plates = 'plates',
+}
 
 enum Breakpoints {
   desktop = 1025,
@@ -81,6 +88,7 @@ export const DESIGN: TConfig = {
       { x: 1, z: 1 },
       { x: 1, z: -1 },
     ],
+    [Names.command]: [{ x: 0, z: 0 }],
   },
 };
 
@@ -104,6 +112,12 @@ export const OBJECTS: TConfig = {
     positionY: 1,
     isStartRotate: false,
     price: 5,
+  },
+  [Names.command]: {
+    size: DESIGN.CELL * 3,
+    positionY: 1,
+    isStartRotate: false,
+    price: 0,
   },
   [Names.station]: {
     size: DESIGN.CELL,
@@ -136,6 +150,7 @@ export const MESSAGES: TMessages = {
 
     [Names.plates]: 'Plate',
     [Names.walls]: 'Wall',
+    [Names.command]: 'Command post',
     [Names.station]: 'Power station',
   },
   [Languages.ru]: {
@@ -152,6 +167,7 @@ export const MESSAGES: TMessages = {
 
     [Names.plates]: 'Плита',
     [Names.walls]: 'Стена',
+    [Names.command]: 'Командный пункт',
     [Names.station]: 'Электростанция',
   },
 };

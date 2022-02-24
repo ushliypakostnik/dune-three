@@ -27,17 +27,18 @@ import type {
   Event,
   /*, Clock */
 } from 'three';
-import type { SelectionBox } from 'three/examples/jsm/interactive/SelectionBox';
-import type { SelectionHelper } from 'three/examples/jsm/interactive/SelectionHelper';
 
 // Modules
 import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
 import Logger from '@/utils/logger';
 import Helper from '@/utils/helper';
+import Assets from '@/utils/assets';
+import { SelectionBox } from 'three/examples/jsm/interactive/SelectionBox';
+import { SelectionHelper } from 'three/examples/jsm/interactive/SelectionHelper';
 
-// import AudioBus from '@/components/Three/Scene/AudioBus';
-// import EventsBus from '@/components/Three/Scene/EventsBus';
-import World from '@/components/Three/Scene/World';
+// import AudioBus from '@/components/Scene/AudioBus';
+// import EventsBus from '@/components/Scene/EventsBus';
+import World from '@/components/Scene/World';
 
 // Utils
 import {
@@ -45,10 +46,6 @@ import {
   getGeometryByName,
   getPositionYByName,
 } from '@/utils/utilities';
-
-// Three examples/jsm modules
-import { SelectionBox as Selection } from '@/components/Three/Modules/Interactive/SelectionBox';
-import { SelectionHelper as SHelper } from '@/components/Three/Modules/Interactive/SelectionHelper';
 
 // Stats
 import Stats from 'three/examples/jsm/libs/stats.module';
@@ -91,9 +88,10 @@ export default defineComponent({
     let distance = 0;
     let setCreate: (event: MouseEvent) => void;
 
-    // Logger helper
+    // Helpers
     let logger: Logger = new Logger();
     let helper: Helper = new Helper();
+    let assets: Assets = new Assets();
 
     // Modules
     let world = new World();
@@ -172,8 +170,8 @@ export default defineComponent({
       controls.update();
 
       // Selection
-      selection = new Selection(camera, scene);
-      shelper = new SHelper(selection, renderer, 'selection');
+      selection = new SelectionBox(camera, scene);
+      shelper = new SelectionHelper(selection, renderer, 'selection');
 
       // Create
 
@@ -225,6 +223,7 @@ export default defineComponent({
       );
 
       // Modules
+      assets.init(self);
       world.init(self);
 
       container.appendChild(stats.dom);
@@ -468,6 +467,7 @@ export default defineComponent({
       // Utils
       logger,
       helper,
+      assets,
 
       // Core
       store,

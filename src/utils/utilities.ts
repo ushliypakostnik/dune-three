@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 
 // Constants
-import { Names, DESIGN, OBJECTS } from '@/utils/constants';
+import { Names, Textures, DESIGN, OBJECTS } from '@/utils/constants';
 
 // Types
 import type { TPosition } from '@/models/utils';
@@ -103,17 +103,42 @@ export const objectCoordsHelper = (vector: Vector3): TPosition => {
   };
 };
 
+// Текстура по имени
+export const getTextureByName = (name: Names): Textures => {
+  switch (name) {
+    case Names.walls:
+      return Textures.concrette;
+    case Names.sand:
+      return Textures.sand;
+    case Names.plates:
+      return Textures.plates;
+  }
+  return Textures.concrette;
+};
+
+// Повторения текстуры по имени
+export const getRepeatByName = (name: Names | Textures): number => {
+  switch (name) {
+    case Textures.concrette:
+    case Names.plates:
+      return 2;
+    case Names.sand:
+      return 4096;
+  }
+  return 2;
+};
+
 // Геометрия по имени
 export const getGeometryByName = (name: Names): BoxBufferGeometry => {
   switch (name) {
     case Names.walls:
-    default:
       return new THREE.BoxBufferGeometry(
         OBJECTS.plates.size,
         OBJECTS.plates.size * 2,
         OBJECTS.plates.size,
       );
     case Names.plates:
+    default:
       return new THREE.BoxGeometry(OBJECTS.plates.size, 2, OBJECTS.plates.size);
   }
 };

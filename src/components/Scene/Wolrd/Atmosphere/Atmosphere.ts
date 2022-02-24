@@ -6,9 +6,6 @@ import { Names, DESIGN, OBJECTS } from '@/utils/constants';
 import type { ISelf } from '@/models/modules';
 import type {
   HemisphereLight,
-  Texture,
-  MeshLambertMaterial,
-  PlaneBufferGeometry,
   Mesh,
   GridHelper,
 } from 'three';
@@ -19,11 +16,8 @@ import { Module } from '@/models/modules';
 // Utils
 import { plusOrMinus, distance2D } from '@/utils/utilities';
 
-export class Atmosphere extends Module {
+export default class Atmosphere extends Module {
   private _light: HemisphereLight;
-  private _map!: Texture;
-  private _material!: MeshLambertMaterial;
-  private _geometry!: PlaneBufferGeometry;
   private _sand!: Mesh;
   private _grid!: GridHelper;
 
@@ -31,13 +25,6 @@ export class Atmosphere extends Module {
     super(Names.atmosphere);
 
     this._light = new THREE.HemisphereLight(0x6699ff, 0x295826, 1);
-
-    this._geometry = new THREE.PlaneBufferGeometry(
-      OBJECTS.sand.radius * 10,
-      OBJECTS.sand.radius * 10,
-      OBJECTS.sand.radius / 10,
-      OBJECTS.sand.radius / 10,
-    );
   }
 
   init(self: ISelf): void {
@@ -50,17 +37,24 @@ export class Atmosphere extends Module {
     // Ambient
     self.scene.add(new THREE.AmbientLight(DESIGN.COLORS.white));
 
-    // Текстура
-    this._map = self.helper.setMapHelper(self, Names.sand, 4096);
+    self.helper._geometry = new THREE.PlaneBufferGeometry(
+      OBJECTS.sand.radius * 10,
+      OBJECTS.sand.radius * 10,
+      OBJECTS.sand.radius / 10,
+      OBJECTS.sand.radius / 10,
+    );
 
-    this._material = new THREE.MeshLambertMaterial({
+    // Текстура
+    self.helper._map = self.assets.getTexture(Names.sand);
+
+    self.helper._material = new THREE.MeshLambertMaterial({
       color: DESIGN.COLORS.yellowLight,
-      map: this._map,
+      map: self.helper._map,
     });
 
     // Искажение
     const vertex = new THREE.Vector3();
-    const { position } = this._geometry.attributes;
+    const { position } = self.helper._geometry.attributes;
     for (let i = 0, l = position.count; i < l; i++) {
       vertex.fromBufferAttribute(position, i);
       vertex.x += (Math.random() * plusOrMinus() * DESIGN.CELL) / 10;
@@ -77,7 +71,7 @@ export class Atmosphere extends Module {
     }
 
     // Песок
-    this._sand = new THREE.Mesh(this._geometry, this._material);
+    this._sand = new THREE.Mesh(self.helper._geometry, self.helper._material);
     this._sand.rotation.x = -Math.PI / 2;
     this._sand.position.set(0, OBJECTS.sand.positionY, 0);
     this._sand.name = Names.sand;

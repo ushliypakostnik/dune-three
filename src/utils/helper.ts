@@ -4,31 +4,35 @@
 import * as THREE from 'three';
 
 // Constants
-import { Names, DESIGN, OBJECTS, CAN_BUILD } from '@/utils/constants';
+import { Names, Textures, DESIGN, OBJECTS, CAN_BUILD } from '@/utils/constants';
 
 // Types
 import type {
   Texture,
   Vector3,
-  BoxBufferGeometry,
   MeshLambertMaterial,
   Mesh,
+  BoxBufferGeometry,
+  PlaneBufferGeometry,
+  BoxGeometry,
 } from 'three';
 import type { Store } from 'vuex';
 import type { State } from '@/store';
-import type { ISelf, Modules } from '@/models/modules';
+import type { ISelf, StaticModules } from '@/models/modules';
 import type { TObjectField } from '@/models/store';
 import type { TPosition /* TPositions */ } from '@/models/utils';
 import type { TObject } from '@/models/store';
 
 // Utils
-import { objectCoordsHelper } from '@/utils/utilities';
+import { objectCoordsHelper, getRepeatByName } from '@/utils/utilities';
+
+// Modules
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export default class Helper {
   // Private working variables
   private _is = false;
   private _number = 0;
-  private _material: MeshLambertMaterial = new THREE.MeshLambertMaterial();
   private _mesh: Mesh = new THREE.Mesh();
   private _clone: Mesh = new THREE.Mesh();
   // private _positions: TPositions = [];
@@ -36,6 +40,18 @@ export default class Helper {
 
   // Objects
   private _objects: TObjectField = [];
+
+  // Utils
+  public _material: MeshLambertMaterial = new THREE.MeshLambertMaterial();
+  public _map!: Texture;
+  public _geometry!: PlaneBufferGeometry | BoxGeometry;
+
+  // Loaders
+  public GLTFLoader: GLTFLoader;
+
+  constructor() {
+    this.GLTFLoader = new GLTFLoader();
+  }
 
   // Functions
 
@@ -52,27 +68,31 @@ export default class Helper {
   }
 
   // Помощник загрузки и установки текстур
-  public setMapHelper(self: ISelf, name: string, repeat: number): Texture {
-    const map = new THREE.TextureLoader().load(
+  public setMapHelper(self: ISelf, name: Names | Textures): Texture {
+    this._number = getRepeatByName(name);
+    this._map = new THREE.TextureLoader().load(
       `./images/textures/${name}.jpg`,
       () => {
         self.render();
         this.loaderDispatchHelper(self.store, `${name}IsLoaded`);
       },
     );
-    map.repeat.set(repeat, repeat);
-    map.wrapS = map.wrapT = THREE.RepeatWrapping;
-    map.encoding = THREE.sRGBEncoding;
+    this._map.repeat.set(this._number, this._number);
+    this._map.wrapS = this._map.wrapT = THREE.RepeatWrapping;
+    this._map.encoding = THREE.sRGBEncoding;
 
-    return map;
+    return this._map;
   }
 
   // Помощник инициализации множественного модуля
-  public initModulesHelper(self: ISelf, that: Modules): void {
+  public initModulesHelper(self: ISelf, that: StaticModules): void {
     this._objects = [...self.store.getters['objects/objects'][that.name]];
     // self.logger.log('Helper', 'initModulesHelper', self.objects, that.name);
 
-    if (self.store.getters['objects/isStart'] && that.name === Names.plates) {
+    if (
+      self.store.getters['objects/isStart'] &&
+      (that.name === Names.plates || that.name === Names.command)
+    ) {
       DESIGN.START[that.name].forEach((item: TPosition) => {
         that.initItem(self, item, true);
       });
@@ -86,6 +106,9 @@ export default class Helper {
         that.initItem(self, item, false);
       });
     }
+
+    // Прелоадер
+    this.loaderDispatchHelper(self.store, `${that.name}IsBuild`);
   }
 
   // Помощник сохранения объекта
@@ -105,15 +128,12 @@ export default class Helper {
   public initItemHelper(
     self: ISelf,
     name: Names,
+    geometry: BoxBufferGeometry,
+    material: MeshLambertMaterial,
     item: TPosition,
     isStart: boolean,
-    material: MeshLambertMaterial,
-    geometry: BoxBufferGeometry,
   ): void {
-    // self.logger.log('Helper', 'initItemHelper', self.objects);
-
-    this._material = material.clone();
-    this._mesh = new THREE.Mesh(geometry, this._material);
+    this._mesh = new THREE.Mesh(geometry, material);
     this._clone = this._mesh.clone();
     this._clone.position.x = item.x * DESIGN.CELL;
     this._clone.position.z = item.z * DESIGN.CELL;
@@ -155,9 +175,9 @@ export default class Helper {
   }
 
   // Помощник добавления объекта
-  public addItemHelper(self: ISelf, that: Modules, vector: Vector3): void {
+  public addItemHelper(self: ISelf, that: StaticModules, vector: Vector3): void {
     this._position = objectCoordsHelper(vector);
-    // self.logger.log('Helper', 'addItemHelper', that.name, self.position);
+    self.logger.log('Helper', 'addItemHelper', that.name, this._position);
     if (
       (that.name === Names.plates && !this.isPlateOnCoords(self)) ||
       (that.name !== Names.plates &&

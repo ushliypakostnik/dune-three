@@ -12,9 +12,9 @@ const initialState: IPreloader = {
   [`${FLAG}`]: false,
 
   // Textures
+  concretteIsLoaded: false,
   sandIsLoaded: false,
   platesIsLoaded: false,
-  wallsIsLoaded: false,
 
   // Models
 
@@ -22,6 +22,7 @@ const initialState: IPreloader = {
 
   // World build
   atmosphereIsBuild: false,
+  // commandIsBuild: false,
   platesIsBuild: false,
   wallsIsBuild: false,
 };

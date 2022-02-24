@@ -65,7 +65,7 @@ import { useI18n } from 'vue-i18n';
 
 import Preloader from '@/components/Layout/Preloader.vue';
 import Gate from '@/components/Layout/Gate.vue';
-import Scene from '@/components/Three/Scene/Scene.vue';
+import Scene from '@/components/Scene/Scene.vue';
 import LangSwitch from '@/components/Layout/LangSwitch.vue';
 import DesignPanel from '@/components/Layout/DesignPanel.vue';
 
