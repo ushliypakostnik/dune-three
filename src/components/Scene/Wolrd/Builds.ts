@@ -2,7 +2,7 @@
 import { Names } from '@/utils/constants';
 
 // Types
-import type { ISelf, StaticModules } from '@/models/modules';
+import type { ISelf, StaticModules, StaticModelModules } from '@/models/modules';
 import type { Vector3 } from 'three';
 
 // Modules
@@ -12,20 +12,20 @@ import Plates from '@/components/Scene/Wolrd/Builds/Plates';
 import Walls from '@/components/Scene/Wolrd/Builds/Walls';
 
 export default class Builds extends AnimatedModule {
-  // private _command: StaticModules;
+  private _command: StaticModelModules;
   private _plates: StaticModules;
   private _walls: StaticModules;
 
   constructor() {
     super(Names.builds);
 
-    // this._command = new Command();
+    this._command = new Command();
     this._plates = new Plates();
     this._walls = new Walls();
   }
 
   public init(self: ISelf): void {
-    // this._command.init(self);
+    this._command.init(self);
     this._plates.init(self);
     this._walls.init(self);
   }

@@ -17,12 +17,13 @@ const initialState: IPreloader = {
   platesIsLoaded: false,
 
   // Models
+  commandIsLoaded: false,
 
   // Audio
 
   // World build
   atmosphereIsBuild: false,
-  // commandIsBuild: false,
+  commandIsBuild: false,
   platesIsBuild: false,
   wallsIsBuild: false,
 };

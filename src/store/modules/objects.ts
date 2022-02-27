@@ -9,7 +9,7 @@ import type { IStore, IObjects, TObjectsPayload } from '@/models/store';
 const initialState: IObjects = {
   isStart: true,
   objects: {
-    // [`${Names.command}`]: [],
+    [`${Names.command}`]: [],
     [`${Names.plates}`]: [],
     [`${Names.walls}`]: [],
     [`${Names.station}`]: [],

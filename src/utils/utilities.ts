@@ -120,8 +120,13 @@ export const getTextureByName = (name: Names): Textures => {
 export const getRepeatByName = (name: Names | Textures): number => {
   switch (name) {
     case Textures.concrette:
+      return 4;
     case Names.plates:
       return 2;
+    case Textures.metall:
+      return 4;
+    case Textures.glass:
+      return 8;
     case Names.sand:
       return 4096;
   }

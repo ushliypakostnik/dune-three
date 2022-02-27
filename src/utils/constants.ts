@@ -22,15 +22,13 @@ export enum Names {
 
 export enum Textures {
   concrette = 'concrette',
+  metall = 'metall',
+  glass = 'glass',
   sand = 'sand',
   plates = 'plates',
 }
 
-enum Breakpoints {
-  desktop = 1025,
-}
-
-enum Colors {
+export enum Colors {
   white = 0xffffff,
   black = 0x000000,
   blue = 0x88ccff,
@@ -46,6 +44,15 @@ enum Colors {
   // objects
   plates = 0xdfbf7d,
   walls = 0xf0bf7d,
+
+  // textures
+  concrette = 0xdfbf7d,
+  metall = 0xf0bf7d,
+  glass = 0xf9bf7d,
+}
+
+enum Breakpoints {
+  desktop = 1025,
 }
 
 enum Languages {
@@ -68,7 +75,6 @@ export const size = (size: number): number => {
 export const DESIGN: TConfig = {
   V: '1.0.0',
   BREAKPOINTS: Breakpoints,
-  COLORS: Colors,
   SIZE: size(1),
   CELL: 20,
   CAMERA: {

@@ -2,9 +2,9 @@
 import { Names } from '@/utils/constants';
 
 // Modules
-import { StaticModules } from '@/models/modules';
+import { StaticModelModules } from '@/models/modules';
 
-export default class Command extends StaticModules {
+export default class Command extends StaticModelModules {
   constructor() {
     super(Names.command);
   }

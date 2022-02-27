@@ -1,14 +1,10 @@
 import * as THREE from 'three';
 // Constants
-import { Names, DESIGN, OBJECTS } from '@/utils/constants';
+import { Names, Colors, DESIGN, OBJECTS } from '@/utils/constants';
 
 // Types
 import type { ISelf } from '@/models/modules';
-import type {
-  HemisphereLight,
-  Mesh,
-  GridHelper,
-} from 'three';
+import type { HemisphereLight, Mesh, GridHelper } from 'three';
 
 // Modules
 import { Module } from '@/models/modules';
@@ -35,7 +31,7 @@ export default class Atmosphere extends Module {
     self.scene.add(this._light);
 
     // Ambient
-    self.scene.add(new THREE.AmbientLight(DESIGN.COLORS.white));
+    self.scene.add(new THREE.AmbientLight(Colors.white));
 
     self.helper._geometry = new THREE.PlaneBufferGeometry(
       OBJECTS.sand.radius * 10,
@@ -48,7 +44,7 @@ export default class Atmosphere extends Module {
     self.helper._map = self.assets.getTexture(Names.sand);
 
     self.helper._material = new THREE.MeshLambertMaterial({
-      color: DESIGN.COLORS.yellowLight,
+      color: Colors.yellowLight,
       map: self.helper._map,
     });
 
@@ -82,8 +78,8 @@ export default class Atmosphere extends Module {
     this._grid = new THREE.GridHelper(
       DESIGN.SIZE,
       DESIGN.SIZE / DESIGN.CELL,
-      new THREE.Color(DESIGN.COLORS.dark),
-      new THREE.Color(DESIGN.COLORS.dark),
+      new THREE.Color(Colors.dark),
+      new THREE.Color(Colors.dark),
     );
     this._grid.position.y += 1;
     this._grid.position.x += DESIGN.CELL / 2;

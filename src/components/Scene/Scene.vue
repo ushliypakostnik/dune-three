@@ -10,7 +10,7 @@ import { key } from '@/store';
 import * as THREE from 'three';
 
 // Constants
-import { DESIGN, OBJECTS, SELECTABLE_OBJECTS } from '@/utils/constants';
+import { Colors, DESIGN, OBJECTS, SELECTABLE_OBJECTS } from '@/utils/constants';
 
 // Types
 import type { ISelf } from '@/models/modules';
@@ -128,7 +128,7 @@ export default defineComponent({
       );
 
       // Scene
-      scene.background = new THREE.Color(DESIGN.COLORS.blue);
+      scene.background = new THREE.Color(Colors.blue);
       scene.fog = new THREE.Fog(
         DESIGN.CAMERA.fog,
         DESIGN.SIZE / 100,
@@ -194,7 +194,7 @@ export default defineComponent({
       box = new THREE.Mesh(
         getGeometryByName(activeBuild.value),
         new THREE.MeshLambertMaterial({
-          color: DESIGN.COLORS.pointer,
+          color: Colors.pointer,
           opacity: 0.5,
           transparent: true,
         }),
@@ -378,7 +378,7 @@ export default defineComponent({
           if (SELECTABLE_OBJECTS.includes(item.name))
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            item.material.emissive.set(DESIGN.COLORS.black);
+            item.material.emissive.set(Colors.black);
         }
 
         selection.startPoint.set(
@@ -418,7 +418,7 @@ export default defineComponent({
           if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            selection.collection[i].material.emissive.set(DESIGN.COLORS.black);
+            selection.collection[i].material.emissive.set(Colors.black);
         }
 
         selection.endPoint.set(
@@ -432,7 +432,7 @@ export default defineComponent({
           if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            allSelected[i].material.emissive.set(DESIGN.COLORS.selection);
+            allSelected[i].material.emissive.set(Colors.selection);
         }
       }
     };

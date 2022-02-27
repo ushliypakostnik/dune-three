@@ -12,16 +12,22 @@ import type {
   Vector3,
   MeshLambertMaterial,
   Mesh,
+  Group,
   BoxBufferGeometry,
   PlaneBufferGeometry,
   BoxGeometry,
 } from 'three';
 import type { Store } from 'vuex';
 import type { State } from '@/store';
-import type { ISelf, StaticModules } from '@/models/modules';
+import type {
+  ISelf,
+  StaticModules,
+  StaticModelModules,
+} from '@/models/modules';
 import type { TObjectField } from '@/models/store';
 import type { TPosition /* TPositions */ } from '@/models/utils';
 import type { TObject } from '@/models/store';
+import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 
 // Utils
 import { objectCoordsHelper, getRepeatByName } from '@/utils/utilities';
@@ -33,8 +39,7 @@ export default class Helper {
   // Private working variables
   private _is = false;
   private _number = 0;
-  private _mesh: Mesh = new THREE.Mesh();
-  private _clone: Mesh = new THREE.Mesh();
+  private _item: Mesh | Group = new THREE.Mesh();
   // private _positions: TPositions = [];
   private _position: TPosition = { x: 0, z: 0 };
 
@@ -84,14 +89,34 @@ export default class Helper {
     return this._map;
   }
 
+  public traverseHelper(self: ISelf, model: GLTF): GLTF {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model.scene.traverse((child: any) => {
+      if (child.isMesh) {
+        if (child.name.includes(Textures.concrette)) {
+          child.material = self.assets.getMaterial(Textures.concrette);
+        } else if (child.name.includes(Textures.metall)) {
+          child.material = self.assets.getMaterial(Textures.metall);
+        } else if (child.name.includes(Textures.glass)) {
+          child.material = self.assets.getMaterial(Textures.glass);
+        }
+      }
+    });
+
+    return model;
+  }
+
   // Помощник инициализации множественного модуля
-  public initModulesHelper(self: ISelf, that: StaticModules): void {
+  public initModulesHelper(
+    self: ISelf,
+    that: StaticModules | StaticModelModules,
+  ): void {
     this._objects = [...self.store.getters['objects/objects'][that.name]];
     // self.logger.log('Helper', 'initModulesHelper', self.objects, that.name);
 
     if (
       self.store.getters['objects/isStart'] &&
-      (that.name === Names.plates || that.name === Names.command)
+      (that.name === Names.plates || that.name === Names.command) // Плиты и командный пункт - есть на старте
     ) {
       DESIGN.START[that.name].forEach((item: TPosition) => {
         that.initItem(self, item, true);
@@ -100,7 +125,6 @@ export default class Helper {
         name: that.name,
         objects: this._objects,
       });
-      self.store.dispatch('objects/setStart');
     } else {
       this._objects.forEach((item: TObject) => {
         that.initItem(self, item, false);
@@ -124,7 +148,7 @@ export default class Helper {
     });
   }
 
-  // Помощник инициализации одного объекта
+  // Помощник инициализации одного простого объекта
   public initItemHelper(
     self: ISelf,
     name: Names,
@@ -133,19 +157,37 @@ export default class Helper {
     item: TPosition,
     isStart: boolean,
   ): void {
-    this._mesh = new THREE.Mesh(geometry, material);
-    this._clone = this._mesh.clone();
-    this._clone.position.x = item.x * DESIGN.CELL;
-    this._clone.position.z = item.z * DESIGN.CELL;
+    this._item = new THREE.Mesh(geometry, material);
+    this._item.position.x = item.x * DESIGN.CELL;
+    this._item.position.z = item.z * DESIGN.CELL;
     if (name !== Names.plates)
-      this._clone.position.y =
+      this._item.position.y =
         OBJECTS[Names.plates].positionY + OBJECTS[Names.plates].size + 1;
-    else this._clone.position.y = OBJECTS[Names.plates].positionY;
-    this._clone.name = name;
-    self.scene.add(this._clone);
+    else this._item.position.y = OBJECTS[Names.plates].positionY;
+    this._item.name = name;
+    self.scene.add(this._item);
 
     // Если стартовая инициализация или добавление нового объекта - сохраняем объект
-    if (isStart) this.saveItemHelper(name, item, this._clone.id);
+    if (isStart) this.saveItemHelper(name, item, this._item.id);
+  }
+
+  // Помощник инициализации одного объекта из модели
+  public initItemFromModelHelper(
+    self: ISelf,
+    name: Names,
+    model: GLTF,
+    item: TPosition,
+    isStart: boolean,
+  ): void {
+    this._item = model.scene.clone();
+    this._item.position.x = item.x * DESIGN.CELL;
+    this._item.position.z = item.z * DESIGN.CELL;
+    this._item.position.y = OBJECTS[Names.plates].positionY;
+    this._item.name = name;
+    self.scene.add(this._item);
+
+    // Если стартовая инициализация или добавление нового объекта - сохраняем объект
+    if (isStart) this.saveItemHelper(name, item, this._item.id);
   }
 
   // Проверки
@@ -175,7 +217,11 @@ export default class Helper {
   }
 
   // Помощник добавления объекта
-  public addItemHelper(self: ISelf, that: StaticModules, vector: Vector3): void {
+  public addItemHelper(
+    self: ISelf,
+    that: StaticModules,
+    vector: Vector3,
+  ): void {
     this._position = objectCoordsHelper(vector);
     self.logger.log('Helper', 'addItemHelper', that.name, this._position);
     if (
