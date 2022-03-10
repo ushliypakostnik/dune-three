@@ -1,6 +1,17 @@
 // Root
+
+// Constants
+import { Names } from "@/utils/constants";
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IStore {}
+
+// Common
+
+export type TFieldPayload = {
+  field: string;
+  value: any;
+};
 
 // Preloader
 
@@ -23,11 +34,6 @@ export type TControls = {
   target: TControlCoords;
 };
 
-export type TFieldPayload = {
-  field: string;
-  value: boolean;
-};
-
 export interface ILayout extends IStore {
   [key: string]: boolean | number | TControls | TLanguage;
 }
@@ -35,8 +41,8 @@ export interface ILayout extends IStore {
 // Objects
 
 export type TObject = {
+  name: Names;
   id: number;
-  name: string;
   x: number;
   z: number;
   r: number;
@@ -45,8 +51,6 @@ export type TObject = {
 export type TObjectField = Array<TObject>;
 export type TObjectsPayload = { name: string; objects: TObjectField };
 
-type TObjects = { [key: string]: Array<TObjectField> };
 export interface IObjects extends IStore {
-  isStart: boolean;
-  objects: TObjects;
+  [key: string]: any;
 }

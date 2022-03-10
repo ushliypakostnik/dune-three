@@ -10,7 +10,13 @@ import { key } from '@/store';
 import * as THREE from 'three';
 
 // Constants
-import { Colors, DESIGN, OBJECTS, SELECTABLE_OBJECTS } from '@/utils/constants';
+import {
+  Names,
+  Colors,
+  DESIGN,
+  OBJECTS,
+  SELECTABLE_OBJECTS,
+} from '@/utils/constants';
 
 // Types
 import type { ISelf } from '@/models/modules';
@@ -25,7 +31,7 @@ import type {
   Intersection,
   Object3D,
   Event,
-  /*, Clock */
+  Clock,
 } from 'three';
 
 // Modules
@@ -45,6 +51,8 @@ import {
   distance2D,
   getGeometryByName,
   getPositionYByName,
+  isNotStartPlates,
+  objectCoordsHelper,
 } from '@/utils/utilities';
 
 // Stats
@@ -87,6 +95,9 @@ export default defineComponent({
     let vector: Vector3 = new THREE.Vector3();
     let distance = 0;
     let setCreate: (event: MouseEvent) => void;
+    let clock: Clock = new THREE.Clock(false);
+    let time = 0;
+    let build: Mesh = new THREE.Mesh();
 
     // Helpers
     let logger: Logger = new Logger();
@@ -110,6 +121,9 @@ export default defineComponent({
     // Store getters
     const isPause = computed(() => store.getters['layout/isPause']);
     const activeBuild = computed(() => store.getters['layout/activeBuild']);
+    const isBuildingClock = computed(
+      () => store.getters['layout/isBuildingClock'],
+    );
 
     // Stats
     let stats = Stats();
@@ -192,7 +206,9 @@ export default defineComponent({
 
       // Create pointer
       box = new THREE.Mesh(
-        getGeometryByName(activeBuild.value),
+        activeBuild.value === Names.plates
+          ? getGeometryByName('build')
+          : getGeometryByName(activeBuild.value),
         new THREE.MeshLambertMaterial({
           color: Colors.pointer,
           opacity: 0.5,
@@ -206,6 +222,19 @@ export default defineComponent({
         DESIGN.CELL / 2,
       );
       scene.add(box);
+
+      // Create building place
+      build = new THREE.Mesh(
+        activeBuild.value === Names.plates
+          ? getGeometryByName('build')
+          : getGeometryByName(activeBuild.value),
+        new THREE.MeshLambertMaterial({
+          color: Colors.yellow,
+        }),
+      );
+      build.visible = false;
+      build.position.copy(box.position);
+      scene.add(build);
 
       // Listeners
       window.addEventListener('resize', onWindowResize, false);
@@ -336,8 +365,13 @@ export default defineComponent({
     watch(
       () => store.getters['layout/activeBuild'],
       (value) => {
-        box.geometry = getGeometryByName(value);
+        if (value === Names.plates) box.geometry = getGeometryByName('build');
+        else box.geometry = getGeometryByName(value);
         box.position.y = getPositionYByName(value);
+
+        if (value === Names.plates) build.geometry = getGeometryByName('build');
+        else build.geometry = getGeometryByName(value);
+        build.position.y = getPositionYByName(value);
       },
     );
 
@@ -361,8 +395,20 @@ export default defineComponent({
                     .floor()
                     .multiplyScalar(DESIGN.CELL)
                     .addScalar(DESIGN.CELL / 2);
+                  vector.x -= DESIGN.CELL / 2;
+                  vector.z -= DESIGN.CELL / 2;
 
-                  world.add(self, activeBuild.value, vector);
+                  store.dispatch('layout/setField', {
+                    field: 'buildingProgress',
+                    value: 0,
+                  });
+                  store.dispatch('layout/setField', {
+                    field: 'isBuildingClock',
+                    value: true,
+                  });
+                  build.position.copy(box.position);
+                  box.visible = false;
+                  build.visible = true;
                 }
                 break;
 
@@ -395,20 +441,22 @@ export default defineComponent({
       if (isCreate.value) {
         // Курсор на панели?
         if (event.clientX / window.innerWidth > 77 / 100) {
-          box.visible = false;
+          if (!isBuildingClock.value) box.visible = false;
         } else {
-          box.visible = true;
-          setCreate(event);
+          if (!isBuildingClock.value) {
+            box.visible = true;
+            setCreate(event);
 
-          if (intersects.length > 0) {
-            intersect = intersects[0];
-            if (intersect.face) {
-              box.position.copy(intersect.point).add(intersect.face.normal);
-              box.position
-                .divideScalar(DESIGN.CELL)
-                .floor()
-                .multiplyScalar(DESIGN.CELL);
-              box.position.y = getPositionYByName(activeBuild.value);
+            if (intersects.length > 0) {
+              intersect = intersects[0];
+              if (intersect.face) {
+                box.position.copy(intersect.point).add(intersect.face.normal);
+                box.position
+                  .divideScalar(DESIGN.CELL)
+                  .floor()
+                  .multiplyScalar(DESIGN.CELL);
+                box.position.y = getPositionYByName(activeBuild.value);
+              }
             }
           }
         }
@@ -428,11 +476,16 @@ export default defineComponent({
         );
 
         const allSelected = selection.select();
+
         for (let i = 0; i < allSelected.length; i++) {
-          if (SELECTABLE_OBJECTS.includes(selection.collection[i].name))
+          if (
+            SELECTABLE_OBJECTS.includes(allSelected[i].name) &&
+            isNotStartPlates(objectCoordsHelper(allSelected[i].position))
+          ) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             allSelected[i].material.emissive.set(Colors.selection);
+          }
         }
       }
     };
@@ -461,6 +514,36 @@ export default defineComponent({
     render = () => {
       renderer.render(scene, camera);
       // console.log('Renderer info: ', renderer.info.memory.geometries, renderer.info.memory.textures, renderer.info.render);
+
+      // Счетчик строительства
+      if (isBuildingClock.value) {
+        if (!clock.running) clock.start();
+
+        time += clock.getDelta();
+
+        if (time > 1) {
+          clock.stop();
+          time = 0;
+          store.dispatch('layout/setField', {
+            field: 'buildingProgress',
+            value: 100,
+          });
+          store.dispatch('layout/setField', {
+            field: 'isBuildingClock',
+            value: false,
+          });
+          build.visible = false;
+          if (isCreate.value) box.visible = true;
+
+          world.add(self, activeBuild.value, vector);
+        } else if (time !== 0) {
+          store.dispatch('layout/setField', {
+            field: 'buildingProgress',
+            value: (1 / time) * 100,
+          });
+          console.log('Scene render: ', time);
+        }
+      }
     };
 
     let self: ISelf = {

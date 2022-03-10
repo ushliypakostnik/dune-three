@@ -29,9 +29,11 @@ const initialState: ILayout = {
   isDesignPanel: false,
   activeBuild: START_STATUS.activeBuild,
   buildStatus: START_STATUS.buildStatus,
+  isBuildingClock: false,
+  buildingProgress: 0,
 };
 
-const Layout: Module<ILayout, IStore> = {
+const layout: Module<ILayout, IStore> = {
   namespaced: true,
   state: initialState,
 
@@ -42,6 +44,8 @@ const Layout: Module<ILayout, IStore> = {
     isDesignPanel: (state: ILayout) => state.isDesignPanel,
     activeBuild: (state: ILayout) => state.activeBuild,
     buildStatus: (state: ILayout) => state.buildStatus,
+    isBuildingClock: (state: ILayout) => state.isBuildingClock,
+    buildingProgress: (state: ILayout) => state.buildingProgress,
   },
 
   actions: {
@@ -61,11 +65,11 @@ const Layout: Module<ILayout, IStore> = {
 
     reload: (state: ILayout): void => {
       state.controls = initialState.controls;
-      state.activeBuild = START_STATUS.activeBuild,
-      state.buildStatus = START_STATUS.buildStatus,
-      state.isPause = true;
+      (state.activeBuild = START_STATUS.activeBuild),
+        (state.buildStatus = START_STATUS.buildStatus),
+        (state.isPause = true);
     },
   },
 };
 
-export default Layout;
+export default layout;

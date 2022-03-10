@@ -8,6 +8,7 @@ import { Names, Textures, DESIGN, OBJECTS } from '@/utils/constants';
 
 // Types
 import type { TPosition } from '@/models/utils';
+import type { TFieldPayload } from '@/models/store';
 import type { Store } from 'vuex';
 import type { State } from '@/store';
 import type { Vector3, BoxBufferGeometry } from 'three';
@@ -64,6 +65,12 @@ const isBadPosition = (
   );
 };
 
+export const isNotStartPlates = (position: TPosition): boolean => {
+  return DESIGN.START[Names.plates].every(
+    (item: TPosition) => !(item.x === position.x && item.z === position.z),
+  );
+};
+
 export const getUniqueRandomPosition = (
   positions: Array<TPosition>,
   centerX: number,
@@ -89,17 +96,29 @@ export const getIntegerRandomPosition = (
   };
 };
 
-// Design (for logger)
-export const paddy = (number: number, padlen = 4, padchar = '0'): string => {
+// String with pad length
+export const paddy = (number: number, padlen = 3, padchar = '0'): string => {
   const pad = new Array(1 + padlen).join(padchar);
   return (pad + number).slice(-pad.length);
+};
+
+// Get number sign?
+export const getSign = (number: number): string => {
+  return number >= 0 ? '+' : '-';
+};
+
+// Get key for grid
+export const getGridKey = (position: TPosition): string => {
+  return `${getSign(position.x)}${paddy(
+    Math.abs(position.x),
+  )}.${getSign(position.z)}${paddy(Math.abs(position.z))}`;
 };
 
 // Получить координаты в сетке по вектору
 export const objectCoordsHelper = (vector: Vector3): TPosition => {
   return {
-    x: (vector.x - DESIGN.CELL / 2) / DESIGN.CELL,
-    z: (vector.z - DESIGN.CELL / 2) / DESIGN.CELL,
+    x: vector.x / DESIGN.CELL,
+    z: vector.z / DESIGN.CELL,
   };
 };
 
@@ -134,8 +153,14 @@ export const getRepeatByName = (name: Names | Textures): number => {
 };
 
 // Геометрия по имени
-export const getGeometryByName = (name: Names): BoxBufferGeometry => {
+export const getGeometryByName = (name: Names | string): BoxBufferGeometry => {
   switch (name) {
+    case 'build':
+      return new THREE.BoxGeometry(
+        OBJECTS.plates.size * 3,
+        2,
+        OBJECTS.plates.size * 3,
+      );
     case Names.walls:
       return new THREE.BoxBufferGeometry(
         OBJECTS.plates.size,

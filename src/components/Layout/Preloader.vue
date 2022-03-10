@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, watch } from 'vue';
 import { useStore } from 'vuex';
 import { key } from '@/store';
 
@@ -26,6 +26,20 @@ export default defineComponent({
 
     const isGameLoaded = computed(
       () => store.getters['preloader/isGameLoaded'],
+    );
+
+    // Следим загрузилась ли игра чтобы проверить с начала ли
+    watch(
+      () => store.getters['preloader/isGameLoaded'],
+      (value: boolean) => {
+        // Check is start
+        if (store.getters['objects/isStart']) {
+          store.dispatch('objects/setField', {
+            field: 'isStart',
+            value: false,
+          });
+        }
+      },
     );
 
     return {

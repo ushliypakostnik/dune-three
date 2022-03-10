@@ -136,6 +136,9 @@ export const OBJECTS: TConfig = {
 // Объекты которые можно строить, в том порядке в котором они становятся доступными - слабо, но чтобы не усложнять!!!
 export const CAN_BUILD: string[] = [Names.plates, Names.walls, Names.station];
 
+// Все постройки кроме плиток
+export const BUILDS = [Names.command, Names.walls, Names.station];
+
 // Объекты которые можно выделять
 export const SELECTABLE_OBJECTS: string[] = [...CAN_BUILD];
 

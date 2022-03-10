@@ -28,7 +28,7 @@ const initialState: IPreloader = {
   wallsIsBuild: false,
 };
 
-const Preloader: Module<IPreloader, IStore> = {
+const preloader: Module<IPreloader, IStore> = {
   namespaced: true,
   state: initialState,
 
@@ -60,4 +60,4 @@ const Preloader: Module<IPreloader, IStore> = {
   },
 };
 
-export default Preloader;
+export default preloader;

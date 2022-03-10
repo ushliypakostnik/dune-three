@@ -12,7 +12,7 @@ const debug: boolean =
     : false;
 
 // Manualy ckeck the modules by names
-const namespacesOn: string | string[] = ['Helper'];
+const namespacesOn: string | string[] = ['Helper', 'Preloader'];
 
 export default class Logger {
   private _counter = 0;

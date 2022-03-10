@@ -3,11 +3,21 @@ import { Module } from 'vuex';
 // Constants
 import { Names } from '@/utils/constants';
 
+// Utils
+import { getGridKey } from '@/utils/utilities';
+
 // Types
-import type { IStore, IObjects, TObjectsPayload } from '@/models/store';
+import type {
+  IStore,
+  IObjects,
+  TObjectsPayload,
+  TFieldPayload,
+} from '@/models/store';
+import { TPosition } from '@/models/utils';
 
 const initialState: IObjects = {
   isStart: true,
+  grid: {},
   objects: {
     [`${Names.command}`]: [],
     [`${Names.plates}`]: [],
@@ -16,12 +26,15 @@ const initialState: IObjects = {
   },
 };
 
-const Оbjects: Module<IObjects, IStore> = {
+let position: TPosition = { x: 0, z: 0 };
+
+const objects: Module<IObjects, IStore> = {
   namespaced: true,
   state: initialState,
 
   getters: {
     isStart: (state: IObjects) => state.isStart,
+    grid: (state: IObjects) => state.grid,
     objects: (state: IObjects) => state.objects,
   },
 
@@ -30,8 +43,8 @@ const Оbjects: Module<IObjects, IStore> = {
       commit('saveObjects', payload);
     },
 
-    setStart: ({ commit }): void => {
-      commit('setStart');
+    setField: ({ commit }, payload: TFieldPayload): void => {
+      commit('setField', payload);
     },
 
     reload: ({ commit }): void => {
@@ -40,19 +53,31 @@ const Оbjects: Module<IObjects, IStore> = {
   },
 
   mutations: {
-    saveObjects: (state: IObjects, payload): void => {
+    saveObjects: (state: IObjects, payload: TObjectsPayload): void => {
       state.objects[payload.name] = payload.objects;
     },
 
-    setStart: (state: IObjects): void => {
-      state.isStart = false;
+    setField: (state: IObjects, payload: TFieldPayload): void => {
+      if (payload.field === 'grid') {
+        position = { x: payload.value.position.x, z: payload.value.position.z };
+        if (
+          Object.prototype.hasOwnProperty.call(
+            state.grid,
+            getGridKey(position),
+          ) &&
+          !state.grid[getGridKey(position)].includes(payload.value.name)
+        )
+          state.grid[getGridKey(position)].push(payload.value.name);
+        else state.grid[getGridKey(position)] = [payload.value.name];
+      } else state[payload.field] = payload.value;
     },
 
     reload: (state: IObjects): void => {
       state.isStart = true;
+      state.grid = {};
       state.objects = initialState.objects;
     },
   },
 };
 
-export default Оbjects;
+export default objects;
