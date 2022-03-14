@@ -34,3 +34,28 @@ $opacity($name)
     opacity $opacites.pop // 0.2
   if $name == "reggae"
     opacity $opacites.reggae // 0
+
+
+// Elements
+
+$button--hover($color)
+  &:hover
+    background rgba($color, $opacites.pop)
+
+$button($color)
+  user-select none
+  cursor pointer
+  white-space nowrap
+  outline none
+  text-align center
+  transition background $effects.duration
+  background transparent
+  color $color
+  padding ($gutter / 4) ($gutter * 1.5)
+  border $border-width solid $color
+  box-shadow none
+  text-decoration none
+  text-transform uppercase
+  outline none
+  $text("katya")
+  $button--hover($color)

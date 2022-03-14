@@ -7,6 +7,8 @@
         <DesignPanel v-show="isDesignPanel" />
       </transition>
 
+      <GamePanel />
+
       <transition name="fade">
         <div v-if="isPause && isGameLoaded" class="layout__blocker">
           <div class="layout__name">{{ $t('name') }}</div>
@@ -68,6 +70,7 @@ import Gate from '@/components/Layout/Gate.vue';
 import Scene from '@/components/Scene/Scene.vue';
 import LangSwitch from '@/components/Layout/LangSwitch.vue';
 import DesignPanel from '@/components/Layout/DesignPanel.vue';
+import GamePanel from '@/components/Layout/GamePanel.vue';
 
 // Utils
 import { ScreenHelper, restartDispatchHelper } from '@/utils/utilities';
@@ -81,6 +84,7 @@ export default defineComponent({
     LangSwitch,
     Gate,
     DesignPanel,
+    GamePanel,
   },
 
   setup() {

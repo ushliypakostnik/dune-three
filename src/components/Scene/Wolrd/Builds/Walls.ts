@@ -2,9 +2,9 @@
 import { Names } from '@/utils/constants';
 
 // Modules
-import { StaticModules } from '@/models/modules';
+import { StaticSimpleModules } from '@/models/modules';
 
-export default class Walls extends StaticModules {
+export default class Walls extends StaticSimpleModules {
   constructor() {
     super(Names.walls);
   }

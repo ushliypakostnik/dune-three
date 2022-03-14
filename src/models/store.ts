@@ -42,7 +42,7 @@ export interface ILayout extends IStore {
 
 export type TObject = {
   name: Names;
-  id: number;
+  id: string;
   x: number;
   z: number;
   r: number;
@@ -54,3 +54,9 @@ export type TObjectsPayload = { name: string; objects: TObjectField };
 export interface IObjects extends IStore {
   [key: string]: any;
 }
+
+export type TSellPayload = {
+  name: Names;
+  x: number;
+  z: number;
+};

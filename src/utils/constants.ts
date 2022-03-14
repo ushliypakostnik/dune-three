@@ -40,6 +40,7 @@ export enum Colors {
   dark = 0x13334c,
   selection = 0xaa0000,
   pointer = 0xff2500,
+  build = 0x5c5c30,
 
   // objects
   plates = 0xdfbf7d,
@@ -112,12 +113,14 @@ export const OBJECTS: TConfig = {
     positionY: 1,
     isStartRotate: false,
     price: 1,
+    time: 1,
   },
   [Names.walls]: {
     size: DESIGN.CELL,
     positionY: 1,
     isStartRotate: false,
     price: 5,
+    time: 1,
   },
   [Names.command]: {
     size: DESIGN.CELL * 3,
@@ -130,6 +133,7 @@ export const OBJECTS: TConfig = {
     positionY: 1,
     isStartRotate: false,
     price: 15,
+    time: 3,
   },
 };
 
@@ -156,6 +160,8 @@ export const MESSAGES: TMessages = {
     key2: 'Space - group selection',
     key3: 'Tab - design mode',
     copyright: '© Levon Gambaryan Bro Games',
+    cash: 'Credits',
+    sell: 'Sell',
 
     [Names.plates]: 'Plate',
     [Names.walls]: 'Wall',
@@ -173,6 +179,8 @@ export const MESSAGES: TMessages = {
     key2: ' Space - групповое выделение',
     key3: 'Tab - режим конструктора',
     copyright: '© Levon Gambaryan Bro Games',
+    cash: 'Кредиты',
+    sell: 'Продать',
 
     [Names.plates]: 'Плита',
     [Names.walls]: 'Стена',

@@ -20,7 +20,10 @@ import type Assets from '@/utils/assets';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 
 // Utils
-import { getGeometryByName, getTextureByName } from '@/utils/utilities';
+import { getGeometryByName } from '@/utils/utilities';
+
+// Interfaces
+///////////////////////////////////////////////////////
 
 export interface ISelf {
   // Utils
@@ -42,7 +45,10 @@ export interface IAnimatedModule extends IModule {
   animate(self: ISelf): void;
 }
 
-// Статичный модуль
+// Abstract
+///////////////////////////////////////////////////////
+
+// Статичный модуль без копий - например Атмосфера
 export abstract class Module implements IModule {
   constructor(public name: Names) {
     this.name = name;
@@ -52,8 +58,24 @@ export abstract class Module implements IModule {
   public abstract init(self: ISelf): void;
 }
 
-// Статичные модули
-abstract class Modules extends Module {
+// Статичный модуль с копиями
+abstract class ModuleItems extends Module {
+  constructor(public name: Names) {
+    super(name);
+  }
+
+  // Можно ли добавить новый объект?
+  public abstract isCanAdd(self: ISelf, vector: Vector3, name?: Names): boolean;
+
+  // Добавить новую единицу
+  public abstract add(self: ISelf, vector: Vector3, name?: Names): void;
+
+  // Продать строение
+  public abstract sell(self: ISelf, items: string[], name?: string): void;
+}
+
+//  Модули
+abstract class Modules extends ModuleItems {
   constructor(public name: Names) {
     super(name);
   }
@@ -64,26 +86,59 @@ abstract class Modules extends Module {
     item: TPosition,
     isStart: boolean,
   ): void;
-
-  // Добавить новую единицу
-  public abstract add(self: ISelf, vector: Vector3): void;
 }
 
 // Анимированные модули
-export abstract class AnimatedModule extends Module implements IAnimatedModule {
+export abstract class AnimatedModule
+  extends ModuleItems
+  implements IAnimatedModule
+{
   constructor(public name: Names) {
     super(name);
   }
 
   // Анимация
   public abstract animate(self: ISelf): void;
+}
 
-  // Добавить новую единицу
-  public abstract add(self: ISelf, name: Names, vector: Vector3): void;
+// Real
+///////////////////////////////////////////////////////
+
+export class StaticModules extends Modules {
+  constructor(public name: Names) {
+    super(name);
+  }
+
+  public init(self: ISelf): void {
+    self.logger.log('modules.ts', 'init', this.name);
+  }
+
+  public initItem(
+    self: ISelf,
+    item: TPosition | TObject,
+    isStart: boolean,
+  ): void {
+    self.logger.log('modules.ts', 'initItem', this.name, item, isStart);
+  }
+
+  // Можно ли добавить новый объект?
+  public isCanAdd(self: ISelf, vector: Vector3): boolean {
+    return self.helper.isCanAddItemHelper(self, vector, this.name);
+  }
+
+  // Добавить объект
+  public add(self: ISelf, vector: Vector3): void {
+    self.helper.addItemHelper(self, this, vector);
+  }
+
+  // Продать строение
+  public sell(self: ISelf, items: string[]): void {
+    self.helper.sellHelper(self, items, this.name);
+  }
 }
 
 // Статичные модули
-export class StaticModules extends Modules {
+export class StaticSimpleModules extends StaticModules {
   public geometry!: BoxBufferGeometry;
   public material!: MeshLambertMaterial;
 
@@ -120,11 +175,6 @@ export class StaticModules extends Modules {
     // Инициализация
     self.helper.initModulesHelper(self, this);
   }
-
-  // Добавить объект
-  public add(self: ISelf, vector: Vector3): void {
-    self.helper.addItemHelper(self, this, vector);
-  }
 }
 
 // Статичные модули c моделью
@@ -151,6 +201,7 @@ export class StaticModelModules extends StaticModules {
   }
 
   public init(self: ISelf): void {
+    // Модель
     self.helper.GLTFLoader.load(
       `./images/models/${this.name}.glb`,
       (model: GLTF) => {
@@ -163,10 +214,5 @@ export class StaticModelModules extends StaticModules {
         self.render();
       },
     );
-  }
-
-  // Добавить объект
-  public add(self: ISelf, vector: Vector3): void {
-    self.helper.addItemHelper(self, this, vector);
   }
 }

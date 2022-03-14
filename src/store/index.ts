@@ -5,6 +5,7 @@ import createPersistedState from 'vuex-persistedstate';
 import preloader from '@/store/modules/preloader';
 import layout from '@/store/modules/layout';
 import objects from '@/store/modules/objects';
+import game from '@/store/modules/game';
 
 declare module '@vue/runtime-core' {
   // declare your own store states
@@ -37,8 +38,11 @@ export const store = createStore<State>({
     preloader,
     layout,
     objects,
+    game,
   },
-  plugins: [createPersistedState({
-    paths: ['layout', 'objects'],
-  })],
+  plugins: [
+    createPersistedState({
+      paths: ['layout', 'objects'],
+    }),
+  ],
 });

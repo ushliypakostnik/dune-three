@@ -1,5 +1,14 @@
 <template>
   <div class="design-panel">
+    <button
+      class="design-panel__button"
+      :class="{ 'design-panel__button--disabled': !isSelected }"
+      type="button"
+      @click.prevent.stop="setSell"
+    >
+      {{ $t('sell') }}
+    </button>
+
     <ul class="design-panel__builds">
       <li
         v-for="(value, index) in CAN_BUILD"
@@ -11,6 +20,11 @@
         ]"
         @click.prevent="changeActive(value)"
       >
+        <div
+          v-if="buildingProgress && value === active"
+          class="design-panel__progress"
+          :style="`height: ${buildingProgress}%`"
+        />
         {{ $t(`${value}`) }}<br /><br />{{ OBJECTS[value].price }}$
       </li>
       <li></li>
@@ -35,9 +49,24 @@ export default defineComponent({
     const store = useStore(key);
 
     let changeActive: (value: string) => void;
+    let setSell: () => void;
 
     const active = computed(() => store.getters['layout/activeBuild']);
     const status = computed(() => store.getters['layout/buildStatus']);
+    const isBuildingClock = computed(
+      () => store.getters['game/isBuildingClock'],
+    );
+    const buildingProgress = computed(
+      () => store.getters['game/buildingProgress'],
+    );
+    const isSelected = computed(() => store.getters['game/isSelected']);
+
+    setSell = () => {
+      store.dispatch('game/setField', {
+        field: 'isSell',
+        value: true,
+      });
+    };
 
     changeActive = (value: string) => {
       store.dispatch('layout/setField', {
@@ -51,8 +80,12 @@ export default defineComponent({
       CAN_BUILD,
       active,
       status,
+      isBuildingClock,
+      buildingProgress,
+      isSelected,
       t,
       changeActive,
+      setSell,
     };
   },
 });
@@ -77,6 +110,15 @@ $design-panel__width = 23vw
   background rgba(#000000, $opacites.funky)
   padding 1vw
 
+  &__button
+    width 100%
+    margin-bottom $gutter
+    $button($colors.primary)
+
+    &--disabled
+      pointer-events none
+      $opacity('psy')
+
   &__builds
     list-style none
     display grid
@@ -85,12 +127,20 @@ $design-panel__width = 23vw
 
   &__item
     @extend $flexCenter
+    position relative
     text-align center
     height 10vw
     border 2px solid $colors.primary
     color $colors.primary
     text-decoration none
     $text("nina")
+
+  &__progress
+    position absolute
+    left 0
+    right 0
+    bottom 0
+    background rgba($colors.active, $opacites.psy)
 
 {$name}__item--active
   pointer-events none

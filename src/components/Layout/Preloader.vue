@@ -31,7 +31,7 @@ export default defineComponent({
     // Следим загрузилась ли игра чтобы проверить с начала ли
     watch(
       () => store.getters['preloader/isGameLoaded'],
-      (value: boolean) => {
+      () => {
         // Check is start
         if (store.getters['objects/isStart']) {
           store.dispatch('objects/setField', {

@@ -16,6 +16,7 @@ import {
   DESIGN,
   OBJECTS,
   SELECTABLE_OBJECTS,
+  CAN_BUILD,
 } from '@/utils/constants';
 
 // Types
@@ -84,6 +85,7 @@ export default defineComponent({
     let controls: MapControls = new MapControls(camera, renderer.domElement);
     let selection: SelectionBox;
     let shelper: SelectionHelper;
+    let selected = [];
     let isSelection = ref(false);
     let isCreate = ref(false);
     let pointer: Vector2 = new THREE.Vector2();
@@ -122,7 +124,7 @@ export default defineComponent({
     const isPause = computed(() => store.getters['layout/isPause']);
     const activeBuild = computed(() => store.getters['layout/activeBuild']);
     const isBuildingClock = computed(
-      () => store.getters['layout/isBuildingClock'],
+      () => store.getters['game/isBuildingClock'],
     );
 
     // Stats
@@ -229,7 +231,7 @@ export default defineComponent({
           ? getGeometryByName('build')
           : getGeometryByName(activeBuild.value),
         new THREE.MeshLambertMaterial({
-          color: Colors.yellow,
+          color: Colors.build,
         }),
       );
       build.visible = false;
@@ -375,10 +377,27 @@ export default defineComponent({
       },
     );
 
+    // Следим за кнопкой продажи объектов
+    watch(
+      () => store.getters['game/isSell'],
+      (value) => {
+        if (value) {
+          CAN_BUILD.forEach((build) => {
+            selected = selection.collection
+              .filter((item) => item.name === build)
+              .map((item) => {
+                return item.uuid;
+              });
+            if (selected.length > 0) world.sell(self, selected, build);
+          });
+        }
+      },
+    );
+
     // Нажатие на курсор мыши
     onPointerDown = (event) => {
       // Режим конструктора
-      if (isCreate.value) {
+      if (isCreate.value && !isBuildingClock.value) {
         // Курсор не на панели?
         if (event.clientX / window.innerWidth < 77 / 100) {
           setCreate(event);
@@ -398,17 +417,19 @@ export default defineComponent({
                   vector.x -= DESIGN.CELL / 2;
                   vector.z -= DESIGN.CELL / 2;
 
-                  store.dispatch('layout/setField', {
-                    field: 'buildingProgress',
-                    value: 0,
-                  });
-                  store.dispatch('layout/setField', {
-                    field: 'isBuildingClock',
-                    value: true,
-                  });
-                  build.position.copy(box.position);
-                  box.visible = false;
-                  build.visible = true;
+                  if (world.isCanAdd(self, vector, activeBuild.value)) {
+                    store.dispatch('game/setField', {
+                      field: 'buildingProgress',
+                      value: 0,
+                    });
+                    store.dispatch('game/setField', {
+                      field: 'isBuildingClock',
+                      value: true,
+                    });
+                    build.position.copy(box.position);
+                    box.visible = false;
+                    build.visible = true;
+                  }
                 }
                 break;
 
@@ -432,31 +453,34 @@ export default defineComponent({
           -(event.clientY / window.innerHeight) * 2 + 1,
           0.5,
         );
+
+        store.dispatch('game/setField', {
+          field: 'isSelected',
+          value: false,
+        });
       }
     };
 
     // Перемещение мыши
     onPointerMove = (event) => {
       // Режим конструктора
-      if (isCreate.value) {
+      if (isCreate.value && !isBuildingClock.value) {
         // Курсор на панели?
         if (event.clientX / window.innerWidth > 77 / 100) {
-          if (!isBuildingClock.value) box.visible = false;
+          box.visible = false;
         } else {
-          if (!isBuildingClock.value) {
-            box.visible = true;
-            setCreate(event);
+          box.visible = true;
+          setCreate(event);
 
-            if (intersects.length > 0) {
-              intersect = intersects[0];
-              if (intersect.face) {
-                box.position.copy(intersect.point).add(intersect.face.normal);
-                box.position
-                  .divideScalar(DESIGN.CELL)
-                  .floor()
-                  .multiplyScalar(DESIGN.CELL);
-                box.position.y = getPositionYByName(activeBuild.value);
-              }
+          if (intersects.length > 0) {
+            intersect = intersects[0];
+            if (intersect.face) {
+              box.position.copy(intersect.point).add(intersect.face.normal);
+              box.position
+                .divideScalar(DESIGN.CELL)
+                .floor()
+                .multiplyScalar(DESIGN.CELL);
+              box.position.y = getPositionYByName(activeBuild.value);
             }
           }
         }
@@ -475,17 +499,27 @@ export default defineComponent({
           0.5,
         );
 
-        const allSelected = selection.select();
-
-        for (let i = 0; i < allSelected.length; i++) {
-          if (
-            SELECTABLE_OBJECTS.includes(allSelected[i].name) &&
-            isNotStartPlates(objectCoordsHelper(allSelected[i].position))
-          ) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            allSelected[i].material.emissive.set(Colors.selection);
+        selected = selection.select();
+        if (selected.length > 0) {
+          store.dispatch('game/setField', {
+            field: 'isSelected',
+            value: true,
+          });
+          for (let i = 0; i < selected.length; i++) {
+            if (
+              SELECTABLE_OBJECTS.includes(selected[i].name) &&
+              isNotStartPlates(objectCoordsHelper(selected[i].position))
+            ) {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              selected[i].material.emissive.set(Colors.selection);
+            }
           }
+        } else {
+          store.dispatch('game/setField', {
+            field: 'isSelected',
+            value: false,
+          });
         }
       }
     };
@@ -521,27 +555,26 @@ export default defineComponent({
 
         time += clock.getDelta();
 
-        if (time > 1) {
+        if (time > OBJECTS[activeBuild.value].time) {
           clock.stop();
           time = 0;
-          store.dispatch('layout/setField', {
+          store.dispatch('game/setField', {
             field: 'buildingProgress',
-            value: 100,
+            value: 0,
           });
-          store.dispatch('layout/setField', {
+          store.dispatch('game/setField', {
             field: 'isBuildingClock',
             value: false,
           });
           build.visible = false;
           if (isCreate.value) box.visible = true;
 
-          world.add(self, activeBuild.value, vector);
+          world.add(self, vector, activeBuild.value);
         } else if (time !== 0) {
-          store.dispatch('layout/setField', {
+          store.dispatch('game/setField', {
             field: 'buildingProgress',
-            value: (1 / time) * 100,
+            value: (time * 100) / OBJECTS[activeBuild.value].time,
           });
-          console.log('Scene render: ', time);
         }
       }
     };

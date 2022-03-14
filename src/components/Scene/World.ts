@@ -35,8 +35,22 @@ class World extends AnimatedModule {
     this._builds.init(self);
   }
 
-  public add(self: ISelf, name: Names, vector: Vector3): void {
-    if (CAN_BUILD.includes(name)) this._builds.add(self, name, vector);
+  // Можно ли добавить новый объект?
+  public isCanAdd(self: ISelf, vector: Vector3, name: Names): boolean {
+    if (CAN_BUILD.includes(name))
+      return this._builds.isCanAdd(self, vector, name);
+    return false;
+  }
+
+  // Добавить новый объект
+  public add(self: ISelf, vector: Vector3, name: Names): void {
+    if (CAN_BUILD.includes(name)) this._builds.add(self, vector, name);
+  }
+
+  // Продать строение
+  public sell(self: ISelf, items: string[], name: string): void {
+    self.logger.log('World', 'sell!!!');
+    this._builds.sell(self, items, name);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

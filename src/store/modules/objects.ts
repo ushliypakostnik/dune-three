@@ -12,6 +12,7 @@ import type {
   IObjects,
   TObjectsPayload,
   TFieldPayload,
+  TSellPayload,
 } from '@/models/store';
 import { TPosition } from '@/models/utils';
 
@@ -27,6 +28,8 @@ const initialState: IObjects = {
 };
 
 let position: TPosition = { x: 0, z: 0 };
+let array: string[] = [];
+let array2: string[] = [];
 
 const objects: Module<IObjects, IStore> = {
   namespaced: true,
@@ -43,6 +46,10 @@ const objects: Module<IObjects, IStore> = {
       commit('saveObjects', payload);
     },
 
+    sellObject: ({ commit }, payload: TSellPayload): void => {
+      commit('sellObject', payload);
+    },
+
     setField: ({ commit }, payload: TFieldPayload): void => {
       commit('setField', payload);
     },
@@ -55,6 +62,20 @@ const objects: Module<IObjects, IStore> = {
   mutations: {
     saveObjects: (state: IObjects, payload: TObjectsPayload): void => {
       state.objects[payload.name] = payload.objects;
+    },
+
+    sellObject: (state: IObjects, payload: TSellPayload): void => {
+      position = { x: payload.x, z: payload.z };
+      if (
+        Object.prototype.hasOwnProperty.call(state.grid, getGridKey(position))
+      ) {
+        array = state.grid[getGridKey(position)];
+        array2 = [];
+        array.forEach((name) => {
+          if (name !== payload.name) array2.push(name);
+        });
+        state.grid[getGridKey(position)] = array2;
+      }
     },
 
     setField: (state: IObjects, payload: TFieldPayload): void => {

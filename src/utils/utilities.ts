@@ -8,7 +8,6 @@ import { Names, Textures, DESIGN, OBJECTS } from '@/utils/constants';
 
 // Types
 import type { TPosition } from '@/models/utils';
-import type { TFieldPayload } from '@/models/store';
 import type { Store } from 'vuex';
 import type { State } from '@/store';
 import type { Vector3, BoxBufferGeometry } from 'three';
@@ -109,9 +108,9 @@ export const getSign = (number: number): string => {
 
 // Get key for grid
 export const getGridKey = (position: TPosition): string => {
-  return `${getSign(position.x)}${paddy(
-    Math.abs(position.x),
-  )}.${getSign(position.z)}${paddy(Math.abs(position.z))}`;
+  return `${getSign(position.x)}${paddy(Math.abs(position.x))}.${getSign(
+    position.z,
+  )}${paddy(Math.abs(position.z))}`;
 };
 
 // Получить координаты в сетке по вектору
@@ -214,11 +213,18 @@ export const restartDispatchHelper = (store: Store<State>): void => {
       store
         .dispatch('layout/reload')
         .then(() => {
-          setTimeout(() => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            window.location.reload(true);
-          }, 100);
+          store
+            .dispatch('game/reload')
+            .then(() => {
+              setTimeout(() => {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                window.location.reload(true);
+              }, 100);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
         })
         .catch((error) => {
           console.log(error);

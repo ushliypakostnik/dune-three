@@ -29,8 +29,7 @@ const initialState: ILayout = {
   isDesignPanel: false,
   activeBuild: START_STATUS.activeBuild,
   buildStatus: START_STATUS.buildStatus,
-  isBuildingClock: false,
-  buildingProgress: 0,
+  cash: 10000,
 };
 
 const layout: Module<ILayout, IStore> = {
@@ -44,8 +43,7 @@ const layout: Module<ILayout, IStore> = {
     isDesignPanel: (state: ILayout) => state.isDesignPanel,
     activeBuild: (state: ILayout) => state.activeBuild,
     buildStatus: (state: ILayout) => state.buildStatus,
-    isBuildingClock: (state: ILayout) => state.isBuildingClock,
-    buildingProgress: (state: ILayout) => state.buildingProgress,
+    cash: (state: ILayout) => state.cash,
   },
 
   actions: {
@@ -65,9 +63,10 @@ const layout: Module<ILayout, IStore> = {
 
     reload: (state: ILayout): void => {
       state.controls = initialState.controls;
-      (state.activeBuild = START_STATUS.activeBuild),
-        (state.buildStatus = START_STATUS.buildStatus),
-        (state.isPause = true);
+      state.activeBuild = START_STATUS.activeBuild;
+      state.buildStatus = START_STATUS.buildStatus;
+      state.cash = initialState.cash;
+      state.isPause = true;
     },
   },
 };
