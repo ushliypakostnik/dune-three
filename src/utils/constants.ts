@@ -28,6 +28,14 @@ export enum Textures {
   plates = 'plates',
 }
 
+export enum Audios {
+  wind = 'wind',
+  zero = 'zero',
+  build = 'build',
+  add = 'add',
+  sell = 'sell',
+}
+
 export enum Colors {
   white = 0xffffff,
   black = 0x000000,
@@ -96,6 +104,14 @@ export const DESIGN: TConfig = {
       { x: 1, z: -1 },
     ],
     [Names.command]: [{ x: 0, z: 0 }],
+  },
+  MESSAGES_TIMEOUT: 3000, // ms
+  VOLUME: {
+    wind: 0.5,
+    zero: 1,
+    build: 0.75,
+    sell: 1,
+    add: 0.75,
   },
 };
 
@@ -167,6 +183,11 @@ export const MESSAGES: TMessages = {
     [Names.walls]: 'Wall',
     [Names.command]: 'Command post',
     [Names.station]: 'Power station',
+
+    // Messages
+    impossibleToBuild: 'Impossible to build!',
+    buildDone: 'Construction completed!',
+    buildingsSold: 'Buildings sold!',
   },
   [Languages.ru]: {
     name: 'ДюнаThree',
@@ -186,5 +207,10 @@ export const MESSAGES: TMessages = {
     [Names.walls]: 'Стена',
     [Names.command]: 'Командный пункт',
     [Names.station]: 'Электростанция',
+
+    // Messages
+    impossibleToBuild: 'Невозможно построить!',
+    buildDone: 'Строительство завершено!',
+    buildingsSold: 'Постройки проданы!',
   },
 };

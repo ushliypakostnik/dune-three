@@ -59,7 +59,6 @@ export default class Builds extends AnimatedModule {
 
   // Продать строение
   public sell(self: ISelf, items: string[], name: string): void {
-    self.logger.log('Builds', 'sell!!!');
     switch (name) {
       case Names.plates:
         this._plates.sell(self, items);

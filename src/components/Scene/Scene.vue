@@ -13,6 +13,7 @@ import * as THREE from 'three';
 import {
   Names,
   Colors,
+  Audios,
   DESIGN,
   OBJECTS,
   SELECTABLE_OBJECTS,
@@ -33,13 +34,15 @@ import type {
   Object3D,
   Event,
   Clock,
+  AudioListener,
 } from 'three';
 
 // Modules
 import { MapControls } from 'three/examples/jsm/controls/OrbitControls';
-import Logger from '@/utils/logger';
 import Helper from '@/utils/helper';
 import Assets from '@/utils/assets';
+import Events from '@/utils/events';
+import AudioBus from '@/utils/audio';
 import { SelectionBox } from 'three/examples/jsm/interactive/SelectionBox';
 import { SelectionHelper } from 'three/examples/jsm/interactive/SelectionHelper';
 
@@ -53,7 +56,7 @@ import {
   getGeometryByName,
   getPositionYByName,
   isNotStartPlates,
-  objectCoordsHelper,
+  coordsFromVector,
 } from '@/utils/utilities';
 
 // Stats
@@ -70,6 +73,7 @@ export default defineComponent({
     let container: HTMLElement;
 
     let camera: PerspectiveCamera = new THREE.PerspectiveCamera();
+    let listener: AudioListener = new THREE.AudioListener();
 
     let scene: Scene = new THREE.Scene();
 
@@ -102,9 +106,10 @@ export default defineComponent({
     let build: Mesh = new THREE.Mesh();
 
     // Helpers
-    let logger: Logger = new Logger();
     let helper: Helper = new Helper();
     let assets: Assets = new Assets();
+    let events: Events = new Events();
+    let audio: AudioBus = new AudioBus();
 
     // Modules
     let world = new World();
@@ -142,6 +147,9 @@ export default defineComponent({
         0.1,
         DESIGN.SIZE * 0.75,
       );
+
+      // Audio listener
+      camera.add(listener);
 
       // Scene
       scene.background = new THREE.Color(Colors.blue);
@@ -199,7 +207,7 @@ export default defineComponent({
           OBJECTS.sand.radius / 10,
           OBJECTS.sand.radius / 10,
         ),
-        new THREE.MeshLambertMaterial({ visible: false }),
+        new THREE.MeshStandardMaterial({ visible: false }),
       );
       plane.rotation.x = -Math.PI / 2;
       plane.position.set(0, OBJECTS.sand.positionY + 0.5, 0);
@@ -211,7 +219,7 @@ export default defineComponent({
         activeBuild.value === Names.plates
           ? getGeometryByName('build')
           : getGeometryByName(activeBuild.value),
-        new THREE.MeshLambertMaterial({
+        new THREE.MeshStandardMaterial({
           color: Colors.pointer,
           opacity: 0.5,
           transparent: true,
@@ -230,7 +238,7 @@ export default defineComponent({
         activeBuild.value === Names.plates
           ? getGeometryByName('build')
           : getGeometryByName(activeBuild.value),
-        new THREE.MeshLambertMaterial({
+        new THREE.MeshStandardMaterial({
           color: Colors.build,
         }),
       );
@@ -255,6 +263,7 @@ export default defineComponent({
 
       // Modules
       assets.init(self);
+      audio.init(self);
       world.init(self);
 
       container.appendChild(stats.dom);
@@ -363,6 +372,20 @@ export default defineComponent({
       intersects = raycaster.intersectObjects([plane], false);
     };
 
+    // Следим за паузой
+    watch(
+      () => store.getters['layout/isPause'],
+      (value) => {
+        if (value) {
+          events.pause();
+          if (isBuildingClock.value && clock.running) clock.stop();
+        } else {
+          events.start(self);
+        }
+        audio.toggle(value);
+      },
+    );
+
     // Следим за активным объектом для постройки
     watch(
       () => store.getters['layout/activeBuild'],
@@ -370,10 +393,7 @@ export default defineComponent({
         if (value === Names.plates) box.geometry = getGeometryByName('build');
         else box.geometry = getGeometryByName(value);
         box.position.y = getPositionYByName(value);
-
-        if (value === Names.plates) build.geometry = getGeometryByName('build');
-        else build.geometry = getGeometryByName(value);
-        build.position.y = getPositionYByName(value);
+        self.audio.replayHeroSound(Audios.zero);
       },
     );
 
@@ -388,7 +408,11 @@ export default defineComponent({
               .map((item) => {
                 return item.uuid;
               });
-            if (selected.length > 0) world.sell(self, selected, build);
+            if (selected.length > 0) {
+              world.sell(self, selected, build);
+              self.events.messagesByIdDispatchHelper(self, 'buildingsSold');
+              self.audio.replayHeroSound(Audios.sell);
+            }
           });
         }
       },
@@ -429,7 +453,14 @@ export default defineComponent({
                     build.position.copy(box.position);
                     box.visible = false;
                     build.visible = true;
-                  }
+                    self.audio.startHeroSound(Audios.build);
+                  } else
+                    self.events.messagesByIdDispatchHelper(
+                      self,
+                      'impossibleToBuild',
+                    );
+                  if (!isBuildingClock.value)
+                    self.audio.replayHeroSound(Audios.zero);
                 }
                 break;
 
@@ -508,7 +539,7 @@ export default defineComponent({
           for (let i = 0; i < selected.length; i++) {
             if (
               SELECTABLE_OBJECTS.includes(selected[i].name) &&
-              isNotStartPlates(objectCoordsHelper(selected[i].position))
+              isNotStartPlates(coordsFromVector(selected[i].position))
             ) {
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
@@ -525,9 +556,8 @@ export default defineComponent({
     };
 
     animate = () => {
-      // delta = clock.getDelta();
-
       if (!isPause.value) {
+        events.animate(self);
         world.animate(self);
 
         render();
@@ -570,6 +600,9 @@ export default defineComponent({
           if (isCreate.value) box.visible = true;
 
           world.add(self, vector, activeBuild.value);
+          self.events.messagesByIdDispatchHelper(self, 'buildDone');
+          self.audio.pauseHeroSound(Audios.build);
+          self.audio.replayHeroSound(Audios.add);
         } else if (time !== 0) {
           store.dispatch('game/setField', {
             field: 'buildingProgress',
@@ -581,13 +614,15 @@ export default defineComponent({
 
     let self: ISelf = {
       // Utils
-      logger,
       helper,
       assets,
+      events,
+      audio,
 
       // Core
       store,
       scene,
+      listener,
       render,
     };
 
@@ -617,6 +652,8 @@ export default defineComponent({
   height: 100vh
 
   &--selection
+    cursor pointer
+
     .selection
       display block
 

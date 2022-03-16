@@ -34,8 +34,13 @@ export type TControls = {
   target: TControlCoords;
 };
 
+export type TEventMessagePayload = {
+  id: number;
+  text: string;
+};
+
 export interface ILayout extends IStore {
-  [key: string]: boolean | number | TControls | TLanguage;
+  [key: string]: any;
 }
 
 // Objects

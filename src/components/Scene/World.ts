@@ -49,7 +49,6 @@ class World extends AnimatedModule {
 
   // Продать строение
   public sell(self: ISelf, items: string[], name: string): void {
-    self.logger.log('World', 'sell!!!');
     this._builds.sell(self, items, name);
   }
 

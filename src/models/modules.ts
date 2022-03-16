@@ -10,13 +10,15 @@ import type { TPosition } from '@/models/utils';
 import type { TObject } from '@/models/store';
 import type {
   BoxBufferGeometry,
-  MeshLambertMaterial,
+  MeshStandardMaterial,
   Scene,
   Vector3,
+  AudioListener,
 } from 'three';
-import type Logger from '@/utils/logger';
 import type Helper from '@/utils/helper';
 import type Assets from '@/utils/assets';
+import type Events from '@/utils/events';
+import type AudioBus from '@/utils/audio';
 import type { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 
 // Utils
@@ -27,13 +29,15 @@ import { getGeometryByName } from '@/utils/utilities';
 
 export interface ISelf {
   // Utils
-  logger: Logger;
   helper: Helper;
   assets: Assets;
+  events: Events;
+  audio: AudioBus;
 
   // Core
   store: Store<State>;
   scene: Scene;
+  listener: AudioListener;
   render: () => void;
 }
 
@@ -110,7 +114,7 @@ export class StaticModules extends Modules {
   }
 
   public init(self: ISelf): void {
-    self.logger.log('modules.ts', 'init', this.name);
+    console.log('modules.ts ', 'init ', this.name, self);
   }
 
   public initItem(
@@ -118,7 +122,7 @@ export class StaticModules extends Modules {
     item: TPosition | TObject,
     isStart: boolean,
   ): void {
-    self.logger.log('modules.ts', 'initItem', this.name, item, isStart);
+    console.log('modules.ts ', 'initItem ', this.name, self, item, isStart);
   }
 
   // Можно ли добавить новый объект?
@@ -140,7 +144,7 @@ export class StaticModules extends Modules {
 // Статичные модули
 export class StaticSimpleModules extends StaticModules {
   public geometry!: BoxBufferGeometry;
-  public material!: MeshLambertMaterial;
+  public material!: MeshStandardMaterial;
 
   constructor(public name: Names) {
     super(name);
@@ -167,7 +171,7 @@ export class StaticSimpleModules extends StaticModules {
     this.geometry = getGeometryByName(this.name);
 
     // Материал
-    this.material = new THREE.MeshLambertMaterial({
+    this.material = new THREE.MeshStandardMaterial({
       color: Colors[this.name as keyof typeof Colors],
       map: self.assets.getTexture(this.name), // Текстура
     });
@@ -202,7 +206,7 @@ export class StaticModelModules extends StaticModules {
 
   public init(self: ISelf): void {
     // Модель
-    self.helper.GLTFLoader.load(
+    self.assets.GLTFLoader.load(
       `./images/models/${this.name}.glb`,
       (model: GLTF) => {
         // Прелоадер

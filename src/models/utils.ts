@@ -1,3 +1,5 @@
+import type { Audio } from 'three';
+
 export type TPosition = {
   x: number;
   z: number;
@@ -11,4 +13,20 @@ type TMessagesLanguage = { [key: string]: string };
 export type TMessages = {
   readonly en: TMessagesLanguage;
   readonly ru: TMessagesLanguage;
+};
+
+export type TEventsData = number | null | undefined;
+export type TEvents = {
+  id: number;
+  time: number;
+  delay: number;
+  data: TEventsData;
+  callback: (data: TEventsData) => void;
+};
+
+export type TAudio = {
+  id: string;
+  name: string;
+  audio: Audio;
+  isStopped: boolean;
 };

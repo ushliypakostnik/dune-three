@@ -20,6 +20,9 @@ const initialState: IPreloader = {
   commandIsLoaded: false,
 
   // Audio
+  windIsLoaded: false,
+  zeroIsLoaded: false,
+  sellIsLoaded: false,
 
   // World build
   atmosphereIsBuild: false,

@@ -1,5 +1,14 @@
 <template>
-  <div class="game-panel">{{ $t('cash') }}: {{ cash }}</div>
+  <div class="game-panel">
+    <div>{{ $t('cash') }}: {{ cash }}</div>
+    <div>
+      {{
+        new Date(Math.round(clock) * 1000)
+          .toISOString()
+          .match(/(\d\d:\d\d:\d\d)/)[0]
+      }}
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -17,10 +26,12 @@ export default defineComponent({
     const store = useStore(key);
 
     const cash = computed(() => store.getters['layout/cash']);
+    const clock = computed(() => store.getters['layout/clock']);
 
     return {
       t,
       cash,
+      clock,
     };
   },
 });
@@ -32,13 +43,15 @@ export default defineComponent({
 $name = '.game-panel'
 
 {$name}
+  display flex
+  justify-content space-between
   position fixed
   left 0
   right 0
   bottom 0
   z-index 2000
   background rgba(#000000, $opacites.funky)
-  padding 1vw
+  padding 0.5vw 1vw
   color $colors.primary
   $text("maria")
 </style>

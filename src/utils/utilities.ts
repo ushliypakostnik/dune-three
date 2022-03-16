@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 
 // Constants
-import { Names, Textures, DESIGN, OBJECTS } from '@/utils/constants';
+import { Names, Textures, Audios, DESIGN, OBJECTS } from '@/utils/constants';
 
 // Types
 import type { TPosition } from '@/models/utils';
@@ -12,7 +12,38 @@ import type { Store } from 'vuex';
 import type { State } from '@/store';
 import type { Vector3, BoxBufferGeometry } from 'three';
 
+// String with pad length
+export const paddy = (number: number, padlen = 3, padchar = '0'): string => {
+  const pad = new Array(1 + padlen).join(padchar);
+  return (pad + number).slice(-pad.length);
+};
+
 // Math
+
+// Get number sign?
+export const getSign = (number: number): string => {
+  return number >= 0 ? '+' : '-';
+};
+
+// Get key for grid
+export const getGridKey = (position: TPosition): string => {
+  return `${getSign(position.x)}${paddy(Math.abs(position.x))}.${getSign(
+    position.z,
+  )}${paddy(Math.abs(position.z))}`;
+};
+
+// Получить координаты в сетке по вектору
+export const toGridCoords = (position: number): number => {
+  return position * DESIGN.CELL;
+};
+
+// Получить координаты в сетке по вектору
+export const coordsFromVector = (vector: Vector3): TPosition => {
+  return {
+    x: vector.x / DESIGN.CELL,
+    z: vector.z / DESIGN.CELL,
+  };
+};
 
 export const yesOrNo = (): boolean => Math.random() >= 0.5;
 
@@ -48,8 +79,16 @@ export const getRandomPosition = (
   radius: number,
 ): TPosition => {
   return {
-    x: centerX + Math.random() * plusOrMinus() * radius,
-    z: centerZ + Math.random() * plusOrMinus() * radius,
+    x:
+      toGridCoords(
+        Math.round(centerX + Math.random() * plusOrMinus() * radius),
+      ) +
+      20 * plusOrMinus(),
+    z:
+      toGridCoords(
+        Math.round(centerZ + Math.random() * plusOrMinus() * radius),
+      ) +
+      20 * plusOrMinus(),
   };
 };
 
@@ -84,42 +123,7 @@ export const getUniqueRandomPosition = (
   return position;
 };
 
-export const getIntegerRandomPosition = (
-  centerX: number,
-  centerZ: number,
-  radius: number,
-): TPosition => {
-  return {
-    x: Math.round(centerX + Math.random() * plusOrMinus() * radius),
-    z: Math.round(centerZ + Math.random() * plusOrMinus() * radius),
-  };
-};
-
-// String with pad length
-export const paddy = (number: number, padlen = 3, padchar = '0'): string => {
-  const pad = new Array(1 + padlen).join(padchar);
-  return (pad + number).slice(-pad.length);
-};
-
-// Get number sign?
-export const getSign = (number: number): string => {
-  return number >= 0 ? '+' : '-';
-};
-
-// Get key for grid
-export const getGridKey = (position: TPosition): string => {
-  return `${getSign(position.x)}${paddy(Math.abs(position.x))}.${getSign(
-    position.z,
-  )}${paddy(Math.abs(position.z))}`;
-};
-
-// Получить координаты в сетке по вектору
-export const objectCoordsHelper = (vector: Vector3): TPosition => {
-  return {
-    x: vector.x / DESIGN.CELL,
-    z: vector.z / DESIGN.CELL,
-  };
-};
+// THREE
 
 // Текстура по имени
 export const getTextureByName = (name: Names): Textures => {
@@ -182,6 +186,27 @@ export const getPositionYByName = (name: Names): number => {
       return OBJECTS.plates.positionY;
   }
 };
+
+// Громкость по имени
+export const getVolumeByName = (name: Audios): number => {
+  return DESIGN.VOLUME[name];
+};
+
+// Узнать закольцован ли звук по имени
+export const getIsLoopByName = (name: Audios): boolean => {
+  switch (name) {
+    case Audios.wind:
+    case Audios.build:
+      return true;
+    case Audios.zero:
+    case Audios.sell:
+    case Audios.add:
+    default:
+      return false;
+  }
+};
+
+// Layout
 
 // Экранный помощник
 export const ScreenHelper = (() => {

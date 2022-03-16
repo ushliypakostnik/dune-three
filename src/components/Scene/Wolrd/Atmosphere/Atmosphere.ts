@@ -10,7 +10,10 @@ import type { HemisphereLight, Mesh, GridHelper } from 'three';
 import { Module } from '@/models/modules';
 
 // Utils
-import { plusOrMinus, distance2D } from '@/utils/utilities';
+import {
+  plusOrMinus,
+  distance2D,
+} from '@/utils/utilities';
 
 export default class Atmosphere extends Module {
   private _light: HemisphereLight;
@@ -33,24 +36,26 @@ export default class Atmosphere extends Module {
     // Ambient
     self.scene.add(new THREE.AmbientLight(Colors.white));
 
-    self.helper._geometry = new THREE.PlaneBufferGeometry(
+    // Sand
+
+    // Форма
+    self.helper.geometry = new THREE.PlaneBufferGeometry(
       OBJECTS.sand.radius * 10,
       OBJECTS.sand.radius * 10,
       OBJECTS.sand.radius / 10,
       OBJECTS.sand.radius / 10,
     );
 
-    // Текстура
-    self.helper._map = self.assets.getTexture(Names.sand);
-
-    self.helper._material = new THREE.MeshLambertMaterial({
+    // Текстура и материал
+    self.helper.map = self.assets.getTexture(Names.sand);
+    self.helper.material = new THREE.MeshStandardMaterial({
       color: Colors.yellowLight,
-      map: self.helper._map,
+      map: self.helper.map,
     });
 
     // Искажение
     const vertex = new THREE.Vector3();
-    const { position } = self.helper._geometry.attributes;
+    const { position } = self.helper.geometry.attributes;
     for (let i = 0, l = position.count; i < l; i++) {
       vertex.fromBufferAttribute(position, i);
       vertex.x += (Math.random() * plusOrMinus() * DESIGN.CELL) / 10;
@@ -66,8 +71,7 @@ export default class Atmosphere extends Module {
       position.setXYZ(i, vertex.x, vertex.y, vertex.z);
     }
 
-    // Песок
-    this._sand = new THREE.Mesh(self.helper._geometry, self.helper._material);
+    this._sand = new THREE.Mesh(self.helper.geometry, self.helper.material);
     this._sand.rotation.x = -Math.PI / 2;
     this._sand.position.set(0, OBJECTS.sand.positionY, 0);
     this._sand.name = Names.sand;

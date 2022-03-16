@@ -3,6 +3,18 @@
     <Preloader>
       <Scene />
 
+      <div class="layout__overlay" />
+
+      <ul class="layout__messages">
+        <li
+          class="layout__message"
+          v-for="(message, index) in messages"
+          :key="`message${index}`"
+        >
+          {{ $t(`${message.text}`) }}
+        </li>
+      </ul>
+
       <transition name="fade2">
         <DesignPanel v-show="isDesignPanel" />
       </transition>
@@ -56,7 +68,6 @@
 
   <Gate v-else-if="!isDesktop" face="gadgets" />
   <Gate v-else face="chrome" />
-  {{ isDesktop }}
 </template>
 
 <script lang="ts">
@@ -104,6 +115,7 @@ export default defineComponent({
 
     const isPause = computed(() => store.getters['layout/isPause']);
     const isDesignPanel = computed(() => store.getters['layout/isDesignPanel']);
+    const messages = computed(() => store.getters['game/messages']);
 
     onMounted(() => {
       onWindowResize();
@@ -132,6 +144,7 @@ export default defineComponent({
       isGameLoaded,
       isPause,
       isDesignPanel,
+      messages,
       play,
       restart,
     };
@@ -151,6 +164,26 @@ export default defineComponent({
     margin-top 15vh
     position relative
     $text("olga")
+
+  &__overlay
+    @extend $viewport
+    display flex
+    justify-content flex-end
+    pointer-events none
+    background linear-gradient(0deg, rgba($colors.primary, $opacites.jazz) 0%, rgba($colors.ghost, $opacites.rock) 100%)
+    z-index 500
+
+  &__messages
+    @extend $viewport
+    list-style none
+    padding 0.5vw 1vw
+    pointer-events none
+    z-index 1000
+    color #000000
+
+  &__message
+    margin-bottom 0.5vw
+    $text("maria")
 
   &__blocker
     @extend $viewport

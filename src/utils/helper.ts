@@ -4,13 +4,20 @@
 import * as THREE from 'three';
 
 // Constants
-import { Names, Textures, DESIGN, OBJECTS, CAN_BUILD } from '@/utils/constants';
+import {
+  Names,
+  Textures,
+  Audios,
+  DESIGN,
+  OBJECTS,
+  CAN_BUILD,
+} from '@/utils/constants';
 
 // Types
 import type {
   Texture,
   Vector3,
-  MeshLambertMaterial,
+  MeshStandardMaterial,
   Mesh,
   Group,
   BoxBufferGeometry,
@@ -35,11 +42,9 @@ import {
   getRepeatByName,
   getGridKey,
   isNotStartPlates,
-  objectCoordsHelper,
+  coordsFromVector,
+  getIsLoopByName,
 } from '@/utils/utilities';
-
-// Modules
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export default class Helper {
   // Private working variables
@@ -57,16 +62,9 @@ export default class Helper {
   private _objects2: TObjectField = [];
 
   // Utils
-  public _material: MeshLambertMaterial = new THREE.MeshLambertMaterial();
-  public _map!: Texture;
-  public _geometry!: PlaneBufferGeometry | BoxGeometry;
-
-  // Loaders
-  public GLTFLoader: GLTFLoader;
-
-  constructor() {
-    this.GLTFLoader = new GLTFLoader();
-  }
+  public material: MeshStandardMaterial = new THREE.MeshStandardMaterial();
+  public map!: Texture;
+  public geometry!: PlaneBufferGeometry | BoxGeometry;
 
   // Functions
 
@@ -85,18 +83,32 @@ export default class Helper {
   // Помощник загрузки и установки текстур
   public setMapHelper(self: ISelf, name: Names | Textures): Texture {
     this._number = getRepeatByName(name);
-    this._map = new THREE.TextureLoader().load(
+    this.map = self.assets.textureLoader.load(
       `./images/textures/${name}.jpg`,
       () => {
         self.render();
         this.loaderDispatchHelper(self.store, `${name}IsLoaded`);
       },
     );
-    this._map.repeat.set(this._number, this._number);
-    this._map.wrapS = this._map.wrapT = THREE.RepeatWrapping;
-    this._map.encoding = THREE.sRGBEncoding;
+    this.map.repeat.set(this._number, this._number);
+    this.map.wrapS = this.map.wrapT = THREE.RepeatWrapping;
+    this.map.encoding = THREE.sRGBEncoding;
 
-    return this._map;
+    return this.map;
+  }
+
+  // Помощник загрузки звуков
+  public setAudioHelper(self: ISelf, name: Audios): void {
+    self.assets.audioLoader.load(`./audio/${name}.mp3`, (buffer) => {
+      self.audio.addAudioToHero(self, buffer, name, getIsLoopByName(name));
+      this.loaderDispatchHelper(self.store, `${name}IsLoaded`);
+
+      // Ветер
+      if (name === Audios.wind) {
+        this._is = self.store.getters['layout/isPause'];
+        if (!this._is) self.audio.startHeroSound(Audios.wind);
+      }
+    });
   }
 
   public traverseHelper(self: ISelf, model: GLTF): GLTF {
@@ -122,8 +134,6 @@ export default class Helper {
     that: StaticModules | StaticModelModules,
   ): void {
     this._objects = [...self.store.getters['objects/objects'][that.name]];
-    self.logger.log('Helper', 'initModulesHelper', that.name, this._objects);
-
     if (
       self.store.getters['objects/isStart'] &&
       (that.name === Names.plates || that.name === Names.command) // Плиты и командный пункт - есть на старте
@@ -229,7 +239,7 @@ export default class Helper {
     self: ISelf,
     name: Names,
     geometry: BoxBufferGeometry,
-    material: MeshLambertMaterial,
+    material: MeshStandardMaterial,
     position: TPosition,
     isStart: boolean,
   ): void {
@@ -330,7 +340,7 @@ export default class Helper {
         ++z
       ) {
         if (this._is) {
-          this._position = objectCoordsHelper(vector);
+          this._position = coordsFromVector(vector);
           this._position.x += x;
           this._position.z += z;
           if (this._isPlateOnCoords(self) && this._isBuildNotOnCoords(self))
@@ -349,17 +359,11 @@ export default class Helper {
     this._positions = [];
     for (let x = -1; x < 2; ++x) {
       for (let z = -1; z < 2; ++z) {
-        this._position = objectCoordsHelper(vector);
+        this._position = coordsFromVector(vector);
         this._position.x += x;
         this._position.z += z;
         if (!this._isPlateOnCoords(self))
           this._positions.push({ x: this._position.x, z: this._position.z });
-        else
-          self.logger.log(
-            'Helper',
-            '_getCanPlateBuildArray',
-            'Tут уже есть плита!!!',
-          );
       }
     }
     return this._positions;
@@ -371,64 +375,30 @@ export default class Helper {
     vector: Vector3,
     name: Names,
   ): boolean {
-    self.logger.log('Helper', 'isCanAddItemHelper', name, this._position);
-
     this._objects = [...self.store.getters['objects/objects'][name]];
     this._number = self.store.getters['layout/cash'];
 
     if (name === Names.plates) {
-      self.logger.log(
-        'Helper',
-        'isCanAddItemHelper',
-        'Проверяем позиции для 9ти плит!!!',
-      );
-
       this._positions = this._getCanPlateBuildArray(self, vector);
       if (
         this._positions.length > 0 &&
         this._positions.length * OBJECTS[Names.plates].price <= this._number
       )
         this._is = true;
-      else {
-        this._is = false;
-        self.logger.log(
-          'Helper',
-          'isCanAddItemHelper',
-          'Все плиты уже есть или не хватает средств!!!',
-        );
-      }
+      else this._is = false;
     } else {
       if (OBJECTS[name].price <= this._number) {
-        this._position = objectCoordsHelper(vector);
+        this._position = coordsFromVector(vector);
         if (OBJECTS[name].size / DESIGN.CELL === 1) {
           if (this._isPlateOnCoords(self) && this._isBuildNotOnCoords(self))
             this._is = true;
-          else {
-            this._is = false;
-            self.logger.log(
-              'Helper',
-              'isCanAddItemHelper',
-              'Не хватает плиты или уже есть строения!!!',
-            );
-          }
+          else this._is = false;
         } else {
           if (this._isAllPlatesAndNotBuilds(self, vector, name))
             this._is = true;
-          else {
-            this._is = false;
-            self.logger.log(
-              'Helper',
-              'isCanAddItemHelper',
-              'Не хватает плит или уже есть строения!!!',
-            );
-          }
+          else this._is = false;
         }
-      } else
-        self.logger.log(
-          'Helper',
-          'isCanAddItemHelper',
-          'Не хватает средств!!!',
-        );
+      }
     }
 
     return this._is;
@@ -440,17 +410,9 @@ export default class Helper {
     that: StaticSimpleModules | StaticModules,
     vector: Vector3,
   ): void {
-    self.logger.log('Helper', 'addItemHelper', that.name, this._position);
-
     this._objects = [...self.store.getters['objects/objects'][that.name]];
 
     if (that.name === Names.plates) {
-      self.logger.log(
-        'Helper',
-        'addItemHelper',
-        'Проверяем позиции для 9ти плит!!!',
-      );
-
       this._positions = this._getCanPlateBuildArray(self, vector);
       if (this._positions.length > 0) {
         this._positions.forEach((position) => {
@@ -458,29 +420,14 @@ export default class Helper {
           this._position.z = position.z;
           this._add(self, that);
         });
-      } else {
-        self.logger.log('Helper', 'addItemHelper', 'Все плиты уже есть!!!');
       }
     } else {
       if (OBJECTS[that.name].size / DESIGN.CELL === 1) {
         if (this._isPlateOnCoords(self) && this._isBuildNotOnCoords(self))
           this._add(self, that);
-        else {
-          self.logger.log(
-            'Helper',
-            'addItemHelper',
-            'Не хватает плиты или уже есть строения!!!',
-          );
-        }
       } else {
         if (this._isAllPlatesAndNotBuilds(self, vector, that.name))
           this._add(self, that);
-        else
-          self.logger.log(
-            'Helper',
-            'addItemHelper',
-            'Не хватает плит или уже есть строения!!!',
-          );
       }
     }
   }
