@@ -49,6 +49,7 @@ export enum Colors {
   selection = 0xaa0000,
   pointer = 0xff2500,
   build = 0x5c5c30,
+  stone = 0x9f2f00,
 
   // objects
   plates = 0xdfbf7d,

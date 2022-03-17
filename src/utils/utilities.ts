@@ -78,17 +78,11 @@ export const getRandomPosition = (
   centerZ: number,
   radius: number,
 ): TPosition => {
+  const a = plusOrMinus();
+  const b = plusOrMinus();
   return {
-    x:
-      toGridCoords(
-        Math.round(centerX + Math.random() * plusOrMinus() * radius),
-      ) +
-      20 * plusOrMinus(),
-    z:
-      toGridCoords(
-        Math.round(centerZ + Math.random() * plusOrMinus() * radius),
-      ) +
-      20 * plusOrMinus(),
+    x: toGridCoords(Math.round(centerX + Math.random() * a * radius)) + 100 * a,
+    z: toGridCoords(Math.round(centerZ + Math.random() * b * radius)) + 100 * b,
   };
 };
 

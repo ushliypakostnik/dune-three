@@ -152,6 +152,7 @@ export default class AudioBus {
 
   // Пауза
   public toggle(isPause: boolean): void {
+    console.log('AAA', isPause);
     if (isPause) {
       this._bus
         .filter((record) => record.audio.isPlaying)

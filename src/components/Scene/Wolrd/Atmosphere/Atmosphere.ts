@@ -4,7 +4,7 @@ import { Names, Colors, DESIGN, OBJECTS } from '@/utils/constants';
 
 // Types
 import type { ISelf } from '@/models/modules';
-import type { HemisphereLight, Mesh, GridHelper } from 'three';
+import type { HemisphereLight, Mesh, Group, GridHelper } from 'three';
 
 // Modules
 import { Module } from '@/models/modules';
@@ -13,12 +13,23 @@ import { Module } from '@/models/modules';
 import {
   plusOrMinus,
   distance2D,
+  randomInteger,
+  getUniqueRandomPosition,
 } from '@/utils/utilities';
+import { TPosition } from '@/models/utils';
 
 export default class Atmosphere extends Module {
   private _light: HemisphereLight;
   private _sand!: Mesh;
   private _grid!: GridHelper;
+  private _stone!: Mesh;
+  private _position!: TPosition;
+  private _randomX!: number;
+  private _randomZ!: number;
+  private _diff!: number;
+  private _height!: number;
+  private _positions!: Array<TPosition>;
+  private _mountain: Group = new THREE.Group();
 
   constructor() {
     super(Names.atmosphere);
@@ -77,6 +88,62 @@ export default class Atmosphere extends Module {
     this._sand.name = Names.sand;
     this._sand.updateMatrix();
     self.scene.add(this._sand);
+
+    // Stones
+
+    for (let n = 0; n < 15; ++n) {
+      this._positions = [];
+      this._mountain = new THREE.Group();
+      this._position = getUniqueRandomPosition(
+        this._positions,
+        0,
+        0,
+        100,
+        DESIGN.SIZE / DESIGN.CELL / 3,
+      );
+      console.log(this._position);
+      this._randomX = randomInteger(5, 7);
+      this._randomZ = randomInteger(5, 7);
+      this._height = 1;
+      let x = 0;
+      let z = 0;
+      while (x < this._randomX) {
+        x += 1;
+
+        z = 0;
+        this._diff = randomInteger(-1, 1);
+        while (z < this._randomZ) {
+          z += 1;
+
+          this._height += randomInteger(-2, 2);
+          if (this._height < 1) this._height = 1;
+
+          // Форма
+          self.helper.geometry = new THREE.BoxBufferGeometry(
+            DESIGN.CELL,
+            DESIGN.CELL * this._height,
+            DESIGN.CELL,
+          );
+
+          // Mатериал
+          self.helper.material = new THREE.MeshStandardMaterial({
+            color: Colors.stone,
+          });
+
+          this._stone = new THREE.Mesh(
+            self.helper.geometry,
+            self.helper.material,
+          );
+          this._stone.position.set(
+            this._position.x + x * DESIGN.CELL,
+            OBJECTS.sand.positionY,
+            this._position.z + (z + this._diff) * DESIGN.CELL,
+          );
+          this._mountain.add(this._stone);
+        }
+      }
+      self.scene.add(this._mountain);
+    }
 
     // Вспомогательная сетка
     this._grid = new THREE.GridHelper(
