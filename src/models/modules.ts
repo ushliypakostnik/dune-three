@@ -153,7 +153,7 @@ export class StaticSimpleModules extends StaticModules {
   // Инициализация одного объекта
   public initItem(
     self: ISelf,
-    item: TPosition | TObject,
+    item: TPosition,
     isStart: boolean,
   ): void {
     self.helper.initItemHelper(
@@ -192,7 +192,7 @@ export class StaticModelModules extends StaticModules {
   // Инициализация одного объекта
   public initItem(
     self: ISelf,
-    item: TPosition | TObject,
+    item: TPosition,
     isStart: boolean,
   ): void {
     self.helper.initItemFromModelHelper(

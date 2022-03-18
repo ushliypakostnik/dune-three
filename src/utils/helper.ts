@@ -11,6 +11,7 @@ import {
   DESIGN,
   OBJECTS,
   CAN_BUILD,
+  BUILDS,
 } from '@/utils/constants';
 
 // Types
@@ -106,7 +107,12 @@ export default class Helper {
       // Ветер
       if (name === Audios.wind) {
         this._is = self.store.getters['layout/isPause'];
-        if (!this._is) self.audio.startHeroSound(Audios.wind);
+        if (!this._is) {
+          /* self.listener.context.resume().then(() => {
+            console.log('Playback resumed successfully');
+          }); */
+          self.audio.startHeroSound(Audios.wind);
+        }
       }
     });
   }
@@ -117,10 +123,14 @@ export default class Helper {
       if (child.isMesh) {
         if (child.name.includes(Textures.concrette)) {
           child.material = self.assets.getMaterial(Textures.concrette);
+        } else if (child.name.includes(Textures.metall2)) {
+          child.material = self.assets.getMaterial(Textures.metall2);
         } else if (child.name.includes(Textures.metall)) {
           child.material = self.assets.getMaterial(Textures.metall);
         } else if (child.name.includes(Textures.glass)) {
           child.material = self.assets.getMaterial(Textures.glass);
+        } else if (child.name.includes(Textures.hole)) {
+          child.material = self.assets.getMaterial(Textures.hole);
         }
       }
     });
@@ -148,7 +158,7 @@ export default class Helper {
     } else {
       this._objects2 = [];
       this._objects.forEach((item: TObject) => {
-        that.initItem(self, item, false);
+        that.initItem(self, { x: item.data.x, z: item.data.z }, false);
       });
       self.store.dispatch('objects/saveObjects', {
         name: that.name,
@@ -165,10 +175,12 @@ export default class Helper {
     this._objects.push({
       name,
       id,
-      x: position.x,
-      z: position.z,
-      r: 0,
-      health: 100,
+      data: {
+        x: position.x,
+        z: position.z,
+        r: 0,
+        health: 100,
+      },
     });
   }
 
@@ -181,10 +193,12 @@ export default class Helper {
     this._objects2.push({
       name,
       id,
-      x: position.x,
-      z: position.z,
-      r: 0,
-      health: 100,
+      data: {
+        x: position.x,
+        z: position.z,
+        r: 0,
+        health: 100,
+      },
     });
   }
 
@@ -274,7 +288,7 @@ export default class Helper {
   // Проверки
 
   // Есть ли плита на координатах?
-  private _isPlateOnCoords(self: ISelf): boolean {
+  private _isNameOnCoords(self: ISelf, name: Names): boolean {
     if (
       Object.prototype.hasOwnProperty.call(
         self.store.getters['objects/grid'],
@@ -285,7 +299,7 @@ export default class Helper {
         ...self.store.getters['objects/grid'][
           getGridKey({ x: this._position.x, z: this._position.z })
         ],
-      ].includes(Names.plates);
+      ].includes(name);
     return false;
   }
 
@@ -297,13 +311,17 @@ export default class Helper {
         getGridKey({ x: this._position.x, z: this._position.z }),
       )
     )
-      return (
-        [
-          ...self.store.getters['objects/grid'][
-            getGridKey({ x: this._position.x, z: this._position.z })
-          ],
-        ].length < 2
-      );
+      this._array = [
+        ...self.store.getters['objects/grid'][
+          getGridKey({ x: this._position.x, z: this._position.z })
+        ],
+      ];
+
+    this._is = true;
+    BUILDS.forEach((build) => {
+      if (this._array.includes(build) && this._is) this._is = false;
+    });
+    return this._is;
     return true;
   }
 
@@ -343,7 +361,10 @@ export default class Helper {
           this._position = coordsFromVector(vector);
           this._position.x += x;
           this._position.z += z;
-          if (this._isPlateOnCoords(self) && this._isBuildNotOnCoords(self))
+          if (
+            this._isNameOnCoords(self, Names.plates) &&
+            this._isBuildNotOnCoords(self)
+          )
             this._is = false;
         }
       }
@@ -362,7 +383,10 @@ export default class Helper {
         this._position = coordsFromVector(vector);
         this._position.x += x;
         this._position.z += z;
-        if (!this._isPlateOnCoords(self))
+        if (
+          !this._isNameOnCoords(self, Names.plates) &&
+          this._isNameOnCoords(self, Names.sands)
+        )
           this._positions.push({ x: this._position.x, z: this._position.z });
       }
     }
@@ -390,7 +414,10 @@ export default class Helper {
       if (OBJECTS[name].price <= this._number) {
         this._position = coordsFromVector(vector);
         if (OBJECTS[name].size / DESIGN.CELL === 1) {
-          if (this._isPlateOnCoords(self) && this._isBuildNotOnCoords(self))
+          if (
+            this._isNameOnCoords(self, Names.plates) &&
+            this._isBuildNotOnCoords(self)
+          )
             this._is = true;
           else this._is = false;
         } else {
@@ -423,7 +450,10 @@ export default class Helper {
       }
     } else {
       if (OBJECTS[that.name].size / DESIGN.CELL === 1) {
-        if (this._isPlateOnCoords(self) && this._isBuildNotOnCoords(self))
+        if (
+          this._isNameOnCoords(self, Names.plates) &&
+          this._isBuildNotOnCoords(self)
+        )
           this._add(self, that);
       } else {
         if (this._isAllPlatesAndNotBuilds(self, vector, that.name))
@@ -442,7 +472,7 @@ export default class Helper {
         this._object = this._objects.find((object) => object.id === id);
         if (
           this._object &&
-          isNotStartPlates({ x: this._object.x, z: this._object.z })
+          isNotStartPlates({ x: this._object.data.x, z: this._object.data.z })
         )
           this._array.push(this._object.id);
       });
@@ -460,8 +490,8 @@ export default class Helper {
         if (this._object) {
           self.store.dispatch('objects/sellObject', {
             name,
-            x: this._object.x,
-            z: this._object.z,
+            x: this._object.data.x,
+            z: this._object.data.z,
           });
         }
       }

@@ -50,7 +50,7 @@ $name = '.game-panel'
   right 0
   bottom 0
   z-index 2000
-  background rgba(#000000, $opacites.funky)
+  background rgba($colors.dark, $opacites.funky)
   padding 0.5vw 1vw
   color $colors.primary
   $text("maria")

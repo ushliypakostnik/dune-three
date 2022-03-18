@@ -20,8 +20,10 @@ export default class Assets {
   // Textures
   private _concrette!: Texture;
   private _metall!: Texture;
+  private _metall2!: Texture;
   private _glass!: Texture;
   private _sand!: Texture;
+  private _sand2!: Texture;
   private _plates!: Texture;
 
   // Loaders
@@ -40,8 +42,10 @@ export default class Assets {
     // Textures
     this._concrette = self.helper.setMapHelper(self, Textures.concrette);
     this._metall = self.helper.setMapHelper(self, Textures.metall);
+    this._metall2 = self.helper.setMapHelper(self, Textures.metall2);
     this._glass = self.helper.setMapHelper(self, Textures.glass);
     this._sand = self.helper.setMapHelper(self, Textures.sand);
+    this._sand2 = self.helper.setMapHelper(self, Textures.sand2);
     this._plates = self.helper.setMapHelper(self, Textures.plates);
 
     // Audio
@@ -60,10 +64,14 @@ export default class Assets {
         return this._concrette;
       case Textures.metall:
         return this._metall;
+      case Textures.metall2:
+        return this._metall2;
       case Textures.glass:
         return this._glass;
       case Textures.sand:
         return this._sand;
+      case Textures.sand2:
+        return this._sand2;
       case Textures.plates:
         return this._plates;
     }
@@ -77,6 +85,10 @@ export default class Assets {
         return new THREE.MeshPhongMaterial({
           map: this.getTexture(name),
           color: Colors[name as keyof typeof Colors],
+        });
+      case Textures.hole:
+        return new THREE.MeshPhongMaterial({
+          color: Colors.black,
         });
     }
     return new THREE.MeshPhongMaterial({

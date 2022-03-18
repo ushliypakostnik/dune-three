@@ -45,20 +45,17 @@ export interface ILayout extends IStore {
 
 // Objects
 
-export type TObject = {
-  name: Names;
-  id: string;
-  x: number;
-  z: number;
-  r: number;
-  health: number;
-};
-export type TObjectField = Array<TObject>;
-export type TObjectsPayload = { name: string; objects: TObjectField };
-
 export interface IObjects extends IStore {
   [key: string]: any;
 }
+
+export type TObject = {
+  name: Names;
+  id: string;
+  data: { [key: string]: any};
+};
+export type TObjectField = Array<TObject>;
+export type TObjectsPayload = { name: string; objects: TObjectField };
 
 export type TSellPayload = {
   name: Names;

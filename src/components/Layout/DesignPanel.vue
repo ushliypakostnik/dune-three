@@ -107,7 +107,7 @@ $design-panel__width = 23vw
   top 0
   bottom 0
   z-index 1500
-  background rgba(#000000, $opacites.funky)
+  background rgba($colors.dark, $opacites.funky)
   padding 1vw
 
   &__button

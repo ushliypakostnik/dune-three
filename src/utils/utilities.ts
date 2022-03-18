@@ -34,7 +34,7 @@ export const getGridKey = (position: TPosition): string => {
 
 // Получить координаты в сетке по вектору
 export const toGridCoords = (position: number): number => {
-  return position * DESIGN.CELL;
+  return position / DESIGN.CELL;
 };
 
 // Получить координаты в сетке по вектору
@@ -77,12 +77,14 @@ export const getRandomPosition = (
   centerX: number,
   centerZ: number,
   radius: number,
+  isSafeCenter: boolean,
 ): TPosition => {
+  const safe = isSafeCenter ? 12 : 7;
   const a = plusOrMinus();
   const b = plusOrMinus();
   return {
-    x: toGridCoords(Math.round(centerX + Math.random() * a * radius)) + 100 * a,
-    z: toGridCoords(Math.round(centerZ + Math.random() * b * radius)) + 100 * b,
+    x: Math.round(centerX + Math.random() * a * radius) + safe * a,
+    z: Math.round(centerZ + Math.random() * b * radius) + safe * b,
   };
 };
 
@@ -109,10 +111,16 @@ export const getUniqueRandomPosition = (
   centerZ: number,
   distance: number,
   radius: number,
+  isSafeCenter: boolean,
 ): TPosition => {
-  let position: TPosition = getRandomPosition(centerX, centerZ, radius);
+  let position: TPosition = getRandomPosition(
+    centerX,
+    centerZ,
+    radius,
+    isSafeCenter,
+  );
   while (isBadPosition(positions, position, distance)) {
-    position = getRandomPosition(centerX, centerZ, radius);
+    position = getRandomPosition(centerX, centerZ, radius, isSafeCenter);
   }
   return position;
 };
@@ -126,6 +134,8 @@ export const getTextureByName = (name: Names): Textures => {
       return Textures.concrette;
     case Names.sand:
       return Textures.sand;
+    case Names.sands:
+      return Textures.sand2;
     case Names.plates:
       return Textures.plates;
   }
@@ -140,9 +150,12 @@ export const getRepeatByName = (name: Names | Textures): number => {
     case Names.plates:
       return 2;
     case Textures.metall:
+    case Textures.metall2:
       return 4;
     case Textures.glass:
       return 8;
+    case Textures.sand2:
+      return 0.5;
     case Names.sand:
       return 4096;
   }
@@ -153,20 +166,23 @@ export const getRepeatByName = (name: Names | Textures): number => {
 export const getGeometryByName = (name: Names | string): BoxBufferGeometry => {
   switch (name) {
     case 'build':
-      return new THREE.BoxGeometry(
-        OBJECTS.plates.size * 3,
-        2,
-        OBJECTS.plates.size * 3,
-      );
+      return new THREE.BoxGeometry(DESIGN.CELL * 3, 2, DESIGN.CELL * 3);
     case Names.walls:
       return new THREE.BoxBufferGeometry(
-        OBJECTS.plates.size,
-        OBJECTS.plates.size * 2,
-        OBJECTS.plates.size,
+        DESIGN.CELL,
+        DESIGN.CELL * 2,
+        DESIGN.CELL,
+      );
+    case Names.stations:
+    case Names.plants:
+      return new THREE.BoxGeometry(
+        DESIGN.CELL * 3,
+        DESIGN.CELL * 2,
+        DESIGN.CELL * 3,
       );
     case Names.plates:
     default:
-      return new THREE.BoxGeometry(OBJECTS.plates.size, 2, OBJECTS.plates.size);
+      return new THREE.BoxGeometry(DESIGN.CELL, 2, DESIGN.CELL);
   }
 };
 
@@ -174,6 +190,8 @@ export const getGeometryByName = (name: Names | string): BoxBufferGeometry => {
 export const getPositionYByName = (name: Names): number => {
   switch (name) {
     case Names.walls:
+    case Names.stations:
+    case Names.plants:
     default:
       return OBJECTS.plates.positionY + OBJECTS.plates.size + 1;
     case Names.plates:

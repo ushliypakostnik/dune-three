@@ -393,6 +393,10 @@ export default defineComponent({
         if (value === Names.plates) box.geometry = getGeometryByName('build');
         else box.geometry = getGeometryByName(value);
         box.position.y = getPositionYByName(value);
+
+        build.geometry = box.geometry;
+        box.position.y = getPositionYByName(value);
+
         self.audio.replayHeroSound(Audios.zero);
       },
     );
@@ -629,6 +633,8 @@ export default defineComponent({
     onMounted(() => {
       init();
       animate();
+
+      // audio.toggle(isPause.value);
     });
 
     return {

@@ -14,10 +14,16 @@ const initialState: IPreloader = {
   // Textures
   concretteIsLoaded: false,
   sandIsLoaded: false,
+  sand2IsLoaded: false,
   platesIsLoaded: false,
+  metallIsLoaded: false,
+  metall2IsLoaded: false,
+  glassIsLoaded: false,
 
   // Models
   commandIsLoaded: false,
+  stationsIsLoaded: false,
+  plantsIsLoaded: false,
 
   // Audio
   windIsLoaded: false,
@@ -29,6 +35,8 @@ const initialState: IPreloader = {
   commandIsBuild: false,
   platesIsBuild: false,
   wallsIsBuild: false,
+  stationsIsBuild: false,
+  plantsIsBuild: false,
 };
 
 const preloader: Module<IPreloader, IStore> = {

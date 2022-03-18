@@ -103,6 +103,8 @@ export default defineComponent({
 
     const store = useStore(key);
 
+    const start = ref(null);
+
     let isDesktop: Ref<boolean> = ref(false);
     const isBro = ScreenHelper.isBro();
     let onWindowResize: () => void;
@@ -159,7 +161,7 @@ export default defineComponent({
   @extend $viewport
 
   &__name
-    color $colors.dark
+    color $colors.sea
     text-align center
     margin-top 15vh
     position relative
@@ -179,7 +181,7 @@ export default defineComponent({
     padding 0.5vw 1vw
     pointer-events none
     z-index 1000
-    color #000000
+    color $colors.sea
 
   &__message
     margin-bottom 0.5vw
@@ -203,7 +205,7 @@ export default defineComponent({
 
   p
     margin-bottom $gutter
-    color $colors.dark
+    color $colors.sea
     $text("nina")
 
   &__help

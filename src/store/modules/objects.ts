@@ -20,10 +20,13 @@ const initialState: IObjects = {
   isStart: true,
   grid: {},
   objects: {
+    [`${Names.stones}`]: [],
+
     [`${Names.command}`]: [],
     [`${Names.plates}`]: [],
     [`${Names.walls}`]: [],
-    [`${Names.station}`]: [],
+    [`${Names.stations}`]: [],
+    [`${Names.plants}`]: [],
   },
 };
 

@@ -30,3 +30,10 @@ export type TAudio = {
   audio: Audio;
   isStopped: boolean;
 };
+
+export type TStone = {
+  x: number;
+  z: number;
+  h: number;
+};
+export type TMountain = Array<TStone>;

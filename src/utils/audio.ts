@@ -152,7 +152,6 @@ export default class AudioBus {
 
   // Пауза
   public toggle(isPause: boolean): void {
-    console.log('AAA', isPause);
     if (isPause) {
       this._bus
         .filter((record) => record.audio.isPlaying)
@@ -178,6 +177,11 @@ export default class AudioBus {
     }
   }
 
+  // Получить звук на герое
+  public getHeroSound(name: Audios): Audio {
+    return this._getRecordByName(name)?.audio as Audio;
+  }
+
   // Запустить звук на герое
   public startHeroSound(name: Audios): void {
     this._record = this._getRecordByName(name);
@@ -185,6 +189,7 @@ export default class AudioBus {
       this._record.audio.play();
   }
 
+  // Остановить звук на герое
   public pauseHeroSound(name: Audios): void {
     this._record = this._getRecordByName(name);
     if (this._record && this._record.audio && this._record.audio.isPlaying)

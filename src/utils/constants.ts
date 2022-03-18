@@ -11,11 +11,14 @@ export enum Names {
   world = 'world',
   atmosphere = 'atmosphere',
   sand = 'sand',
+  sands = 'sands',
+  stones = 'stones',
   builds = 'builds',
   plates = 'plates',
   walls = 'walls',
   command = 'command',
-  station = 'station',
+  stations = 'stations',
+  plants = 'plants',
 }
 
 // GUI
@@ -23,9 +26,12 @@ export enum Names {
 export enum Textures {
   concrette = 'concrette',
   metall = 'metall',
+  metall2 = 'metall2',
   glass = 'glass',
   sand = 'sand',
+  sand2 = 'sand2',
   plates = 'plates',
+  hole = 'hole',
 }
 
 export enum Audios {
@@ -40,25 +46,26 @@ export enum Colors {
   white = 0xffffff,
   black = 0x000000,
   blue = 0x88ccff,
-  purple = 0xa48ed8,
-  purpleDark = 0x8267bf,
-  purpleDarken = 0x413460,
   yellow = 0xfed564,
   yellowLight = 0xffe064,
+
   dark = 0x13334c,
+
+  // utils
   selection = 0xaa0000,
   pointer = 0xff2500,
   build = 0x5c5c30,
-  stone = 0x9f2f00,
 
   // objects
   plates = 0xdfbf7d,
+  stone = 0xee5500,
   walls = 0xf0bf7d,
 
   // textures
   concrette = 0xdfbf7d,
   metall = 0xf0bf7d,
   glass = 0xf9bf7d,
+  sand2 = 0xffd564,
 }
 
 enum Breakpoints {
@@ -125,6 +132,12 @@ export const OBJECTS: TConfig = {
     radius: size(0.5),
     positionY: 0,
   },
+  [Names.command]: {
+    size: DESIGN.CELL * 3,
+    positionY: 1,
+    isStartRotate: false,
+    price: 0,
+  },
   [Names.plates]: {
     size: DESIGN.CELL,
     positionY: 1,
@@ -139,13 +152,14 @@ export const OBJECTS: TConfig = {
     price: 5,
     time: 1,
   },
-  [Names.command]: {
-    size: DESIGN.CELL * 3,
+  [Names.stations]: {
+    size: DESIGN.CELL,
     positionY: 1,
     isStartRotate: false,
-    price: 0,
+    price: 15,
+    time: 3,
   },
-  [Names.station]: {
+  [Names.plants]: {
     size: DESIGN.CELL,
     positionY: 1,
     isStartRotate: false,
@@ -155,10 +169,20 @@ export const OBJECTS: TConfig = {
 };
 
 // Объекты которые можно строить, в том порядке в котором они становятся доступными - слабо, но чтобы не усложнять!!!
-export const CAN_BUILD: string[] = [Names.plates, Names.walls, Names.station];
+export const CAN_BUILD: string[] = [
+  Names.plates,
+  Names.walls,
+  Names.stations,
+  Names.plants,
+];
 
 // Все постройки кроме плиток
-export const BUILDS = [Names.command, Names.walls, Names.station];
+export const BUILDS = [
+  Names.command,
+  Names.walls,
+  Names.stations,
+  Names.plants,
+];
 
 // Объекты которые можно выделять
 export const SELECTABLE_OBJECTS: string[] = [...CAN_BUILD];
@@ -180,10 +204,11 @@ export const MESSAGES: TMessages = {
     cash: 'Credits',
     sell: 'Sell',
 
+    [Names.command]: 'Command post',
     [Names.plates]: 'Plate',
     [Names.walls]: 'Wall',
-    [Names.command]: 'Command post',
-    [Names.station]: 'Power station',
+    [Names.stations]: 'Power station',
+    [Names.plants]: 'Greenhouse',
 
     // Messages
     impossibleToBuild: 'Impossible to build!',
@@ -204,10 +229,11 @@ export const MESSAGES: TMessages = {
     cash: 'Кредиты',
     sell: 'Продать',
 
+    [Names.command]: 'Командный пункт',
     [Names.plates]: 'Плита',
     [Names.walls]: 'Стена',
-    [Names.command]: 'Командный пункт',
-    [Names.station]: 'Электростанция',
+    [Names.stations]: 'Электростанция',
+    [Names.plants]: 'Оранжерея',
 
     // Messages
     impossibleToBuild: 'Невозможно построить!',
