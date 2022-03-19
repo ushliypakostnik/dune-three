@@ -151,11 +151,7 @@ export class StaticSimpleModules extends StaticModules {
   }
 
   // Инициализация одного объекта
-  public initItem(
-    self: ISelf,
-    item: TPosition,
-    isStart: boolean,
-  ): void {
+  public initItem(self: ISelf, item: TPosition, isStart: boolean): void {
     self.helper.initItemHelper(
       self,
       this.name,
@@ -190,11 +186,7 @@ export class StaticModelModules extends StaticModules {
   }
 
   // Инициализация одного объекта
-  public initItem(
-    self: ISelf,
-    item: TPosition,
-    isStart: boolean,
-  ): void {
+  public initItem(self: ISelf, item: TPosition, isStart: boolean): void {
     self.helper.initItemFromModelHelper(
       self,
       this.name,

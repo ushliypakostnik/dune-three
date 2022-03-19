@@ -133,7 +133,7 @@ $design-panel__width = 23vw
     border 2px solid $colors.primary
     color $colors.primary
     text-decoration none
-    $text("nina")
+    $text("natasha")
 
   &__progress
     position absolute

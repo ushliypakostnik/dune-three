@@ -103,8 +103,6 @@ export default defineComponent({
 
     const store = useStore(key);
 
-    const start = ref(null);
-
     let isDesktop: Ref<boolean> = ref(false);
     const isBro = ScreenHelper.isBro();
     let onWindowResize: () => void;

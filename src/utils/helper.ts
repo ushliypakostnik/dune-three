@@ -45,6 +45,7 @@ import {
   isNotStartPlates,
   coordsFromVector,
   getIsLoopByName,
+  getGridDiffByName,
 } from '@/utils/utilities';
 
 export default class Helper {
@@ -226,16 +227,9 @@ export default class Helper {
         },
       });
     } else {
-      for (
-        let x = -1 * Math.floor(OBJECTS[name].size / (DESIGN.CELL * 2));
-        x <= Math.floor(OBJECTS[name].size / (DESIGN.CELL * 2));
-        ++x
-      ) {
-        for (
-          let z = -1 * Math.floor(OBJECTS[name].size / (DESIGN.CELL * 2));
-          z <= Math.floor(OBJECTS[name].size / (DESIGN.CELL * 2));
-          ++z
-        ) {
+      this._number = getGridDiffByName(name);
+      for (let x = -1 * this._number; x <= this._number; ++x) {
+        for (let z = -1 * this._number; z <= this._number; ++z) {
           self.store.dispatch('objects/setField', {
             field: 'grid',
             value: {
@@ -258,8 +252,11 @@ export default class Helper {
     isStart: boolean,
   ): void {
     this._item = new THREE.Mesh(geometry, material.clone());
-    this._item.position.x = position.x * DESIGN.CELL;
-    this._item.position.z = position.z * DESIGN.CELL;
+
+    this._number = getGridDiffByName(name);
+    this._item.position.x = (position.x + -1 * this._number) * DESIGN.CELL;
+    this._item.position.z = (position.z + -1 * this._number) * DESIGN.CELL;
+
     if (name !== Names.plates)
       this._item.position.y =
         OBJECTS[Names.plates].positionY + OBJECTS[Names.plates].size + 1;
@@ -273,16 +270,18 @@ export default class Helper {
     self: ISelf,
     name: Names,
     model: GLTF,
-    item: TPosition,
+    position: TPosition,
     isStart: boolean,
   ): void {
     this._item = model.scene.clone();
     this._item.scale.set(0.5, 0.5, 0.5);
-    this._item.position.x = item.x * DESIGN.CELL;
-    this._item.position.z = item.z * DESIGN.CELL;
+
+    this._number = name !== Names.command ? getGridDiffByName(name) : 0;
+    this._item.position.x = (position.x + -1 * this._number) * DESIGN.CELL;
+    this._item.position.z = (position.z + -1 * this._number) * DESIGN.CELL;
     this._item.position.y = OBJECTS[Names.plates].positionY;
 
-    this._afterInit(self, name, item, isStart);
+    this._afterInit(self, name, position, isStart);
   }
 
   // Проверки
@@ -347,23 +346,20 @@ export default class Helper {
     name: Names,
   ): boolean {
     this._is = true;
-    for (
-      let x = -1 * Math.floor(OBJECTS[name].size / (DESIGN.CELL * 2));
-      x <= Math.floor(OBJECTS[name].size / (DESIGN.CELL * 2));
-      ++x
-    ) {
-      for (
-        let z = -1 * Math.floor(OBJECTS[name].size / (DESIGN.CELL * 2));
-        z <= Math.floor(OBJECTS[name].size / (DESIGN.CELL * 2));
-        ++z
-      ) {
+    this._number = getGridDiffByName(name);
+
+    for (let x = -1 * this._number; x <= this._number; ++x) {
+      for (let z = -1 * this._number; z <= this._number; ++z) {
         if (this._is) {
           this._position = coordsFromVector(vector);
           this._position.x += x;
           this._position.z += z;
+
           if (
-            this._isNameOnCoords(self, Names.plates) &&
-            this._isBuildNotOnCoords(self)
+            !(
+              this._isNameOnCoords(self, Names.plates) &&
+              this._isBuildNotOnCoords(self)
+            )
           )
             this._is = false;
         }
@@ -373,10 +369,7 @@ export default class Helper {
   }
 
   // На каких местах можно положить плиты?
-  private _getCanPlateBuildArray(
-    self: ISelf,
-    vector: Vector3,
-  ): Array<TPosition> {
+  private _getCanPlateBuildArray(self: ISelf, vector: Vector3): TPositions {
     this._positions = [];
     for (let x = -1; x < 2; ++x) {
       for (let z = -1; z < 2; ++z) {

@@ -52,7 +52,7 @@ export interface IObjects extends IStore {
 export type TObject = {
   name: Names;
   id: string;
-  data: { [key: string]: any};
+  data: { [key: string]: any };
 };
 export type TObjectField = Array<TObject>;
 export type TObjectsPayload = { name: string; objects: TObjectField };
@@ -62,3 +62,5 @@ export type TSellPayload = {
   x: number;
   z: number;
 };
+
+export type TGrid =  { [key: string]: Array<string> };

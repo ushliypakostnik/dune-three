@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { Names, Textures, Audios, DESIGN, OBJECTS } from '@/utils/constants';
 
 // Types
-import type { TPosition } from '@/models/utils';
+import type { TPosition, TPositions } from '@/models/utils';
 import type { Store } from 'vuex';
 import type { State } from '@/store';
 import type { Vector3, BoxBufferGeometry } from 'three';
@@ -89,7 +89,7 @@ export const getRandomPosition = (
 };
 
 const isBadPosition = (
-  positions: Array<TPosition>,
+  positions: TPositions,
   position: TPosition,
   distance: number,
 ): boolean => {
@@ -106,7 +106,7 @@ export const isNotStartPlates = (position: TPosition): boolean => {
 };
 
 export const getUniqueRandomPosition = (
-  positions: Array<TPosition>,
+  positions: TPositions,
   centerX: number,
   centerZ: number,
   distance: number,
@@ -123,6 +123,10 @@ export const getUniqueRandomPosition = (
     position = getRandomPosition(centerX, centerZ, radius, isSafeCenter);
   }
   return position;
+};
+
+export const getGridDiffByName = (name: Names): number => {
+  return Math.floor(OBJECTS[name].size / (DESIGN.CELL * 2));
 };
 
 // THREE

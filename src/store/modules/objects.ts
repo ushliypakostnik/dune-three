@@ -93,6 +93,8 @@ const objects: Module<IObjects, IStore> = {
         )
           state.grid[getGridKey(position)].push(payload.value.name);
         else state.grid[getGridKey(position)] = [payload.value.name];
+      } else if (payload.field === 'grids') {
+        state.grid = payload.value;
       } else state[payload.field] = payload.value;
     },
 

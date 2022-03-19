@@ -64,6 +64,7 @@ export enum Colors {
   // textures
   concrette = 0xdfbf7d,
   metall = 0xf0bf7d,
+  metall2 = 0xf0bf7d,
   glass = 0xf9bf7d,
   sand2 = 0xffd564,
 }
@@ -153,14 +154,14 @@ export const OBJECTS: TConfig = {
     time: 1,
   },
   [Names.stations]: {
-    size: DESIGN.CELL,
+    size: DESIGN.CELL * 3,
     positionY: 1,
     isStartRotate: false,
     price: 15,
     time: 3,
   },
   [Names.plants]: {
-    size: DESIGN.CELL,
+    size: DESIGN.CELL * 3,
     positionY: 1,
     isStartRotate: false,
     price: 15,

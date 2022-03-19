@@ -4,7 +4,8 @@ import { Names, Colors, DESIGN, OBJECTS, Textures } from '@/utils/constants';
 
 // Types
 import type { ISelf } from '@/models/modules';
-import type { TMountain } from '@/models/utils';
+import type { TPosition, TPositions, TStone, TMountain } from '@/models/utils';
+import type { TObjectField, TGrid } from '@/models/store';
 import type { HemisphereLight, Mesh, Group, GridHelper } from 'three';
 
 // Modules
@@ -19,8 +20,6 @@ import {
   getGridKey,
   isNotStartPlates,
 } from '@/utils/utilities';
-import { TPosition, TStone } from '@/models/utils';
-import { TObject } from '@/models/store';
 
 export default class Atmosphere extends Module {
   private _light: HemisphereLight;
@@ -33,13 +32,13 @@ export default class Atmosphere extends Module {
   private _height!: number;
   private _position!: TPosition;
   private _p!: TPosition;
-  private _positions!: Array<TPosition>;
+  private _positions!: TPositions;
   private _meshes: Group = new THREE.Group();
   private _x!: number;
   private _z!: number;
-  private _cells!: { [key: string]: Array<string> };
+  private _cells!: TGrid;
   private _object!: TMountain;
-  private _objects!: Array<TObject>;
+  private _objects!: TObjectField;
   private _hole!: number;
 
   constructor() {
@@ -110,6 +109,10 @@ export default class Atmosphere extends Module {
       map: self.helper.map,
     });
 
+    this._cells = JSON.parse(
+      JSON.stringify(self.store.getters['objects/grid']),
+    );
+
     this._positions = [];
     if (self.store.getters['objects/isStart']) {
       this._objects = [];
@@ -150,10 +153,6 @@ export default class Atmosphere extends Module {
             this._z = this._position.z + z + this._diff + this._hole;
             this._p = { x: this._x, z: this._z };
 
-            this._cells = JSON.parse(
-              JSON.stringify(self.store.getters['objects/grid']),
-            );
-
             // Добавляем в сетку если на клетке уже нет камня и это не стартовые клетки
             if (
               !(
@@ -172,14 +171,6 @@ export default class Atmosphere extends Module {
               )
                 this._cells[getGridKey(this._p)].push(Names.stones);
               else this._cells[getGridKey(this._p)] = [Names.stones];
-
-              self.store.dispatch('objects/setField', {
-                field: 'grid',
-                value: {
-                  name: Names.stones,
-                  position: this._p,
-                },
-              });
 
               this._height += randomInteger(-2, 2);
               if (this._height < 1) this._height = 1;
@@ -219,6 +210,10 @@ export default class Atmosphere extends Module {
         self.scene.add(this._meshes);
       }
 
+      self.store.dispatch('objects/setField', {
+        field: 'grids',
+        value: this._cells,
+      });
       self.store.dispatch('objects/saveObjects', {
         name: Names.stones,
         objects: this._objects,
@@ -302,10 +297,6 @@ export default class Atmosphere extends Module {
             this._z = this._position.z + z + this._diff + this._hole;
             this._p = { x: this._x, z: this._z };
 
-            this._cells = JSON.parse(
-              JSON.stringify(self.store.getters['objects/grid']),
-            );
-
             // Добавляем в сетку если на клетке нет камня
             if (
               !(
@@ -325,14 +316,6 @@ export default class Atmosphere extends Module {
               )
                 this._cells[getGridKey(this._p)].push(Names.sands);
               else this._cells[getGridKey(this._p)] = [Names.sands];
-
-              self.store.dispatch('objects/setField', {
-                field: 'grid',
-                value: {
-                  name: Names.sands,
-                  position: this._p,
-                },
-              });
 
               this._height += randomInteger(-2, 2);
               if (this._height < 1) this._height = 1;
@@ -373,6 +356,10 @@ export default class Atmosphere extends Module {
         self.scene.add(this._meshes);
       }
 
+      self.store.dispatch('objects/setField', {
+        field: 'grids',
+        value: this._cells,
+      });
       self.store.dispatch('objects/saveObjects', {
         name: Names.sands,
         objects: this._objects,

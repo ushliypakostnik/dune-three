@@ -9,6 +9,7 @@ import { Colors, Audios } from '@/utils/constants';
 // Types
 import type { ISelf } from '@/models/modules';
 import type { TAudio } from '@/models/utils';
+import type { TObjectField } from '@/models/store';
 import type { Audio, PositionalAudio, Mesh } from 'three';
 
 // Utils
@@ -100,7 +101,7 @@ export default class AudioBus {
   // Добавить трек на группу объектоа
   public addAudioToObjects(
     self: ISelf,
-    objects: Array<TObject>,
+    objects: TObjectField,
     buffer: AudioBuffer,
     name: Audios,
     isLoop: boolean,
