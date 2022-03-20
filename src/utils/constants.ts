@@ -125,6 +125,10 @@ export const DESIGN: TConfig = {
 };
 
 // Все объекты
+
+// Префикс псевдообъектов
+export const PSEUDO = 'pseudo';
+
 export const OBJECTS: TConfig = {
   // [Names.world]: {},
   // [Names.atmosphere]: {},
@@ -135,47 +139,40 @@ export const OBJECTS: TConfig = {
   },
   [Names.command]: {
     size: DESIGN.CELL * 3,
-    positionY: 1,
     isStartRotate: false,
     price: 0,
   },
   [Names.plates]: {
     size: DESIGN.CELL,
-    positionY: 1,
     isStartRotate: false,
     price: 1,
     time: 1,
   },
   [Names.walls]: {
     size: DESIGN.CELL,
-    positionY: 1,
     isStartRotate: false,
     price: 5,
     time: 1,
   },
   [Names.stations]: {
     size: DESIGN.CELL * 3,
-    positionY: 1,
     isStartRotate: false,
     price: 15,
     time: 3,
   },
   [Names.plants]: {
     size: DESIGN.CELL * 3,
-    positionY: 1,
     isStartRotate: false,
     price: 15,
     time: 3,
   },
 };
 
+// Объекты модули которые можно строить
+export const MODULE_BUILD: string[] = [Names.stations, Names.plants];
+
 // Объекты которые можно строить, в том порядке в котором они становятся доступными - слабо, но чтобы не усложнять!!!
-export const CAN_BUILD: string[] = [
-  Names.plates,
-  Names.walls,
-  Names.stations,
-  Names.plants,
-];
+export const CAN_BUILD: string[] = [Names.plates, Names.walls, ...MODULE_BUILD];
 
 // Все постройки кроме плиток
 export const BUILDS = [

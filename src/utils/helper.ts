@@ -6,16 +6,19 @@ import * as THREE from 'three';
 // Constants
 import {
   Names,
+  Colors,
   Textures,
   Audios,
   DESIGN,
+  PSEUDO,
   OBJECTS,
   CAN_BUILD,
   BUILDS,
+  MODULE_BUILD,
 } from '@/utils/constants';
 
 // Types
-import type {
+import {
   Texture,
   Vector3,
   MeshStandardMaterial,
@@ -46,6 +49,8 @@ import {
   coordsFromVector,
   getIsLoopByName,
   getGridDiffByName,
+  getGeometryByName,
+  getPositionYByName,
 } from '@/utils/utilities';
 
 export default class Helper {
@@ -54,6 +59,7 @@ export default class Helper {
   private _number = 0;
   private _counter = 0;
   private _item: Mesh | Group = new THREE.Mesh();
+  private _pseudo: Mesh | Group = new THREE.Mesh();
   private _position: TPosition = { x: 0, z: 0 };
   private _positions: TPositions = [];
   private _array: string[] = [];
@@ -118,7 +124,7 @@ export default class Helper {
     });
   }
 
-  public traverseHelper(self: ISelf, model: GLTF): GLTF {
+  public traverseHelper(self: ISelf, model: GLTF, name: Names): GLTF {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     model.scene.traverse((child: any) => {
       if (child.isMesh) {
@@ -133,6 +139,8 @@ export default class Helper {
         } else if (child.name.includes(Textures.hole)) {
           child.material = self.assets.getMaterial(Textures.hole);
         }
+
+        if (MODULE_BUILD.includes(name)) child.name = name;
       }
     });
 
@@ -204,18 +212,10 @@ export default class Helper {
   }
 
   // Общее после инита
-  private _afterInit(
-    self: ISelf,
-    name: Names,
-    position: TPosition,
-    isStart: boolean,
-  ): void {
-    // Если дефолтная инициализация или добавление нового объекта - сохраняем объект
-    // если перезагрузка - обновляем uuid
-    if (isStart) this._saveItemHelper(name, position, this._item.uuid);
-    else this._updateItemHelper(name, position, this._item.uuid);
-
+  private _afterInit(self: ISelf, name: Names, position: TPosition, item: Mesh | Group): void {
+    this._item = item;
     this._item.name = name;
+
     self.scene.add(this._item);
 
     if (OBJECTS[name].size / DESIGN.CELL === 1) {
@@ -253,16 +253,19 @@ export default class Helper {
   ): void {
     this._item = new THREE.Mesh(geometry, material.clone());
 
-    this._number = getGridDiffByName(name);
-    this._item.position.x = (position.x + -1 * this._number) * DESIGN.CELL;
-    this._item.position.z = (position.z + -1 * this._number) * DESIGN.CELL;
+    this._position = { x: position.x, z: position.z};
 
-    if (name !== Names.plates)
-      this._item.position.y =
-        OBJECTS[Names.plates].positionY + OBJECTS[Names.plates].size + 1;
-    else this._item.position.y = OBJECTS[Names.plates].positionY;
+    this._item.position.x = this._position.x * DESIGN.CELL;
+    this._item.position.z = this._position.z * DESIGN.CELL;
 
-    this._afterInit(self, name, position, isStart);
+    this._item.position.y = getPositionYByName(name);
+
+    // Если дефолтная инициализация или добавление нового объекта - сохраняем объект
+    // если перезагрузка - обновляем uuid
+    if (isStart) this._saveItemHelper(name, this._position, this._item.uuid);
+    else this._updateItemHelper(name, this._position, this._item.uuid);
+
+    this._afterInit(self, name, this._position, this._item);
   }
 
   // Помощник инициализации одного объекта из модели
@@ -276,62 +279,99 @@ export default class Helper {
     this._item = model.scene.clone();
     this._item.scale.set(0.5, 0.5, 0.5);
 
-    this._number = name !== Names.command ? getGridDiffByName(name) : 0;
-    this._item.position.x = (position.x + -1 * this._number) * DESIGN.CELL;
-    this._item.position.z = (position.z + -1 * this._number) * DESIGN.CELL;
-    this._item.position.y = OBJECTS[Names.plates].positionY;
+    this._position = { x: position.x, z: position.z };
 
-    this._afterInit(self, name, position, isStart);
+    this._item.position.x = this._position.x * DESIGN.CELL;
+    this._item.position.z = this._position.z * DESIGN.CELL;
+    this._item.position.y = getPositionYByName(name);
+
+    // Pseudo
+
+    // Форма
+    this.geometry = getGeometryByName(name);
+
+    // Материал
+    this.material = new THREE.MeshStandardMaterial({
+      color: Colors.selection,
+      opacity: 0.33,
+      transparent: true,
+    });
+
+    this._pseudo = new THREE.Mesh(this.geometry, this.material);
+    this._pseudo.position.copy(this._item.position);
+    this._pseudo.position.y += OBJECTS[name].size / 3;
+    this._pseudo.name = `${PSEUDO}${name}`;
+    this._pseudo.visible = false;
+
+    self.scene.add(this._pseudo);
+
+    // Если дефолтная инициализация или добавление нового объекта - сохраняем объект
+    // если перезагрузка - обновляем uuid
+    if (isStart) this._saveItemHelper(name, this._position, this._pseudo.uuid);
+    else this._updateItemHelper(name, this._position, this._pseudo.uuid);
+
+    this._afterInit(self, name, this._position, this._item);
   }
 
   // Проверки
 
   // Есть ли плита на координатах?
-  private _isNameOnCoords(self: ISelf, name: Names): boolean {
+  private _isNameOnCoords(self: ISelf, name: Names, position: TPosition): boolean {
     if (
       Object.prototype.hasOwnProperty.call(
         self.store.getters['objects/grid'],
-        getGridKey({ x: this._position.x, z: this._position.z }),
+        getGridKey({ x: position.x, z: position.z }),
       )
     )
       return [
         ...self.store.getters['objects/grid'][
-          getGridKey({ x: this._position.x, z: this._position.z })
+          getGridKey({ x: position.x, z: position.z })
         ],
       ].includes(name);
     return false;
   }
 
   // Есть ли постройка на координатах?
-  private _isBuildNotOnCoords(self: ISelf): boolean {
+  private _isBuildNotOnCoords(self: ISelf, position: TPosition): boolean {
+    this._array = [];
     if (
       Object.prototype.hasOwnProperty.call(
         self.store.getters['objects/grid'],
-        getGridKey({ x: this._position.x, z: this._position.z }),
+        getGridKey({ x: position.x, z: position.z }),
       )
-    )
+    ) {
       this._array = [
         ...self.store.getters['objects/grid'][
-          getGridKey({ x: this._position.x, z: this._position.z })
+          getGridKey({ x: position.x, z: position.z })
         ],
       ];
+    }
 
     this._is = true;
     BUILDS.forEach((build) => {
       if (this._array.includes(build) && this._is) this._is = false;
     });
     return this._is;
-    return true;
   }
 
   // Помощник добавления объекта
-  private _add(self: ISelf, that: StaticModules | StaticSimpleModules): void {
+  private _add(
+    self: ISelf,
+    that: StaticModules | StaticSimpleModules,
+    position: TPosition,
+  ): void {
     this._number = self.store.getters['layout/cash'];
     self.store.dispatch('layout/setField', {
       field: 'cash',
       value: this._number - OBJECTS[that.name].price,
     });
+
+    this._number = getGridDiffByName(that.name);
+    this._position = { x: position.x - 1 * this._number, z: position.z - 1 * this._number };
+
     that.initItem(self, this._position, true);
+
+
     self.store.dispatch('objects/saveObjects', {
       name: that.name,
       objects: this._objects,
@@ -357,8 +397,8 @@ export default class Helper {
 
           if (
             !(
-              this._isNameOnCoords(self, Names.plates) &&
-              this._isBuildNotOnCoords(self)
+              this._isNameOnCoords(self, Names.plates, this._position) &&
+              this._isBuildNotOnCoords(self, this._position)
             )
           )
             this._is = false;
@@ -376,9 +416,10 @@ export default class Helper {
         this._position = coordsFromVector(vector);
         this._position.x += x;
         this._position.z += z;
+
         if (
-          !this._isNameOnCoords(self, Names.plates) &&
-          this._isNameOnCoords(self, Names.sands)
+          !this._isNameOnCoords(self, Names.plates, this._position) &&
+          this._isNameOnCoords(self, Names.sands, this._position)
         )
           this._positions.push({ x: this._position.x, z: this._position.z });
       }
@@ -408,8 +449,8 @@ export default class Helper {
         this._position = coordsFromVector(vector);
         if (OBJECTS[name].size / DESIGN.CELL === 1) {
           if (
-            this._isNameOnCoords(self, Names.plates) &&
-            this._isBuildNotOnCoords(self)
+            this._isNameOnCoords(self, Names.plates, this._position) &&
+            this._isBuildNotOnCoords(self, this._position)
           )
             this._is = true;
           else this._is = false;
@@ -438,19 +479,23 @@ export default class Helper {
         this._positions.forEach((position) => {
           this._position.x = position.x;
           this._position.z = position.z;
-          this._add(self, that);
+          this._add(self, that, this._position);
         });
       }
     } else {
+      this._position = {
+        x: vector.x / DESIGN.CELL,
+        z: vector.z / DESIGN.CELL,
+      };
       if (OBJECTS[that.name].size / DESIGN.CELL === 1) {
         if (
-          this._isNameOnCoords(self, Names.plates) &&
-          this._isBuildNotOnCoords(self)
+          this._isNameOnCoords(self, Names.plates, this._position) &&
+          this._isBuildNotOnCoords(self, this._position)
         )
-          this._add(self, that);
+          this._add(self, that, this._position);
       } else {
         if (this._isAllPlatesAndNotBuilds(self, vector, that.name))
-          this._add(self, that);
+          this._add(self, that, this._position);
       }
     }
   }

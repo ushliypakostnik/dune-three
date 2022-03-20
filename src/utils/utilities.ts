@@ -169,6 +169,7 @@ export const getRepeatByName = (name: Names | Textures): number => {
 // Геометрия по имени
 export const getGeometryByName = (name: Names | string): BoxBufferGeometry => {
   switch (name) {
+    // Постройка плит - исключение
     case 'build':
       return new THREE.BoxGeometry(DESIGN.CELL * 3, 2, DESIGN.CELL * 3);
     case Names.walls:
@@ -177,6 +178,7 @@ export const getGeometryByName = (name: Names | string): BoxBufferGeometry => {
         DESIGN.CELL * 2,
         DESIGN.CELL,
       );
+    case Names.command:
     case Names.stations:
     case Names.plants:
       return new THREE.BoxGeometry(
@@ -191,15 +193,20 @@ export const getGeometryByName = (name: Names | string): BoxBufferGeometry => {
 };
 
 // Y координата по имени
-export const getPositionYByName = (name: Names): number => {
+export const getPositionYByName = (name: Names | string): number => {
   switch (name) {
+    // Постройка плит - исключение
+    case 'build':
+      return OBJECTS.sand.positionY + 3.1;
+    case Names.plates:
+        return OBJECTS.sand.positionY + 3;
     case Names.walls:
+      return OBJECTS.sand.positionY + OBJECTS.walls.size + 4;
+    case Names.command:
     case Names.stations:
     case Names.plants:
     default:
-      return OBJECTS.plates.positionY + OBJECTS.plates.size + 1;
-    case Names.plates:
-      return OBJECTS.plates.positionY;
+      return OBJECTS.sand.positionY + 4;
   }
 };
 

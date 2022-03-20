@@ -186,12 +186,12 @@ export class StaticModelModules extends StaticModules {
   }
 
   // Инициализация одного объекта
-  public initItem(self: ISelf, item: TPosition, isStart: boolean): void {
+  public initItem(self: ISelf, position: TPosition, isStart: boolean): void {
     self.helper.initItemFromModelHelper(
       self,
       this.name,
       this.model,
-      item,
+      position,
       isStart,
     );
   }
@@ -203,7 +203,7 @@ export class StaticModelModules extends StaticModules {
       (model: GLTF) => {
         // Прелоадер
         self.helper.loaderDispatchHelper(self.store, `${this.name}IsLoaded`);
-        this.model = self.helper.traverseHelper(self, model);
+        this.model = self.helper.traverseHelper(self, model, this.name);
 
         // Инициализация
         self.helper.initModulesHelper(self, this);

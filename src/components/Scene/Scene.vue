@@ -16,8 +16,9 @@ import {
   Audios,
   DESIGN,
   OBJECTS,
-  SELECTABLE_OBJECTS,
+  PSEUDO,
   CAN_BUILD,
+  SELECTABLE_OBJECTS,
 } from '@/utils/constants';
 
 // Types
@@ -104,6 +105,7 @@ export default defineComponent({
     let clock: Clock = new THREE.Clock(false);
     let time = 0;
     let build: Mesh = new THREE.Mesh();
+    let is = true;
 
     // Helpers
     let helper: Helper = new Helper();
@@ -228,7 +230,9 @@ export default defineComponent({
       box.visible = false;
       box.position.set(
         DESIGN.CELL / 2,
-        getPositionYByName(activeBuild.value),
+        activeBuild.value === Names.plates
+          ? getPositionYByName('build')
+          : getPositionYByName(activeBuild.value),
         DESIGN.CELL / 2,
       );
       scene.add(box);
@@ -244,6 +248,11 @@ export default defineComponent({
       );
       build.visible = false;
       build.position.copy(box.position);
+      build.position.y +=
+        CAN_BUILD.includes(activeBuild.value) &&
+        activeBuild.value !== Names.plates
+          ? 50
+          : 0;
       scene.add(build);
 
       // Listeners
@@ -390,12 +399,16 @@ export default defineComponent({
     watch(
       () => store.getters['layout/activeBuild'],
       (value) => {
-        if (value === Names.plates) box.geometry = getGeometryByName('build');
-        else box.geometry = getGeometryByName(value);
-        box.position.y = getPositionYByName(value);
+        if (value === Names.plates) {
+          box.geometry = getGeometryByName('build');
+          box.position.y = getPositionYByName('build');
+        } else {
+          box.geometry = getGeometryByName(value);
+          box.position.y = getPositionYByName(value) + 20;
+        }
 
         build.geometry = box.geometry;
-        box.position.y = getPositionYByName(value);
+        build.position.copy(box.position);
 
         self.audio.replayHeroSound(Audios.zero);
       },
@@ -481,6 +494,10 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             item.material.emissive.set(Colors.black);
+
+          // Pseudo
+          if (item.name.includes(PSEUDO) && !item.name.includes(Names.command))
+            item.visible = false;
         }
 
         selection.startPoint.set(
@@ -515,7 +532,11 @@ export default defineComponent({
                 .divideScalar(DESIGN.CELL)
                 .floor()
                 .multiplyScalar(DESIGN.CELL);
-              box.position.y = getPositionYByName(activeBuild.value);
+              box.position.y =
+                activeBuild.value === Names.plates
+                  ? getPositionYByName('build')
+                  : getPositionYByName(activeBuild.value);
+              box.position.y += 20;
             }
           }
         }
@@ -526,6 +547,13 @@ export default defineComponent({
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             selection.collection[i].material.emissive.set(Colors.black);
+
+          // Pseudo
+          if (
+            selection.collection[i].name.includes(PSEUDO) &&
+            !selection.collection[i].name.includes(Names.command)
+          )
+            selection.collection[i].visible = false;
         }
 
         selection.endPoint.set(
@@ -541,14 +569,24 @@ export default defineComponent({
             value: true,
           });
           for (let i = 0; i < selected.length; i++) {
-            if (
-              SELECTABLE_OBJECTS.includes(selected[i].name) &&
-              isNotStartPlates(coordsFromVector(selected[i].position))
-            ) {
+            is =
+              selected[i].name === Names.plates &&
+              !isNotStartPlates(coordsFromVector(selected[i].position))
+                ? false
+                : true;
+
+            if (SELECTABLE_OBJECTS.includes(selected[i].name) && is) {
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               selected[i].material.emissive.set(Colors.selection);
             }
+
+            // Pseudo
+            if (
+              selected[i].name.includes(PSEUDO) &&
+              !selected[i].name.includes(Names.command)
+            )
+              selected[i].visible = true;
           }
         } else {
           store.dispatch('game/setField', {
@@ -604,6 +642,9 @@ export default defineComponent({
           if (isCreate.value) box.visible = true;
 
           world.add(self, vector, activeBuild.value);
+
+          console.log('wordl.add vector: ', vector);
+
           self.events.messagesByIdDispatchHelper(self, 'buildDone');
           self.audio.pauseHeroSound(Audios.build);
           self.audio.replayHeroSound(Audios.add);

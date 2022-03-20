@@ -69,10 +69,11 @@ export default defineComponent({
     };
 
     changeActive = (value: string) => {
-      store.dispatch('layout/setField', {
-        field: 'activeBuild',
-        value,
-      });
+      if (!isBuildingClock.value)
+        store.dispatch('layout/setField', {
+          field: 'activeBuild',
+          value,
+        });
     };
 
     return {

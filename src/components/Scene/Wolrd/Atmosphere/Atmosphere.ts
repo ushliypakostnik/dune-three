@@ -210,10 +210,6 @@ export default class Atmosphere extends Module {
         self.scene.add(this._meshes);
       }
 
-      self.store.dispatch('objects/setField', {
-        field: 'grids',
-        value: this._cells,
-      });
       self.store.dispatch('objects/saveObjects', {
         name: Names.stones,
         objects: this._objects,
@@ -320,20 +316,24 @@ export default class Atmosphere extends Module {
               this._height += randomInteger(-2, 2);
               if (this._height < 1) this._height = 1;
 
-              (self.helper.geometry = new THREE.PlaneBufferGeometry(
+              /* self.helper.geometry = new THREE.PlaneBufferGeometry(
                 DESIGN.CELL,
                 DESIGN.CELL,
                 2,
                 2,
-              )),
-                (this._mesh = new THREE.Mesh(
-                  self.helper.geometry,
-                  self.assets.getMaterial(Textures.sand2),
-                ));
-              this._mesh.rotation.x = -Math.PI / 2;
+              ); */
+              self.helper.geometry = new THREE.BoxBufferGeometry(
+                DESIGN.CELL,
+                2,
+                DESIGN.CELL,
+              );
+              this._mesh = new THREE.Mesh(
+                self.helper.geometry,
+                self.assets.getMaterial(Textures.sand2),
+              );
               this._mesh.position.set(
                 this._x * DESIGN.CELL,
-                (OBJECTS.sand.positionY = 0.1),
+                OBJECTS.sand.positionY + 1,
                 this._z * DESIGN.CELL,
               );
 
@@ -374,20 +374,24 @@ export default class Atmosphere extends Module {
           this._position = { x: stone.x, z: stone.z };
           this._height = stone.h;
 
-          (self.helper.geometry = new THREE.PlaneBufferGeometry(
+          /* self.helper.geometry = new THREE.PlaneBufferGeometry(
             DESIGN.CELL,
             DESIGN.CELL,
             2,
             2,
-          )),
-            (this._mesh = new THREE.Mesh(
-              self.helper.geometry,
-              self.assets.getMaterial(Textures.sand2),
-            ));
-          this._mesh.rotation.x = -Math.PI / 2;
+          ); */
+          self.helper.geometry = new THREE.BoxBufferGeometry(
+            DESIGN.CELL,
+            2,
+            DESIGN.CELL,
+          );
+          this._mesh = new THREE.Mesh(
+            self.helper.geometry,
+            self.assets.getMaterial(Textures.sand2),
+          );
           this._mesh.position.set(
             this._position.x * DESIGN.CELL,
-            OBJECTS.sand.positionY + 0.1,
+            OBJECTS.sand.positionY + 1,
             this._position.z * DESIGN.CELL,
           );
 
