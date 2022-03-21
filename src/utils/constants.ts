@@ -127,7 +127,10 @@ export const DESIGN: TConfig = {
 // Все объекты
 
 // Префикс псевдообъектов
-export const PSEUDO = 'pseudo';
+export const PSEUDO = 'pseudo/';
+
+// Части моделей
+export const CHILD = 'child/';
 
 export const OBJECTS: TConfig = {
   // [Names.world]: {},
@@ -171,7 +174,7 @@ export const OBJECTS: TConfig = {
 // Объекты модули которые можно строить
 export const MODULE_BUILD: string[] = [Names.stations, Names.plants];
 
-// Объекты которые можно строить, в том порядке в котором они становятся доступными - слабо, но чтобы не усложнять!!!
+// Объекты которые можно строить
 export const CAN_BUILD: string[] = [Names.plates, Names.walls, ...MODULE_BUILD];
 
 // Все постройки кроме плиток

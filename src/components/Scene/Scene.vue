@@ -404,7 +404,8 @@ export default defineComponent({
           box.position.y = getPositionYByName('build');
         } else {
           box.geometry = getGeometryByName(value);
-          box.position.y = getPositionYByName(value) + 20;
+          if (value === Names.walls) box.position.y = getPositionYByName(value);
+          else box.position.y = getPositionYByName(value) + 20;
         }
 
         build.geometry = box.geometry;
@@ -421,7 +422,10 @@ export default defineComponent({
         if (value) {
           CAN_BUILD.forEach((build) => {
             selected = selection.collection
-              .filter((item) => item.name === build)
+              .filter(
+                (item) =>
+                  item.name === build || item.name === `${PSEUDO}${build}`,
+              )
               .map((item) => {
                 return item.uuid;
               });
@@ -536,7 +540,11 @@ export default defineComponent({
                 activeBuild.value === Names.plates
                   ? getPositionYByName('build')
                   : getPositionYByName(activeBuild.value);
-              box.position.y += 20;
+              if (
+                activeBuild.value !== Names.plates &&
+                activeBuild.value !== Names.walls
+              )
+                box.position.y += 20;
             }
           }
         }
@@ -642,8 +650,6 @@ export default defineComponent({
           if (isCreate.value) box.visible = true;
 
           world.add(self, vector, activeBuild.value);
-
-          console.log('wordl.add vector: ', vector);
 
           self.events.messagesByIdDispatchHelper(self, 'buildDone');
           self.audio.pauseHeroSound(Audios.build);

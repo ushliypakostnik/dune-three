@@ -11,6 +11,7 @@ import {
   Audios,
   DESIGN,
   PSEUDO,
+  CHILD,
   OBJECTS,
   CAN_BUILD,
   BUILDS,
@@ -113,8 +114,7 @@ export default class Helper {
 
       // Ветер
       if (name === Audios.wind) {
-        this._is = self.store.getters['layout/isPause'];
-        if (!this._is) {
+        if (!self.store.getters['layout/isPause']) {
           /* self.listener.context.resume().then(() => {
             console.log('Playback resumed successfully');
           }); */
@@ -140,7 +140,7 @@ export default class Helper {
           child.material = self.assets.getMaterial(Textures.hole);
         }
 
-        if (MODULE_BUILD.includes(name)) child.name = name;
+        if (MODULE_BUILD.includes(name)) child.name = `${CHILD}${name}`;
       }
     });
 
@@ -180,15 +180,14 @@ export default class Helper {
   }
 
   // Помощник сохранения объекта
-  private _saveItemHelper(name: Names, position: TPosition, id: string): void {
+  private _saveItemHelper(name: Names, position: TPosition, id: string, modelId?: string): void {
     this._objects.push({
       name,
       id,
       data: {
         x: position.x,
         z: position.z,
-        r: 0,
-        health: 100,
+        modelId: modelId ? modelId : null,
       },
     });
   }
@@ -198,6 +197,7 @@ export default class Helper {
     name: Names,
     position: TPosition,
     id: string,
+    modelId?: string,
   ): void {
     this._objects2.push({
       name,
@@ -205,8 +205,7 @@ export default class Helper {
       data: {
         x: position.x,
         z: position.z,
-        r: 0,
-        health: 100,
+        modelId: modelId ? modelId : null,
       },
     });
   }
@@ -307,8 +306,8 @@ export default class Helper {
 
     // Если дефолтная инициализация или добавление нового объекта - сохраняем объект
     // если перезагрузка - обновляем uuid
-    if (isStart) this._saveItemHelper(name, this._position, this._pseudo.uuid);
-    else this._updateItemHelper(name, this._position, this._pseudo.uuid);
+    if (isStart) this._saveItemHelper(name, this._position, this._pseudo.uuid, this._item.uuid);
+    else this._updateItemHelper(name, this._position, this._pseudo.uuid, this._item.uuid);
 
     this._afterInit(self, name, this._position, this._item);
   }
@@ -518,22 +517,51 @@ export default class Helper {
 
     this._objects2 = [];
     this._counter = 0;
-    this._array.forEach((item) => {
-      this._item = self.scene.getObjectByProperty('uuid', item) as Mesh;
-      if (this._item) {
-        self.scene.remove(this._item);
-        ++this._counter;
 
-        this._object = this._objects.find((object) => object.id === item);
-        if (this._object) {
-          self.store.dispatch('objects/sellObject', {
-            name,
-            x: this._object.data.x,
-            z: this._object.data.z,
-          });
+    if (MODULE_BUILD.includes(name)) {
+      this._array.forEach((item) => {
+        this._pseudo = self.scene.getObjectByProperty('uuid', item) as Mesh;
+        if (this._pseudo) {
+          self.scene.remove(this._pseudo);
+          ++this._counter;
+
+          this._object = this._objects.find((object) => object.id === item);
+          if (this._object) {
+            this._item = self.scene.getObjectByProperty('uuid', this._object.data.modelId) as Mesh;
+
+            if (this._item) self.scene.remove(this._item);
+
+            this._number = getGridDiffByName(name);
+            for (let x = -1 * this._number; x <= this._number; ++x) {
+              for (let z = -1 * this._number; z <= this._number; ++z) {
+                self.store.dispatch('objects/sellField', {
+                  name,
+                  x: this._object.data.x + x,
+                  z: this._object.data.z + z,
+                });
+              }
+            }
+          }
         }
-      }
-    });
+      });
+    } else {
+      this._array.forEach((item) => {
+        this._item = self.scene.getObjectByProperty('uuid', item) as Mesh;
+        if (this._item) {
+          self.scene.remove(this._item);
+          ++this._counter;
+
+          this._object = this._objects.find((object) => object.id === item);
+          if (this._object) {
+            self.store.dispatch('objects/sellField', {
+              name,
+              x: this._object.data.x,
+              z: this._object.data.z,
+            });
+          }
+        }
+      });
+    }
     this._objects.forEach((object) => {
       if (!this._array.includes(object.id)) this._objects2.push(object);
     });

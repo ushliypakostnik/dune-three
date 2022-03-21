@@ -12,7 +12,7 @@ import { Names } from '@/utils/constants';
 
 const START_STATUS = {
   activeBuild: Names.plates,
-  buildStatus: 2,
+  buildStatus: 4,
 };
 
 const initialState: ILayout = {
