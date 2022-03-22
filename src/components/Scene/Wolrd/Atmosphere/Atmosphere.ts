@@ -39,6 +39,7 @@ export default class Atmosphere extends Module {
   private _cells!: TGrid;
   private _object!: TMountain;
   private _objects!: TObjectField;
+  private _objects2!: TObjectField;
   private _hole!: number;
 
   constructor() {
@@ -81,7 +82,7 @@ export default class Atmosphere extends Module {
       vertex.fromBufferAttribute(position, i);
 
       if (
-        distance2D(0, 0, vertex.x, vertex.y) > OBJECTS.sand.radius / 2 &&
+        distance2D(0, 0, vertex.x, vertex.y) > OBJECTS.sand.radius / 1.5 &&
         distance2D(0, 0, vertex.x, vertex.y) < OBJECTS.sand.radius * 3
       ) {
         vertex.x += (Math.random() * plusOrMinus() * DESIGN.CELL) / 10;
@@ -117,15 +118,15 @@ export default class Atmosphere extends Module {
     if (self.store.getters['objects/isStart']) {
       this._objects = [];
 
-      for (let n = 0; n < 10; ++n) {
+      for (let n = 0; n < DESIGN.ATMOSPHERE_ELEMENTS[Names.stones]; ++n) {
         this._meshes = new THREE.Group();
 
         this._position = getUniqueRandomPosition(
           this._positions,
           0,
           0,
-          5,
-          DESIGN.SIZE / DESIGN.CELL / 15,
+          10,
+          DESIGN.SIZE / DESIGN.CELL / 12.5,
           false,
         );
         this._positions.push(this._position);
@@ -139,9 +140,9 @@ export default class Atmosphere extends Module {
 
         while (x < this._randomX) {
           x += 1;
-
           z = 0;
           this._diff = randomInteger(-1, 1);
+
           while (z < this._randomZ) {
             z += 1;
 
@@ -217,10 +218,10 @@ export default class Atmosphere extends Module {
     } else {
       this._objects = [...self.store.getters['objects/objects'][Names.stones]];
 
-      this._objects.forEach((mountain) => {
+      this._objects.forEach((group) => {
         this._meshes = new THREE.Group();
 
-        mountain.data.forEach((stone: TStone) => {
+        group.data.forEach((stone: TStone) => {
           this._position = { x: stone.x, z: stone.z };
           this._height = stone.h;
 
@@ -239,6 +240,7 @@ export default class Atmosphere extends Module {
             OBJECTS.sand.positionY,
             this._position.z * DESIGN.CELL,
           );
+          this._mesh.name = Names.stones;
 
           this._meshes.add(this._mesh);
         });
@@ -251,7 +253,7 @@ export default class Atmosphere extends Module {
     if (self.store.getters['objects/isStart']) {
       this._objects = [];
 
-      for (let n = 0; n < 10; ++n) {
+      for (let n = 0; n < DESIGN.ATMOSPHERE_ELEMENTS[Names.sands]; ++n) {
         this._meshes = new THREE.Group();
 
         if (n === 0) {
@@ -272,7 +274,6 @@ export default class Atmosphere extends Module {
         }
         this._positions.push(this._position);
 
-        this._height = 1;
         let x = 0;
         let z = 0;
         this._object = [];
@@ -313,15 +314,6 @@ export default class Atmosphere extends Module {
                 this._cells[getGridKey(this._p)].push(Names.sands);
               else this._cells[getGridKey(this._p)] = [Names.sands];
 
-              this._height += randomInteger(-2, 2);
-              if (this._height < 1) this._height = 1;
-
-              /* self.helper.geometry = new THREE.PlaneBufferGeometry(
-                DESIGN.CELL,
-                DESIGN.CELL,
-                2,
-                2,
-              ); */
               self.helper.geometry = new THREE.BoxBufferGeometry(
                 DESIGN.CELL,
                 2,
@@ -336,11 +328,11 @@ export default class Atmosphere extends Module {
                 OBJECTS.sand.positionY + 1,
                 this._z * DESIGN.CELL,
               );
+              this._mesh.name = Names.sands;
 
               this._object.push({
                 x: this._x,
                 z: this._z,
-                h: this._height,
               });
 
               this._meshes.add(this._mesh);
@@ -367,19 +359,12 @@ export default class Atmosphere extends Module {
     } else {
       this._objects = [...self.store.getters['objects/objects'][Names.sands]];
 
-      this._objects.forEach((mountain) => {
+      this._objects.forEach((group) => {
         this._meshes = new THREE.Group();
 
-        mountain.data.forEach((stone: TStone) => {
-          this._position = { x: stone.x, z: stone.z };
-          this._height = stone.h;
+        group.data.forEach((sand: TPosition) => {
+          this._position = { x: sand.x, z: sand.z };
 
-          /* self.helper.geometry = new THREE.PlaneBufferGeometry(
-            DESIGN.CELL,
-            DESIGN.CELL,
-            2,
-            2,
-          ); */
           self.helper.geometry = new THREE.BoxBufferGeometry(
             DESIGN.CELL,
             2,
@@ -398,6 +383,147 @@ export default class Atmosphere extends Module {
           this._meshes.add(this._mesh);
         });
         self.scene.add(this._meshes);
+      });
+    }
+
+    // Spices
+
+    if (self.store.getters['objects/isStart']) {
+      this._objects = [];
+
+      for (let n = 0; n < DESIGN.ATMOSPHERE_ELEMENTS[Names.spices]; ++n) {
+        this._position = getUniqueRandomPosition(
+          this._positions,
+          0,
+          0,
+          15,
+          DESIGN.SIZE / DESIGN.CELL / 6,
+          false,
+        );
+        this._randomX = randomInteger(6, 9);
+        this._randomZ = randomInteger(6, 9);
+        this._positions.push(this._position);
+
+        let x = 0;
+        let z = 0;
+
+        while (x < this._randomX) {
+          x += 1;
+
+          z = 0;
+          this._diff = randomInteger(-1, 1);
+          while (z < this._randomZ) {
+            z += 1;
+
+            if (x === 1 || x === this._randomX)
+              this._hole = randomInteger(0, 1);
+            else this._hole = 0;
+
+            this._x = this._position.x + x;
+            this._z = this._position.z + z + this._diff + this._hole;
+            this._p = { x: this._x, z: this._z };
+
+            // Добавляем в сетку если на клетке нет камня
+            if (
+              !(
+                Object.prototype.hasOwnProperty.call(
+                  this._cells,
+                  getGridKey(this._p),
+                ) &&
+                (this._cells[getGridKey(this._p)].includes(Names.stones) ||
+                  this._cells[getGridKey(this._p)].includes(Names.sand) ||
+                  this._cells[getGridKey(this._p)].includes(Names.spices))
+              )
+            ) {
+              if (
+                Object.prototype.hasOwnProperty.call(
+                  this._cells,
+                  getGridKey(this._p),
+                )
+              )
+                this._cells[getGridKey(this._p)].push(Names.spices);
+              else this._cells[getGridKey(this._p)] = [Names.spices];
+
+              self.helper.geometry = new THREE.PlaneBufferGeometry(
+                DESIGN.CELL,
+                DESIGN.CELL,
+                2,
+                2,
+              );
+              this._mesh = new THREE.Mesh(
+                self.helper.geometry,
+                self.assets.getMaterial(Textures.spice),
+              );
+              this._mesh.rotation.x = -Math.PI / 2;
+              this._mesh.position.set(
+                this._x * DESIGN.CELL,
+                OBJECTS.sand.positionY + 1,
+                this._z * DESIGN.CELL,
+              );
+              this._mesh.name = Names.spices;
+
+              this._objects.push({
+                name: Names.spices,
+                id: this._mesh.uuid,
+                data: {
+                  x: this._x,
+                  z: this._z,
+                },
+              });
+
+              self.scene.add(this._mesh);
+            }
+          }
+        }
+      }
+
+      self.store.dispatch('objects/setField', {
+        field: 'grids',
+        value: this._cells,
+      });
+      self.store.dispatch('objects/saveObjects', {
+        name: Names.spices,
+        objects: this._objects,
+      });
+    } else {
+      this._objects = [...self.store.getters['objects/objects'][Names.spices]];
+      this._objects2 = [];
+
+      this._objects.forEach((spice) => {
+        this._position = { x: spice.data.x, z: spice.data.z };
+
+        self.helper.geometry = new THREE.PlaneBufferGeometry(
+          DESIGN.CELL,
+          DESIGN.CELL,
+          2,
+          2,
+        );
+        this._mesh = new THREE.Mesh(
+          self.helper.geometry,
+          self.assets.getMaterial(Textures.spice),
+        );
+        this._mesh.rotation.x = -Math.PI / 2;
+        this._mesh.position.set(
+          this._position.x * DESIGN.CELL,
+          OBJECTS.sand.positionY + 1,
+          this._position.z * DESIGN.CELL,
+        );
+
+        this._objects2.push({
+          name: Names.spices,
+          id: this._mesh.uuid,
+          data: {
+            x: this._position.x,
+            z: this._position.z,
+          },
+        });
+
+        self.scene.add(this._mesh);
+      });
+
+      self.store.dispatch('objects/saveObjects', {
+        name: Names.spices,
+        objects: this._objects2,
       });
     }
 

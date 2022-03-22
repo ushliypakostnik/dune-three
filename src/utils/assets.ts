@@ -71,6 +71,7 @@ export default class Assets {
       case Textures.sand:
         return this._sand;
       case Textures.sand2:
+      case Textures.spice:
         return this._sand2;
       case Textures.plates:
         return this._plates;

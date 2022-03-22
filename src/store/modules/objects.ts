@@ -20,8 +20,12 @@ const initialState: IObjects = {
   isStart: true,
   grid: {},
   objects: {
+    // Atmosphere
     [`${Names.stones}`]: [],
+    [`${Names.sands}`]: [],
+    [`${Names.spices}`]: [],
 
+    // Builds
     [`${Names.command}`]: [],
     [`${Names.plates}`]: [],
     [`${Names.walls}`]: [],

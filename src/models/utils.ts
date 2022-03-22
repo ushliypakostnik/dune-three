@@ -36,4 +36,10 @@ export type TStone = {
   z: number;
   h: number;
 };
-export type TMountain = Array<TStone>;
+export type TSpice = {
+  id: string;
+  x: number;
+  z: number;
+  health: number;
+};
+export type TMountain = Array<TStone | TPosition>;

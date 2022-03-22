@@ -11,13 +11,10 @@
 
     <ul class="design-panel__builds">
       <li
-        v-for="(value, index) in CAN_BUILD"
+        v-for="value in CAN_BUILD"
         :key="`builds${value}`"
         class="design-panel__item"
-        :class="[
-          value === active && 'design-panel__item--active',
-          index + 1 > status && 'design-panel__item--unavailable',
-        ]"
+        :class="[value === active && 'design-panel__item--active']"
         @click.prevent="changeActive(value)"
       >
         <div
@@ -52,7 +49,6 @@ export default defineComponent({
     let setSell: () => void;
 
     const active = computed(() => store.getters['layout/activeBuild']);
-    const status = computed(() => store.getters['layout/buildStatus']);
     const isBuildingClock = computed(
       () => store.getters['game/isBuildingClock'],
     );
@@ -80,7 +76,6 @@ export default defineComponent({
       OBJECTS,
       CAN_BUILD,
       active,
-      status,
       isBuildingClock,
       buildingProgress,
       isSelected,
@@ -147,10 +142,6 @@ $design-panel__width = 23vw
   pointer-events none
   color $colors.active
   border 2px solid $colors.active
-
-{$name}__item--unavailable
-  pointer-events none
-  $opacity("psy")
 
 {$name}__item--active a
   color $colors.active

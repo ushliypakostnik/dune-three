@@ -13,7 +13,6 @@ import {
   PSEUDO,
   CHILD,
   OBJECTS,
-  CAN_BUILD,
   BUILDS,
   MODULE_BUILD,
 } from '@/utils/constants';
@@ -180,7 +179,12 @@ export default class Helper {
   }
 
   // Помощник сохранения объекта
-  private _saveItemHelper(name: Names, position: TPosition, id: string, modelId?: string): void {
+  private _saveItemHelper(
+    name: Names,
+    position: TPosition,
+    id: string,
+    modelId?: string,
+  ): void {
     this._objects.push({
       name,
       id,
@@ -211,7 +215,12 @@ export default class Helper {
   }
 
   // Общее после инита
-  private _afterInit(self: ISelf, name: Names, position: TPosition, item: Mesh | Group): void {
+  private _afterInit(
+    self: ISelf,
+    name: Names,
+    position: TPosition,
+    item: Mesh | Group,
+  ): void {
     this._item = item;
     this._item.name = name;
 
@@ -252,7 +261,7 @@ export default class Helper {
   ): void {
     this._item = new THREE.Mesh(geometry, material.clone());
 
-    this._position = { x: position.x, z: position.z};
+    this._position = { x: position.x, z: position.z };
 
     this._item.position.x = this._position.x * DESIGN.CELL;
     this._item.position.z = this._position.z * DESIGN.CELL;
@@ -306,8 +315,20 @@ export default class Helper {
 
     // Если дефолтная инициализация или добавление нового объекта - сохраняем объект
     // если перезагрузка - обновляем uuid
-    if (isStart) this._saveItemHelper(name, this._position, this._pseudo.uuid, this._item.uuid);
-    else this._updateItemHelper(name, this._position, this._pseudo.uuid, this._item.uuid);
+    if (isStart)
+      this._saveItemHelper(
+        name,
+        this._position,
+        this._pseudo.uuid,
+        this._item.uuid,
+      );
+    else
+      this._updateItemHelper(
+        name,
+        this._position,
+        this._pseudo.uuid,
+        this._item.uuid,
+      );
 
     this._afterInit(self, name, this._position, this._item);
   }
@@ -315,7 +336,11 @@ export default class Helper {
   // Проверки
 
   // Есть ли плита на координатах?
-  private _isNameOnCoords(self: ISelf, name: Names, position: TPosition): boolean {
+  private _isNameOnCoords(
+    self: ISelf,
+    name: Names,
+    position: TPosition,
+  ): boolean {
     if (
       Object.prototype.hasOwnProperty.call(
         self.store.getters['objects/grid'],
@@ -366,16 +391,17 @@ export default class Helper {
     });
 
     this._number = getGridDiffByName(that.name);
-    this._position = { x: position.x - 1 * this._number, z: position.z - 1 * this._number };
+    this._position = {
+      x: position.x - 1 * this._number,
+      z: position.z - 1 * this._number,
+    };
 
     that.initItem(self, this._position, true);
-
 
     self.store.dispatch('objects/saveObjects', {
       name: that.name,
       objects: this._objects,
     });
-    self.helper._isNewBuildingAvailableHelper(self, that.name);
   }
 
   // Все ли плиты есть и нет нигде построек?
@@ -527,7 +553,10 @@ export default class Helper {
 
           this._object = this._objects.find((object) => object.id === item);
           if (this._object) {
-            this._item = self.scene.getObjectByProperty('uuid', this._object.data.modelId) as Mesh;
+            this._item = self.scene.getObjectByProperty(
+              'uuid',
+              this._object.data.modelId,
+            ) as Mesh;
 
             if (this._item) self.scene.remove(this._item);
 
@@ -583,17 +612,5 @@ export default class Helper {
       field: 'isSell',
       value: false,
     });
-  }
-
-  // Доступна ли новая постройка?
-  private _isNewBuildingAvailableHelper(self: ISelf, name: Names): void {
-    this._number = self.store.getters['layout/buildStatus'];
-    this._is = this._number === CAN_BUILD.indexOf(name) + 1;
-    if (this._is) {
-      self.store.dispatch('layout/setField', {
-        field: 'buildStatus',
-        value: ++this._number,
-      });
-    }
   }
 }

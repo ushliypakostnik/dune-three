@@ -20,31 +20,6 @@ export const paddy = (number: number, padlen = 3, padchar = '0'): string => {
 
 // Math
 
-// Get number sign?
-export const getSign = (number: number): string => {
-  return number >= 0 ? '+' : '-';
-};
-
-// Get key for grid
-export const getGridKey = (position: TPosition): string => {
-  return `${getSign(position.x)}${paddy(Math.abs(position.x))}.${getSign(
-    position.z,
-  )}${paddy(Math.abs(position.z))}`;
-};
-
-// Получить координаты в сетке по вектору
-export const toGridCoords = (position: number): number => {
-  return position / DESIGN.CELL;
-};
-
-// Получить координаты в сетке по вектору
-export const coordsFromVector = (vector: Vector3): TPosition => {
-  return {
-    x: vector.x / DESIGN.CELL,
-    z: vector.z / DESIGN.CELL,
-  };
-};
-
 export const yesOrNo = (): boolean => Math.random() >= 0.5;
 
 export const plusOrMinus = (): number => {
@@ -73,13 +48,33 @@ export const radiansToDegrees = (radians: number): number => {
   return radians * (180 / Math.PI);
 };
 
+// Get number sign?
+export const getSign = (number: number): string => {
+  return number >= 0 ? '+' : '-';
+};
+
+// Get key for grid
+export const getGridKey = (position: TPosition): string => {
+  return `${getSign(position.x)}${paddy(Math.abs(position.x))}.${getSign(
+    position.z,
+  )}${paddy(Math.abs(position.z))}`;
+};
+
+// Получить координаты в сетке по вектору
+export const coordsFromVector = (vector: Vector3): TPosition => {
+  return {
+    x: vector.x / DESIGN.CELL,
+    z: vector.z / DESIGN.CELL,
+  };
+};
+
 export const getRandomPosition = (
   centerX: number,
   centerZ: number,
   radius: number,
   isSafeCenter: boolean,
 ): TPosition => {
-  const safe = isSafeCenter ? 12 : 7;
+  const safe = isSafeCenter ? 15 : 7;
   const a = plusOrMinus();
   const b = plusOrMinus();
   return {
@@ -199,7 +194,7 @@ export const getPositionYByName = (name: Names | string): number => {
     case 'build':
       return OBJECTS.sand.positionY + 3.1;
     case Names.plates:
-        return OBJECTS.sand.positionY + 3;
+      return OBJECTS.sand.positionY + 3;
     case Names.walls:
       return OBJECTS.sand.positionY + OBJECTS.walls.size + 4;
     case Names.command:

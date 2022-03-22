@@ -1,18 +1,13 @@
 import { Module } from 'vuex';
 
 // Types
-import type {
-  IStore,
-  ILayout,
-  TFieldPayload,
-} from '@/models/store';
+import type { IStore, ILayout, TFieldPayload } from '@/models/store';
 
 // Constants
 import { Names } from '@/utils/constants';
 
 const START_STATUS = {
   activeBuild: Names.plates,
-  buildStatus: 4,
 };
 
 const initialState: ILayout = {
@@ -32,7 +27,6 @@ const initialState: ILayout = {
   isPause: true,
   isDesignPanel: false,
   activeBuild: START_STATUS.activeBuild,
-  buildStatus: START_STATUS.buildStatus,
   clock: 0,
   cash: 10000,
 };
@@ -47,7 +41,6 @@ const layout: Module<ILayout, IStore> = {
     isPause: (state: ILayout) => state.isPause,
     isDesignPanel: (state: ILayout) => state.isDesignPanel,
     activeBuild: (state: ILayout) => state.activeBuild,
-    buildStatus: (state: ILayout) => state.buildStatus,
     clock: (state: ILayout) => state.clock,
     cash: (state: ILayout) => state.cash,
   },
@@ -70,7 +63,6 @@ const layout: Module<ILayout, IStore> = {
     reload: (state: ILayout): void => {
       state.controls = initialState.controls;
       state.activeBuild = START_STATUS.activeBuild;
-      state.buildStatus = START_STATUS.buildStatus;
       state.clock = initialState.clock;
       state.cash = initialState.cash;
       state.messages = initialState.messages;

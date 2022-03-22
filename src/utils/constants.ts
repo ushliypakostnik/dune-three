@@ -11,8 +11,9 @@ export enum Names {
   world = 'world',
   atmosphere = 'atmosphere',
   sand = 'sand',
-  sands = 'sands',
   stones = 'stones',
+  sands = 'sands',
+  spices = 'spices',
   builds = 'builds',
   plates = 'plates',
   walls = 'walls',
@@ -30,6 +31,7 @@ export enum Textures {
   glass = 'glass',
   sand = 'sand',
   sand2 = 'sand2',
+  spice = 'spice',
   plates = 'plates',
   hole = 'hole',
 }
@@ -67,6 +69,7 @@ export enum Colors {
   metall2 = 0xf0bf7d,
   glass = 0xf9bf7d,
   sand2 = 0xffd564,
+  spice = 0xf96622,
 }
 
 enum Breakpoints {
@@ -121,6 +124,11 @@ export const DESIGN: TConfig = {
     build: 0.75,
     sell: 1,
     add: 0.75,
+  },
+  ATMOSPHERE_ELEMENTS: {
+    [Names.stones]: 8,
+    [Names.sands]: 8,
+    [Names.spices]: 8,
   },
 };
 
