@@ -20,6 +20,8 @@ export enum Names {
   command = 'command',
   stations = 'stations',
   plants = 'plants',
+  storages = 'storages',
+  factories = 'factories',
 }
 
 // GUI
@@ -69,7 +71,7 @@ export enum Colors {
   metall2 = 0xf0bf7d,
   glass = 0xf9bf7d,
   sand2 = 0xffd564,
-  spice = 0xf96622,
+  spice = 0xdd2200,
 }
 
 enum Breakpoints {
@@ -151,50 +153,128 @@ export const OBJECTS: TConfig = {
   [Names.command]: {
     size: DESIGN.CELL * 3,
     isStartRotate: false,
-    price: 0,
+    need: {
+      cash: 0,
+      energy: 10,
+      food: 10,
+    },
+    gives: {
+      cash: null,
+      energy: null,
+      food: null,
+    },
   },
   [Names.plates]: {
     size: DESIGN.CELL,
     isStartRotate: false,
-    price: 1,
     time: 1,
+    need: {
+      cash: 1,
+      energy: 1,
+      food: 0,
+    },
+    gives: {
+      cash: null,
+      energy: null,
+      food: null,
+    },
   },
   [Names.walls]: {
     size: DESIGN.CELL,
     isStartRotate: false,
-    price: 5,
     time: 1,
+    need: {
+      cash: 5,
+      energy: 2,
+      food: 0,
+    },
+    gives: {
+      cash: null,
+      energy: null,
+      food: null,
+    },
   },
   [Names.stations]: {
     size: DESIGN.CELL * 3,
     isStartRotate: false,
-    price: 15,
     time: 3,
+    need: {
+      cash: 15,
+      energy: 0,
+      food: 10,
+    },
+    gives: {
+      cash: null,
+      energy: 30,
+      food: null,
+    },
   },
   [Names.plants]: {
     size: DESIGN.CELL * 3,
     isStartRotate: false,
-    price: 15,
     time: 3,
+    need: {
+      cash: 15,
+      energy: 10,
+      food: 0,
+    },
+    gives: {
+      cash: null,
+      energy: null,
+      food: 30,
+    },
+  },
+  [Names.storages]: {
+    size: DESIGN.CELL * 3,
+    isStartRotate: false,
+    time: 5,
+    need: {
+      cash: 25,
+      energy: 10,
+      food: 10,
+    },
+    gives: {
+      cash: 200,
+      energy: null,
+      food: null,
+    },
+  },
+  [Names.factories]: {
+    size: DESIGN.CELL * 5,
+    isStartRotate: false,
+    time: 10,
+    need: {
+      cash: 100,
+      energy: 25,
+      food: 25,
+    },
+    gives: {
+      cash: null,
+      energy: null,
+      food: null,
+    },
   },
 };
 
 // Объекты модули которые можно строить
-export const MODULE_BUILD: string[] = [Names.stations, Names.plants];
-
-// Объекты которые можно строить
-export const CAN_BUILD: string[] = [Names.plates, Names.walls, ...MODULE_BUILD];
-
-// Все постройки кроме плиток
-export const BUILDS = [
-  Names.command,
-  Names.walls,
+export const MODULE_BUILD: string[] = [
   Names.stations,
   Names.plants,
+  Names.storages,
+  Names.factories,
 ];
 
+// Объекты которые можно строить
+export const CAN_BUILD = [Names.plates, Names.walls, ...MODULE_BUILD];
+
+// Все постройки кроме плиток
+export const BUILDS = [Names.command, Names.walls, ...MODULE_BUILD];
+
+// Все строения
+export const BUILDS_ALL = BUILDS.concat(Names.plates);
+
 // Объекты которые можно выделять
-export const SELECTABLE_OBJECTS: string[] = [...CAN_BUILD];
+export const SELECTABLE_OBJECTS = [...CAN_BUILD];
 
 // Переводы
 
@@ -211,18 +291,27 @@ export const MESSAGES: TMessages = {
     key3: 'Tab - design mode',
     copyright: '© Levon Gambaryan Bro Games',
     cash: 'Credits',
+    energy: 'Energy',
+    food: 'Food',
+    health: 'Protection',
     sell: 'Sell',
+    need: 'Requires',
+    gives: 'Gives',
 
     [Names.command]: 'Command post',
     [Names.plates]: 'Plate',
     [Names.walls]: 'Wall',
-    [Names.stations]: 'Power station',
+    [Names.stations]: 'Power',
     [Names.plants]: 'Greenhouse',
+    [Names.storages]: 'Warehouse',
+    [Names.factories]: 'Factory',
 
     // Messages
     impossibleToBuild: 'Impossible to build!',
     buildDone: 'Construction completed!',
     buildingsSold: 'Buildings sold!',
+    buildStations: 'Not enough energy! Build a power plant!',
+    buildPlants: 'Not enough food! Build a greenhouse!',
   },
   [Languages.ru]: {
     name: 'ДюнаThree',
@@ -236,17 +325,26 @@ export const MESSAGES: TMessages = {
     key3: 'Tab - режим конструктора',
     copyright: '© Levon Gambaryan Bro Games',
     cash: 'Кредиты',
+    energy: 'Энергия',
+    food: 'Еда',
+    health: 'Защита КП',
     sell: 'Продать',
+    need: 'Требует',
+    gives: 'Дает',
 
     [Names.command]: 'Командный пункт',
     [Names.plates]: 'Плита',
     [Names.walls]: 'Стена',
-    [Names.stations]: 'Электростанция',
+    [Names.stations]: 'АЭС',
     [Names.plants]: 'Оранжерея',
+    [Names.storages]: 'Склад',
+    [Names.factories]: 'Завод',
 
     // Messages
     impossibleToBuild: 'Невозможно построить!',
     buildDone: 'Строительство завершено!',
     buildingsSold: 'Постройки проданы!',
+    buildStations: 'Недостаточно энергии! Постройте электростанцию!',
+    buildPlants: 'Недостаточно еды! Постройте оранжерею!',
   },
 };

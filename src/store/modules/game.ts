@@ -35,10 +35,6 @@ const layout: Module<ILayout, IStore> = {
       commit('setField', payload);
     },
 
-    reload: ({ commit }): void => {
-      commit('reload');
-    },
-
     showMessage: ({ commit }, payload: TEventMessagePayload): void => {
       commit('showMessage', payload);
     },
@@ -46,19 +42,15 @@ const layout: Module<ILayout, IStore> = {
     hideMessage: ({ commit }, payload: number): void => {
       commit('hideMessage', payload);
     },
+
+    reload: ({ commit }): void => {
+      commit('reload');
+    },
   },
 
   mutations: {
     setField: (state: ILayout, payload: TFieldPayload): void => {
       state[payload.field] = payload.value;
-    },
-
-    reload: (state: ILayout): void => {
-      state.isBuildingClock = initialState.isBuildingClock;
-      state.buildingProgress = initialState.buildingProgress;
-      state.isSelected = initialState.isSelected;
-      state.isSell = initialState.isSell;
-      state.messages = initialState.messages;
     },
 
     showMessage: (state: ILayout, payload: TEventMessagePayload): void => {
@@ -72,6 +64,14 @@ const layout: Module<ILayout, IStore> = {
         (message: TEventMessagePayload) => message.id !== payload,
       );
       state.messages = array;
+    },
+
+    reload: (state: ILayout): void => {
+      state.isBuildingClock = initialState.isBuildingClock;
+      state.buildingProgress = initialState.buildingProgress;
+      state.isSelected = initialState.isSelected;
+      state.isSell = initialState.isSell;
+      state.messages = initialState.messages;
     },
   },
 };

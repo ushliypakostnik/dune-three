@@ -2,17 +2,12 @@
   "name": "new-game",
   "version": "0.1.0",
   "private": false,
+  "author": "Levon Gambaryan",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint"
-  },
-  "author": "Levon Gambaryan",
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ushliypakostnik/new-game"
   },
   "dependencies": {
     "core-js": "^3.6.5",
@@ -43,9 +38,16 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.0.0",
     "prettier": "^2.2.1",
+    "style-resources-loader": "^1.4.1",
     "stylus": "^0.54.7",
     "stylus-loader": "^3.0.2",
     "typescript": "~4.1.5",
+    "vue-cli-plugin-style-resources-loader": "~0.1.5",
     "vue-jest": "^5.0.0-0"
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ushliypakostnik/new-game"
   }
 }

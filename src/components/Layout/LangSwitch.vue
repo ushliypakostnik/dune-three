@@ -77,8 +77,6 @@ export default defineComponent({
 </script>
 
 <style lang="stylus" scoped>
-@import "~/src/stylus/_stylebase.styl"
-
 .switch
   @extend $switch
 </style>

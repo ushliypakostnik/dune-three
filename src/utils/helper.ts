@@ -192,6 +192,7 @@ export default class Helper {
         x: position.x,
         z: position.z,
         modelId: modelId ? modelId : null,
+        health: 100,
       },
     });
   }
@@ -210,6 +211,7 @@ export default class Helper {
         x: position.x,
         z: position.z,
         modelId: modelId ? modelId : null,
+        health: 100,
       },
     });
   }
@@ -307,7 +309,10 @@ export default class Helper {
 
     this._pseudo = new THREE.Mesh(this.geometry, this.material);
     this._pseudo.position.copy(this._item.position);
-    this._pseudo.position.y += OBJECTS[name].size / 3;
+
+    if (OBJECTS[name].size / DESIGN.CELL === 5) this._pseudo.position.y += 30;
+    else this._pseudo.position.y += 20;
+
     this._pseudo.name = `${PSEUDO}${name}`;
     this._pseudo.visible = false;
 
@@ -387,7 +392,7 @@ export default class Helper {
     this._number = self.store.getters['layout/cash'];
     self.store.dispatch('layout/setField', {
       field: 'cash',
-      value: this._number - OBJECTS[that.name].price,
+      value: this._number - OBJECTS[that.name].need.cash,
     });
 
     this._number = getGridDiffByName(that.name);
@@ -398,10 +403,14 @@ export default class Helper {
 
     that.initItem(self, this._position, true);
 
-    self.store.dispatch('objects/saveObjects', {
-      name: that.name,
-      objects: this._objects,
-    });
+    self.store
+      .dispatch('objects/saveObjects', {
+        name: that.name,
+        objects: this._objects,
+      })
+      .then(() => {
+        self.store.dispatch('layout/balanceBase');
+      });
   }
 
   // Все ли плиты есть и нет нигде построек?
@@ -465,12 +474,13 @@ export default class Helper {
       this._positions = this._getCanPlateBuildArray(self, vector);
       if (
         this._positions.length > 0 &&
-        this._positions.length * OBJECTS[Names.plates].price <= this._number
+        this._positions.length * OBJECTS[Names.plates].need.cash <=
+          this._number
       )
         this._is = true;
       else this._is = false;
     } else {
-      if (OBJECTS[name].price <= this._number) {
+      if (OBJECTS[name].need.cash <= this._number) {
         this._position = coordsFromVector(vector);
         if (OBJECTS[name].size / DESIGN.CELL === 1) {
           if (
@@ -598,12 +608,16 @@ export default class Helper {
     this._number = self.store.getters['layout/cash'];
     self.store.dispatch('layout/setField', {
       field: 'cash',
-      value: this._number + OBJECTS[name].price * this._counter,
+      value: this._number + OBJECTS[name].need.cash * this._counter,
     });
-    self.store.dispatch('objects/saveObjects', {
-      name,
-      objects: this._objects2,
-    });
+    self.store
+      .dispatch('objects/saveObjects', {
+        name,
+        objects: this._objects2,
+      })
+      .then(() => {
+        self.store.dispatch('layout/balanceBase');
+      });
     self.store.dispatch('game/setField', {
       field: 'isSelected',
       value: false,

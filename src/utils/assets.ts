@@ -91,6 +91,12 @@ export default class Assets {
         return new THREE.MeshPhongMaterial({
           color: Colors.black,
         });
+      case Textures.spice:
+        return new THREE.MeshPhongMaterial({
+          color: Colors.spice,
+          opacity: 0.33,
+          transparent: true,
+        });
     }
     return new THREE.MeshPhongMaterial({
       map: this.getTexture(name),

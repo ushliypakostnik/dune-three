@@ -1,7 +1,7 @@
 // Root
 
 // Constants
-import { Names } from "@/utils/constants";
+import { Names } from '@/utils/constants';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IStore {}
@@ -63,4 +63,4 @@ export type TSellPayload = {
   z: number;
 };
 
-export type TGrid =  { [key: string]: Array<string> };
+export type TGrid = { [key: string]: Array<string> };

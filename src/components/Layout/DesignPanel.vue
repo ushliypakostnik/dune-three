@@ -9,7 +9,7 @@
       {{ $t('sell') }}
     </button>
 
-    <ul class="design-panel__builds">
+    <ul class="design-panel__builds" :class="{ 'design-panel__builds--active': !isBuildingClock }">
       <li
         v-for="value in CAN_BUILD"
         :key="`builds${value}`"
@@ -22,9 +22,39 @@
           class="design-panel__progress"
           :style="`height: ${buildingProgress}%`"
         />
-        {{ $t(`${value}`) }}<br /><br />{{ OBJECTS[value].price }}$
+        <div>
+          <div class="design-panel__header">{{ $t(`${value}`) }}</div>
+          <div class="design-panel__text design-panel__text--subheader">{{ $t('need') }}:</div>
+          <div class="design-panel__text">
+            {{ $t('cash') }}: {{ OBJECTS[value].need.cash }}
+          </div>
+          <div class="design-panel__text">
+            {{ $t('energy') }}: {{ OBJECTS[value].need.energy }}
+          </div>
+          <div class="design-panel__text">
+            {{ $t('food') }}: {{ OBJECTS[value].need.food }}
+          </div>
+          <div
+            v-if="
+              OBJECTS[value].gives.cash ||
+              OBJECTS[value].gives.energy ||
+              OBJECTS[value].gives.food
+            "
+            class="design-panel__text design-panel__text--subheader"
+          >
+            {{ $t('gives') }}:
+          </div>
+          <div v-if="OBJECTS[value].gives.cash" class="design-panel__text">
+            {{ $t('cash') }}: +{{ OBJECTS[value].gives.cash }}
+          </div>
+          <div v-if="OBJECTS[value].gives.energy" class="design-panel__text">
+            {{ $t('energy') }}: +{{ OBJECTS[value].gives.energy }}
+          </div>
+          <div v-if="OBJECTS[value].gives.food" class="design-panel__text">
+            {{ $t('food') }}: +{{ OBJECTS[value].gives.food }}
+          </div>
+        </div>
       </li>
-      <li></li>
     </ul>
   </div>
 </template>
@@ -88,11 +118,9 @@ export default defineComponent({
 </script>
 
 <style lang="stylus" scoped>
-@import "~/src/stylus/_stylebase.styl"
-
 $name = '.design-panel'
 
-$design-panel__width = 23vw
+$design-panel__width = 460px
 
 {$name}
   position fixed
@@ -104,7 +132,7 @@ $design-panel__width = 23vw
   bottom 0
   z-index 1500
   background rgba($colors.dark, $opacites.funky)
-  padding 1vw
+  padding 20px
 
   &__button
     width 100%
@@ -119,17 +147,34 @@ $design-panel__width = 23vw
     list-style none
     display grid
     grid-template-columns 1fr 1fr
-    grid-gap 1vw
+    grid-gap 20px
+
+    &--active
+      {$name}__item:hover
+        cursor pointer
+        color $colors.stone
+        border 2px solid $colors.stone
 
   &__item
     @extend $flexCenter
     position relative
     text-align center
-    height 10vw
+    height 200px
     border 2px solid $colors.primary
     color $colors.primary
     text-decoration none
+
+  &__header
+    margin-bottom 10px
+    $text("maria")
+
+  &__text
+    margin-bottom 5px
     $text("natasha")
+
+    &--subheader
+      margin-top 10px
+      $opacity('psy')
 
   &__progress
     position absolute
@@ -145,9 +190,4 @@ $design-panel__width = 23vw
 
 {$name}__item--active a
   color $colors.active
-
-{$name}__item:hover
-  cursor pointer
-  color $colors.stone
-  border 2px solid $colors.stone
 </style>

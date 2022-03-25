@@ -1,6 +1,7 @@
 <template>
   <div class="preloader">
     <slot />
+    <div v-if="isReload" class="preloader__gate" />
     <div v-if="!isGameLoaded" class="preloader__gate">
       <Loader />
     </div>
@@ -28,30 +29,46 @@ export default defineComponent({
       () => store.getters['preloader/isGameLoaded'],
     );
 
+    const isReload = computed(
+      () => store.getters['layout/isReload'],
+    );
+
     // Следим загрузилась ли игра чтобы проверить с начала ли
     watch(
       () => store.getters['preloader/isGameLoaded'],
-      () => {
-        // Check is start
-        if (store.getters['objects/isStart']) {
-          store.dispatch('objects/setField', {
-            field: 'isStart',
+      (value) => {
+        if (value) {
+          // First balance
+          store.dispatch('layout/balanceBase');
+          store.dispatch('layout/setField', {
+            field: 'isReload',
             value: false,
           });
+
+          // Check is start
+          if (store.getters['objects/isStart']) {
+            store.dispatch('layout/setField', {
+              field: 'health',
+              value: 100,
+            });
+            store.dispatch('objects/setField', {
+              field: 'isStart',
+              value: false,
+            });
+          }
         }
       },
     );
 
     return {
       isGameLoaded,
+      isReload,
     };
   },
 });
 </script>
 
 <style lang="stylus" scoped>
-@import "~/src/stylus/_stylebase.styl"
-
 .preloader
   &__gate
     @extend $viewport
@@ -59,4 +76,5 @@ export default defineComponent({
     color $colors.white
     background $colors.black
     z-index 2000
+    $text('olga')
 </style>

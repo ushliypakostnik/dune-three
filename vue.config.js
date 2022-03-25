@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   pwa: {
     manifestOptions: {
@@ -15,6 +17,14 @@ module.exports = {
           sizes: '16x16',
           type: 'image/x-icon',
         },
+      ],
+    },
+  },
+  pluginOptions: {
+    'style-resources-loader': {
+      preProcessor: 'stylus',
+      patterns: [
+        path.resolve(__dirname, './src/stylus/_stylebase.styl'),
       ],
     },
   },

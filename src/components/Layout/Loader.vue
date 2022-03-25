@@ -25,8 +25,6 @@ export default defineComponent({
 </script>
 
 <style lang="stylus" scoped>
-@import "~/src/stylus/_stylebase.styl"
-
 @keyframes spin
   from
     transform rotate(0deg)

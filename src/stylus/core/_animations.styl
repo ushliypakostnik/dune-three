@@ -14,6 +14,20 @@
     opacity 1
 
 
+@keyframes effect
+  from
+    opacity 0.75
+
+  50%
+    opacity 0.25
+
+  to
+    opacity 0.75
+
+.effect
+  animation effect ($effects.duration * 10) infinite
+
+
 // Vue classes for animation
 //////////////////////////////////////////////////////
 

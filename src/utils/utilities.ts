@@ -176,10 +176,17 @@ export const getGeometryByName = (name: Names | string): BoxBufferGeometry => {
     case Names.command:
     case Names.stations:
     case Names.plants:
+    case Names.storages:
       return new THREE.BoxGeometry(
         DESIGN.CELL * 3,
         DESIGN.CELL * 2,
         DESIGN.CELL * 3,
+      );
+    case Names.factories:
+      return new THREE.BoxGeometry(
+        DESIGN.CELL * 5,
+        DESIGN.CELL * 3,
+        DESIGN.CELL * 5,
       );
     case Names.plates:
     default:
@@ -200,6 +207,8 @@ export const getPositionYByName = (name: Names | string): number => {
     case Names.command:
     case Names.stations:
     case Names.plants:
+    case Names.storages:
+    case Names.factories:
     default:
       return OBJECTS.sand.positionY + 4;
   }
@@ -251,19 +260,27 @@ export const ScreenHelper = (() => {
 // Помощник перезагрузки
 export const restartDispatchHelper = (store: Store<State>): void => {
   store
-    .dispatch('objects/reload')
+    .dispatch('layout/setField', {
+      field: 'isReload',
+      value: true,
+    })
     .then(() => {
       store
-        .dispatch('layout/reload')
+        .dispatch('game/reload')
         .then(() => {
           store
-            .dispatch('game/reload')
+            .dispatch('objects/reload')
             .then(() => {
-              setTimeout(() => {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                window.location.reload(true);
-              }, 100);
+              store
+                .dispatch('layout/reload')
+                .then(() => {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
+                  window.location.reload(true);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
             })
             .catch((error) => {
               console.log(error);

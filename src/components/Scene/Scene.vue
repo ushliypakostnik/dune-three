@@ -106,6 +106,7 @@ export default defineComponent({
     let time = 0;
     let build: Mesh = new THREE.Mesh();
     let is = true;
+    let is2 = false;
 
     // Helpers
     let helper: Helper = new Helper();
@@ -420,6 +421,7 @@ export default defineComponent({
       () => store.getters['game/isSell'],
       (value) => {
         if (value) {
+          is = false;
           CAN_BUILD.forEach((build) => {
             selected = selection.collection
               .filter(
@@ -430,11 +432,78 @@ export default defineComponent({
                 return item.uuid;
               });
             if (selected.length > 0) {
+              if (!is) is = true;
               world.sell(self, selected, build);
-              self.events.messagesByIdDispatchHelper(self, 'buildingsSold');
               self.audio.replayHeroSound(Audios.sell);
             }
           });
+          if (is) self.events.messagesByIdDispatchHelper(self, 'buildingsSold');
+        }
+      },
+    );
+
+    // Следим за энергией
+    const energy = computed(() => store.getters['layout/energy']);
+    const energyNeed = computed(() => store.getters['layout/energyNeed']);
+    let isEnergyMessage = false;
+    watch(
+      () => store.getters['layout/energy'],
+      (value) => {
+        if (value < energyNeed.value) {
+          if (!isEnergyMessage) {
+            self.events.messagesByIdDispatchHelper(self, 'buildStations');
+            isEnergyMessage = true;
+            setTimeout(() => {
+              isEnergyMessage = false;
+            }, 0);
+          }
+        }
+      },
+    );
+    watch(
+      () => store.getters['layout/energyNeed'],
+      (value) => {
+        if (energy.value < value) {
+          if (!isEnergyMessage) {
+            self.events.messagesByIdDispatchHelper(self, 'buildStations');
+            isEnergyMessage = true;
+            setTimeout(() => {
+              isEnergyMessage = false;
+            }, 0);
+          }
+        }
+      },
+    );
+
+    // Следим за энергией
+    const food = computed(() => store.getters['layout/food']);
+    const foodNeed = computed(() => store.getters['layout/foodNeed']);
+    let isFoodMessage = false;
+    watch(
+      () => store.getters['layout/energy'],
+      (value) => {
+        if (value < foodNeed.value) {
+          if (!isFoodMessage) {
+            self.events.messagesByIdDispatchHelper(self, 'buildPlants');
+            isFoodMessage = true;
+            setTimeout(() => {
+              isFoodMessage = false;
+            }, 0);
+          }
+        }
+      },
+    );
+    watch(
+      () => store.getters['layout/foodNeed'],
+      (value) => {
+        if (food.value < value) {
+          if (!isFoodMessage) {
+            self.events.messagesByIdDispatchHelper(self, 'buildPlants');
+            isFoodMessage = true;
+            setTimeout(() => {
+              isFoodMessage = false;
+            }, 0);
+          }
         }
       },
     );
@@ -572,10 +641,7 @@ export default defineComponent({
 
         selected = selection.select();
         if (selected.length > 0) {
-          store.dispatch('game/setField', {
-            field: 'isSelected',
-            value: true,
-          });
+          is2 = false;
           for (let i = 0; i < selected.length; i++) {
             is =
               selected[i].name === Names.plates &&
@@ -587,14 +653,23 @@ export default defineComponent({
               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               // @ts-ignore
               selected[i].material.emissive.set(Colors.selection);
+              if (!is2) is2 = true;
             }
 
             // Pseudo
             if (
               selected[i].name.includes(PSEUDO) &&
               !selected[i].name.includes(Names.command)
-            )
+            ) {
               selected[i].visible = true;
+              if (!is2) is2 = true;
+            }
+
+            if (is2)
+              store.dispatch('game/setField', {
+                field: 'isSelected',
+                value: true,
+              });
           }
         } else {
           store.dispatch('game/setField', {
@@ -693,8 +768,6 @@ export default defineComponent({
 </script>
 
 <style lang="stylus">
-@import "~/src/stylus/_stylebase.styl";
-
 .scene
   position absolute
   top 0

@@ -16,6 +16,8 @@ import Plates from '@/components/Scene/Wolrd/Builds/Plates';
 import Walls from '@/components/Scene/Wolrd/Builds/Walls';
 import Stations from '@/components/Scene/Wolrd/Builds/Stations';
 import Plants from '@/components/Scene/Wolrd/Builds/Plants';
+import Storages from '@/components/Scene/Wolrd/Builds/Storages';
+import Factories from '@/components/Scene/Wolrd/Builds/Factories';
 
 export default class Builds extends AnimatedModule {
   private _command: StaticModelModules;
@@ -23,6 +25,8 @@ export default class Builds extends AnimatedModule {
   private _walls: StaticSimpleModules;
   private _stations: StaticModelModules;
   private _plants: StaticModelModules;
+  private _storages: StaticModelModules;
+  private _factories: StaticModelModules;
 
   constructor() {
     super(Names.builds);
@@ -32,6 +36,8 @@ export default class Builds extends AnimatedModule {
     this._walls = new Walls();
     this._stations = new Stations();
     this._plants = new Plants();
+    this._storages = new Storages();
+    this._factories = new Factories();
   }
 
   public init(self: ISelf): void {
@@ -40,6 +46,8 @@ export default class Builds extends AnimatedModule {
     this._walls.init(self);
     this._stations.init(self);
     this._plants.init(self);
+    this._storages.init(self);
+    this._factories.init(self);
   }
 
   // Можно ли добавить новый объект?
@@ -53,6 +61,10 @@ export default class Builds extends AnimatedModule {
         return this._stations.isCanAdd(self, vector);
       case Names.plants:
         return this._plants.isCanAdd(self, vector);
+      case Names.storages:
+        return this._storages.isCanAdd(self, vector);
+      case Names.factories:
+        return this._factories.isCanAdd(self, vector);
     }
     return false;
   }
@@ -72,11 +84,17 @@ export default class Builds extends AnimatedModule {
       case Names.plants:
         this._plants.add(self, vector);
         break;
+      case Names.storages:
+        this._storages.add(self, vector);
+        break;
+      case Names.factories:
+        this._factories.add(self, vector);
+        break;
     }
   }
 
   // Продать строение
-  public sell(self: ISelf, items: string[], name: string): void {
+  public sell(self: ISelf, items: string[], name: Names): void {
     switch (name) {
       case Names.plates:
         this._plates.sell(self, items);
@@ -89,6 +107,12 @@ export default class Builds extends AnimatedModule {
         break;
       case Names.plants:
         this._plants.sell(self, items);
+        break;
+      case Names.storages:
+        this._storages.sell(self, items);
+        break;
+      case Names.factories:
+        this._factories.sell(self, items);
         break;
     }
   }
