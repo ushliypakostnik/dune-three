@@ -55,8 +55,8 @@ const objects: Module<IObjects, IStore> = {
       commit('saveObjects', payload);
     },
 
-    sellField: ({ commit }, payload: TSellPayload): void => {
-      commit('sellField', payload);
+    sellObject: ({ commit }, payload: TSellPayload): void => {
+      commit('sellObject', payload);
     },
 
     setField: ({ commit }, payload: TFieldPayload): void => {
@@ -73,7 +73,7 @@ const objects: Module<IObjects, IStore> = {
       state.objects[payload.name] = payload.objects;
     },
 
-    sellField: (state: IObjects, payload: TSellPayload): void => {
+    sellObject: (state: IObjects, payload: TSellPayload): void => {
       position = { x: payload.x, z: payload.z };
       if (
         Object.prototype.hasOwnProperty.call(state.grid, getGridKey(position))

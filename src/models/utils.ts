@@ -1,4 +1,4 @@
-import type { Audio } from 'three';
+import type { Audio, PositionalAudio } from 'three';
 
 export type TPosition = {
   x: number;
@@ -27,8 +27,16 @@ export type TEvents = {
 export type TAudio = {
   id: string;
   name: string;
-  audio: Audio;
   isStopped: boolean;
+  audio: Audio;
+};
+
+export type TPositionalAudio = {
+  id: string;
+  name: string;
+  isStopped: boolean;
+  isLoop: boolean;
+  audio?: PositionalAudio;
 };
 
 export type TStone = {

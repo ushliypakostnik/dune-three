@@ -44,6 +44,13 @@ export enum Audios {
   build = 'build',
   add = 'add',
   sell = 'sell',
+
+  // Objects
+  command = 'command',
+  stations = 'stations',
+  plants = 'plants',
+  storages = 'storages',
+  factories = 'factories',
 }
 
 export enum Colors {
@@ -101,7 +108,7 @@ export const DESIGN: TConfig = {
   SIZE: size(1),
   CELL: 20,
   CAMERA: {
-    fov: 80,
+    fov: 70,
     fog: 0xa48ed8,
   },
   // Дефолтные установки сцены
@@ -121,11 +128,16 @@ export const DESIGN: TConfig = {
   },
   MESSAGES_TIMEOUT: 3000, // ms
   VOLUME: {
-    wind: 0.5,
-    zero: 1,
-    build: 0.75,
-    sell: 1,
-    add: 0.75,
+    [Audios.wind]: 0.5,
+    [Audios.zero]: 1,
+    [Audios.build]: 0.75,
+    [Audios.sell]: 1,
+    [Audios.add]: 0.75,
+    [Audios.command]: 0.4,
+    [Audios.stations]: 6,
+    [Audios.plants]: 2,
+    [Audios.storages]: 4,
+    [Audios.factories]: 1.5,
   },
   ATMOSPHERE_ELEMENTS: {
     [Names.stones]: 8,
@@ -205,7 +217,7 @@ export const OBJECTS: TConfig = {
     },
     gives: {
       cash: null,
-      energy: 30,
+      energy: 50,
       food: null,
     },
   },
@@ -221,7 +233,7 @@ export const OBJECTS: TConfig = {
     gives: {
       cash: null,
       energy: null,
-      food: 30,
+      food: 50,
     },
   },
   [Names.storages]: {
@@ -244,7 +256,7 @@ export const OBJECTS: TConfig = {
     isStartRotate: false,
     time: 10,
     need: {
-      cash: 100,
+      cash: 250,
       energy: 25,
       food: 25,
     },

@@ -47,10 +47,10 @@ import {
   getGridKey,
   isNotStartPlates,
   coordsFromVector,
-  getIsLoopByName,
   getGridDiffByName,
   getGeometryByName,
   getPositionYByName,
+  getAudioByName,
 } from '@/utils/utilities';
 
 export default class Helper {
@@ -106,9 +106,9 @@ export default class Helper {
   }
 
   // Помощник загрузки звуков
-  public setAudioHelper(self: ISelf, name: Audios): void {
+  public setAudioToHeroHelper(self: ISelf, name: Audios): void {
     self.assets.audioLoader.load(`./audio/${name}.mp3`, (buffer) => {
-      self.audio.addAudioToHero(self, buffer, name, getIsLoopByName(name));
+      self.audio.addAudioToHero(self, buffer, name);
       this.loaderDispatchHelper(self.store, `${name}IsLoaded`);
 
       // Ветер
@@ -318,6 +318,14 @@ export default class Helper {
 
     self.scene.add(this._pseudo);
 
+    // Звук
+    self.audio.addAudioToObject(this._pseudo.uuid, getAudioByName(name));
+    self.audio.initAudioByIdAndName(
+      self,
+      this._pseudo.uuid,
+      getAudioByName(name),
+    );
+
     // Если дефолтная инициализация или добавление нового объекта - сохраняем объект
     // если перезагрузка - обновляем uuid
     if (isStart)
@@ -474,8 +482,7 @@ export default class Helper {
       this._positions = this._getCanPlateBuildArray(self, vector);
       if (
         this._positions.length > 0 &&
-        this._positions.length * OBJECTS[Names.plates].need.cash <=
-          this._number
+        this._positions.length * OBJECTS[Names.plates].need.cash <= this._number
       )
         this._is = true;
       else this._is = false;
@@ -558,6 +565,10 @@ export default class Helper {
       this._array.forEach((item) => {
         this._pseudo = self.scene.getObjectByProperty('uuid', item) as Mesh;
         if (this._pseudo) {
+          // Удаляем звуки
+          if (name !== Names.plates && name !== Names.walls)
+            self.audio.removeObjectAudioFromBus(this._pseudo.uuid);
+
           self.scene.remove(this._pseudo);
           ++this._counter;
 
@@ -573,7 +584,7 @@ export default class Helper {
             this._number = getGridDiffByName(name);
             for (let x = -1 * this._number; x <= this._number; ++x) {
               for (let z = -1 * this._number; z <= this._number; ++z) {
-                self.store.dispatch('objects/sellField', {
+                self.store.dispatch('objects/sellObject', {
                   name,
                   x: this._object.data.x + x,
                   z: this._object.data.z + z,
@@ -592,7 +603,7 @@ export default class Helper {
 
           this._object = this._objects.find((object) => object.id === item);
           if (this._object) {
-            self.store.dispatch('objects/sellField', {
+            self.store.dispatch('objects/sellObject', {
               name,
               x: this._object.data.x,
               z: this._object.data.z,
@@ -601,9 +612,9 @@ export default class Helper {
         }
       });
     }
-    this._objects.forEach((object) => {
-      if (!this._array.includes(object.id)) this._objects2.push(object);
-    });
+    this._objects2 = this._objects.filter(
+      (object) => !this._array.includes(object.id),
+    );
 
     this._number = self.store.getters['layout/cash'];
     self.store.dispatch('layout/setField', {

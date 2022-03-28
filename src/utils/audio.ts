@@ -8,23 +8,25 @@ import { Colors, Audios } from '@/utils/constants';
 
 // Types
 import type { ISelf } from '@/models/modules';
-import type { TAudio } from '@/models/utils';
-import type { TObjectField } from '@/models/store';
-import type { Audio, PositionalAudio, Mesh } from 'three';
+import type { TAudio, TPositionalAudio } from '@/models/utils';
+import type { Audio, PositionalAudio, Mesh, Group } from 'three';
 
 // Utils
-import { getVolumeByName } from '@/utils/utilities';
-import { TObject } from '@/models/store';
+import { getVolumeByName, getIsLoopByName } from '@/utils/utilities';
 
 export default class AudioBus {
   private _bus!: Array<TAudio>;
+  private _bus2!: Array<TPositionalAudio>;
   private _heroSound!: Mesh;
   private _audio!: Audio;
   private _positionalAudio!: PositionalAudio;
-  private _record?: TAudio;
+  private _record?: TAudio | TPositionalAudio;
+  private _item: Mesh | Group = new THREE.Mesh();
+  private _is!: boolean;
 
   constructor() {
     this._bus = [];
+    this._bus2 = [];
   }
 
   init(self: ISelf): void {
@@ -46,11 +48,11 @@ export default class AudioBus {
     self.scene.add(this._heroSound);
   }
 
-  // Добавить трек
-  public addAudioToBus(
+  // Добавить трек на шину
+  public addHeroAudioToBus(
     id: string,
     audio: Audio,
-    name: string,
+    name: Audios,
     isLoop: boolean,
   ): void {
     if (!isLoop) audio.onEnded = () => audio.stop();
@@ -63,91 +65,165 @@ export default class AudioBus {
     });
   }
 
-  // Удалить трек
-  private _removeAudioFromBus(id: string, name: string): void {
-    this._bus = this._bus.filter(
-      (record) => record.id !== id && record.name !== name,
-    );
+  // Добавить позиционированный трек на шину 2
+  public addPositionalAudioToBus(
+    id: string,
+    name: Audios,
+    isLoop: boolean,
+  ): void {
+    this._bus2.push({
+      id,
+      name,
+      isStopped: false,
+      isLoop,
+    });
   }
 
-  // Трек по айди и имени (позиционнированные аудио)
-  private _getRecordByIdAndName(id: string, name: Audios): TAudio | undefined {
-    return this._bus.find((record) => record.id === id && record.name === name);
-  }
-
-  // Трек по имени
+  // Трек на герое по имени
   private _getRecordByName(name: Audios): TAudio | undefined {
     return this._bus.find((record) => record.name === name);
   }
 
-  // Добавить трек на героя
-  public addAudioToHero(
-    self: ISelf,
-    buffer: AudioBuffer,
+  // Трек по айди и имени (позиционнированные аудио)
+  private _getRecordByIdAndName(
+    id: string,
     name: Audios,
-    isLoop: boolean,
-  ): void {
+  ): TPositionalAudio | undefined {
+    return this._bus2.find(
+      (record) => record.id === id && record.name === name,
+    );
+  }
+
+  // Удалить трек на герое
+  private _removeAudioByNameFromBus(id: string, name: string): void {
+    this._bus2 = this._bus2.filter(
+      (record) => record.id !== id && record.name !== name,
+    );
+  }
+
+  // Удалить трек (позиционнированные аудио)
+  public removeObjectAudioFromBus(id: string): void {
+    this._bus2
+      .filter((record) => record.id === id)
+      .forEach((record) => record.audio?.stop());
+    this._bus2 = this._bus2.filter((record) => record.id !== id);
+  }
+
+  // Добавить трек на героя
+  public addAudioToHero(self: ISelf, buffer: AudioBuffer, name: Audios): void {
     this._audio = new THREE.Audio(self.listener);
+
+    this._is = getIsLoopByName(name);
 
     this._audio.setBuffer(buffer);
     this._audio.setVolume(getVolumeByName(name));
-    this._audio.setLoop(isLoop);
+    this._audio.setLoop(this._is);
 
-    this.addAudioToBus(this._heroSound.uuid, this._audio, name, isLoop);
+    this.addHeroAudioToBus(this._heroSound.uuid, this._audio, name, this._is);
 
     this._heroSound.add(this._audio);
   }
 
   // Добавить трек на группу объектоа
-  public addAudioToObjects(
+  public addAudioToObject(id: string, name: Audios): void {
+    this._is = getIsLoopByName(name);
+    this.addPositionalAudioToBus(id, name, this._is);
+  }
+
+  // Помощник добавления позиционированого аудио
+  private _setPositionalAudio(
     self: ISelf,
-    objects: TObjectField,
-    buffer: AudioBuffer,
+    audio: PositionalAudio,
     name: Audios,
     isLoop: boolean,
-  ): void {
-    objects.forEach((object) => {
+  ) {
+    audio.setBuffer(self.assets.getAudio(name));
+    audio.setVolume(getVolumeByName(name));
+    audio.setLoop(isLoop);
+    audio.setRefDistance(50);
+    audio.setMaxDistance(200);
+    audio.setRolloffFactor(1);
+  }
+
+  // Активировать трек по имени на объектах после загрузки
+  public initAudioByName(self: ISelf, name: Audios): void {
+    this._bus2
+      .filter((record) => record.name === name)
+      .forEach((record) => {
+        this._positionalAudio = new THREE.PositionalAudio(self.listener);
+
+        this._setPositionalAudio(
+          self,
+          this._positionalAudio,
+          name,
+          record.isLoop,
+        );
+
+        if (!record.isLoop)
+          this._positionalAudio.onEnded = () => this._positionalAudio.stop();
+        record.audio = this._positionalAudio;
+
+        this._item = self.scene.getObjectByProperty('uuid', record.id) as Mesh;
+        this._item.add(this._positionalAudio);
+
+        this._is = self.store.getters['layout/isPause'];
+        if (this._is) record.isStopped = true;
+        else this._positionalAudio.play();
+      });
+  }
+
+  // Активировать трек по имени на объекте после добавления
+  public initAudioByIdAndName(self: ISelf, id: string, name: Audios): void {
+    this._record = this._getRecordByIdAndName(id, name);
+    if (this._record) {
       this._positionalAudio = new THREE.PositionalAudio(self.listener);
+      this._is = getIsLoopByName(name);
 
-      this._positionalAudio.setBuffer(buffer);
-      this._positionalAudio.setVolume(getVolumeByName(name));
-      this._positionalAudio.setRefDistance(50);
-      this._positionalAudio.setMaxDistance(200);
-      this._positionalAudio.setLoop(isLoop);
-      this._positionalAudio.setRolloffFactor(1);
+      this._setPositionalAudio(self, this._positionalAudio, name, this._is);
 
-      this.addAudioToBus(object.id, this._audio, name, isLoop);
+      if (!this._is)
+        this._positionalAudio.onEnded = () => this._positionalAudio.stop();
 
-      // TODO: проработать "куда и как добавляется аудио?"
-      // object.add(this._positionalAudio);
-    });
+      this._record.audio = this._positionalAudio;
+
+      this._item = self.scene.getObjectByProperty('uuid', id) as Mesh;
+      this._item.add(this._positionalAudio);
+
+      this._is = self.store.getters['layout/isPause'];
+      if (this._is) this._record.isStopped = true;
+      else if (this._record?.audio && !this._record.audio.isPlaying)
+        this._record.audio.play();
+    }
   }
 
   // Добавить и отыграть трек на одном объекте
-  public playAudioOnObject(
+  public addAndPlayAudioOnObject(
     self: ISelf,
-    object: TObject,
+    id: string,
     buffer: AudioBuffer,
     name: Audios,
   ): void {
+    this._is = getIsLoopByName(name);
+    this.addPositionalAudioToBus(id, name, this._is);
+
     this._positionalAudio = new THREE.PositionalAudio(self.listener);
 
-    this._positionalAudio.setBuffer(buffer);
-    this._positionalAudio.setVolume(getVolumeByName(name));
-    this._positionalAudio.setRefDistance(50);
-    this._positionalAudio.setMaxDistance(200);
-    this._positionalAudio.setLoop(false);
-    this._positionalAudio.setRolloffFactor(1);
+    this._setPositionalAudio(self, this._positionalAudio, name, this._is);
 
-    this.addAudioToBus(object.id, this._audio, name, false);
+    if (!this._is)
+      this._positionalAudio.onEnded = () => this._positionalAudio.stop();
 
-    // TODO: проработать "куда и как добавляется аудио?"
-    // object.add(this._positionalAudio);
+    this._record = this._getRecordByIdAndName(id, name);
+    if (this._record) this._record.audio = this._positionalAudio;
+
+    this._item = self.scene.getObjectByProperty('uuid', id) as Mesh;
+    this._item.add(this._positionalAudio);
+
     this._positionalAudio.play();
     this._positionalAudio.onEnded = () => {
       if (this._positionalAudio && this._positionalAudio.isPlaying)
         this._positionalAudio.stop();
-      this._removeAudioFromBus(object.id, name);
+      this._removeAudioByNameFromBus(id, name);
     };
   }
 
@@ -160,12 +236,24 @@ export default class AudioBus {
           record.isStopped = true;
           record.audio.pause();
         });
+      this._bus2
+        .filter((record) => record.audio && record.audio.isPlaying)
+        .forEach((record) => {
+          record.isStopped = true;
+          if (record.audio) record.audio.pause();
+        });
     } else {
       this._bus
         .filter((record) => record.isStopped)
         .forEach((record) => {
           record.isStopped = false;
           record.audio.play();
+        });
+      this._bus2
+        .filter((record) => record.audio && record.isStopped)
+        .forEach((record) => {
+          record.isStopped = false;
+          if (record.audio) record.audio.play();
         });
 
       // Ветер

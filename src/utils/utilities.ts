@@ -224,6 +224,11 @@ export const getIsLoopByName = (name: Audios): boolean => {
   switch (name) {
     case Audios.wind:
     case Audios.build:
+    case Audios.command:
+    case Audios.stations:
+    case Audios.plants:
+    case Audios.storages:
+    case Audios.factories:
       return true;
     case Audios.zero:
     case Audios.sell:
@@ -231,6 +236,11 @@ export const getIsLoopByName = (name: Audios): boolean => {
     default:
       return false;
   }
+};
+
+// Аудио по имени
+export const getAudioByName = (name: Names): Audios => {
+  return Audios[name as keyof typeof Audios];
 };
 
 // Layout

@@ -26,6 +26,13 @@ export default class Assets {
   private _sand2!: Texture;
   private _plates!: Texture;
 
+  // Audios
+  private _command!: AudioBuffer;
+  private _stations!: AudioBuffer;
+  private _plants!: AudioBuffer;
+  private _storages!: AudioBuffer;
+  private _factories!: AudioBuffer;
+
   // Loaders
   public GLTFLoader: GLTFLoader;
   public audioLoader: AudioLoader;
@@ -49,11 +56,58 @@ export default class Assets {
     this._plates = self.helper.setMapHelper(self, Textures.plates);
 
     // Audio
-    self.helper.setAudioHelper(self, Audios.wind);
-    self.helper.setAudioHelper(self, Audios.zero);
-    self.helper.setAudioHelper(self, Audios.build);
-    self.helper.setAudioHelper(self, Audios.add);
-    self.helper.setAudioHelper(self, Audios.sell);
+    self.helper.setAudioToHeroHelper(self, Audios.wind);
+    self.helper.setAudioToHeroHelper(self, Audios.zero);
+    self.helper.setAudioToHeroHelper(self, Audios.build);
+    self.helper.setAudioToHeroHelper(self, Audios.add);
+    self.helper.setAudioToHeroHelper(self, Audios.sell);
+
+    // Objects
+
+    this.audioLoader.load(`./audio/${Audios.command}.mp3`, (buffer) => {
+      self.helper.loaderDispatchHelper(
+        self.store,
+        `${Audios.command}AudioIsLoaded`,
+      );
+      this._command = buffer;
+      self.audio.initAudioByName(self, Audios.command);
+    });
+
+    this.audioLoader.load(`./audio/${Audios.stations}.mp3`, (buffer) => {
+      self.helper.loaderDispatchHelper(
+        self.store,
+        `${Audios.stations}AudioIsLoaded`,
+      );
+      this._stations = buffer;
+      self.audio.initAudioByName(self, Audios.stations);
+    });
+
+    this.audioLoader.load(`./audio/${Audios.plants}.mp3`, (buffer) => {
+      self.helper.loaderDispatchHelper(
+        self.store,
+        `${Audios.plants}AudioIsLoaded`,
+      );
+      this._plants = buffer;
+      self.audio.initAudioByName(self, Audios.plants);
+    });
+
+    this.audioLoader.load(`./audio/${Audios.storages}.mp3`, (buffer) => {
+      self.helper.loaderDispatchHelper(
+        self.store,
+        `${Audios.storages}AudioIsLoaded`,
+      );
+      this._storages = buffer;
+      self.audio.initAudioByName(self, Audios.storages);
+    });
+
+    this.audioLoader.load(`./audio/${Audios.factories}.mp3`, (buffer) => {
+      self.helper.loaderDispatchHelper(
+        self.store,
+        `${Audios.factories}AudioIsLoaded`,
+      );
+      this._factories = buffer;
+      self.audio.initAudioByName(self, Audios.factories);
+    });
   }
 
   // Получить текстуру
@@ -102,5 +156,22 @@ export default class Assets {
       map: this.getTexture(name),
       color: Colors[name as keyof typeof Colors],
     });
+  }
+
+  // Получить звук
+  public getAudio(name: Audios): AudioBuffer {
+    switch (name) {
+      case Audios.command:
+        return this._command;
+      case Audios.stations:
+        return this._stations;
+      case Audios.plants:
+        return this._plants;
+      case Audios.storages:
+        return this._storages;
+      case Audios.factories:
+        return this._factories;
+    }
+    return this._plants;
   }
 }

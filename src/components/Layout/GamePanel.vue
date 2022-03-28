@@ -9,7 +9,7 @@
         {{ $t('energy') }}: {{ energy }}
         <span
           class="game-panel__text-scale-inner"
-          :class="{ effect: energy < energyNeed && !isPause }"
+          :class="{ effect: energyLess && !isPause }"
           >({{ energyNeed }})</span
         >
       </div>
@@ -17,7 +17,7 @@
         {{ $t('food') }}: {{ food }}
         <span
           class="game-panel__text-scale-inner"
-          :class="{ effect: food < foodNeed && !isPause }"
+          :class="{ effect: foodLess && !isPause }"
           >({{ foodNeed }})</span
         >
       </div>
@@ -68,10 +68,12 @@ export default defineComponent({
     // Следим за энергией
     const energy = computed(() => store.getters['layout/energy']);
     const energyNeed = computed(() => store.getters['layout/energyNeed']);
+    const energyLess = computed(() => store.getters['layout/energyLess']);
 
     // Следим за едой
     const food = computed(() => store.getters['layout/food']);
     const foodNeed = computed(() => store.getters['layout/foodNeed']);
+    const foodLess = computed(() => store.getters['layout/foodLess']);
 
     return {
       t,
@@ -82,8 +84,10 @@ export default defineComponent({
       cashLimit,
       energy,
       energyNeed,
+      energyLess,
       food,
       foodNeed,
+      foodLess,
     };
   },
 });

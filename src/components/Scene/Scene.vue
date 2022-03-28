@@ -107,6 +107,7 @@ export default defineComponent({
     let build: Mesh = new THREE.Mesh();
     let is = true;
     let is2 = false;
+    let slowdown = 1;
 
     // Helpers
     let helper: Helper = new Helper();
@@ -134,6 +135,8 @@ export default defineComponent({
     const isBuildingClock = computed(
       () => store.getters['game/isBuildingClock'],
     );
+    const energyLess = computed(() => store.getters['layout/energyLess']);
+    const foodLess = computed(() => store.getters['layout/foodLess']);
 
     // Stats
     let stats = Stats();
@@ -327,7 +330,7 @@ export default defineComponent({
           if (!isPause.value && controls.enabled && !isSelection.value) {
             controls.enabled = false;
             isCreate.value = true;
-            box.visible = true;
+            if (!isBuildingClock.value) box.visible = true;
             store.dispatch('layout/setField', {
               field: 'isDesignPanel',
               value: true,
@@ -381,132 +384,6 @@ export default defineComponent({
       raycaster.setFromCamera(pointer, camera);
       intersects = raycaster.intersectObjects([plane], false);
     };
-
-    // Следим за паузой
-    watch(
-      () => store.getters['layout/isPause'],
-      (value) => {
-        if (value) {
-          events.pause();
-          if (isBuildingClock.value && clock.running) clock.stop();
-        } else {
-          events.start(self);
-        }
-        audio.toggle(value);
-      },
-    );
-
-    // Следим за активным объектом для постройки
-    watch(
-      () => store.getters['layout/activeBuild'],
-      (value) => {
-        if (value === Names.plates) {
-          box.geometry = getGeometryByName('build');
-          box.position.y = getPositionYByName('build');
-        } else {
-          box.geometry = getGeometryByName(value);
-          if (value === Names.walls) box.position.y = getPositionYByName(value);
-          else box.position.y = getPositionYByName(value) + 20;
-        }
-
-        build.geometry = box.geometry;
-        build.position.copy(box.position);
-
-        self.audio.replayHeroSound(Audios.zero);
-      },
-    );
-
-    // Следим за кнопкой продажи объектов
-    watch(
-      () => store.getters['game/isSell'],
-      (value) => {
-        if (value) {
-          is = false;
-          CAN_BUILD.forEach((build) => {
-            selected = selection.collection
-              .filter(
-                (item) =>
-                  item.name === build || item.name === `${PSEUDO}${build}`,
-              )
-              .map((item) => {
-                return item.uuid;
-              });
-            if (selected.length > 0) {
-              if (!is) is = true;
-              world.sell(self, selected, build);
-              self.audio.replayHeroSound(Audios.sell);
-            }
-          });
-          if (is) self.events.messagesByIdDispatchHelper(self, 'buildingsSold');
-        }
-      },
-    );
-
-    // Следим за энергией
-    const energy = computed(() => store.getters['layout/energy']);
-    const energyNeed = computed(() => store.getters['layout/energyNeed']);
-    let isEnergyMessage = false;
-    watch(
-      () => store.getters['layout/energy'],
-      (value) => {
-        if (value < energyNeed.value) {
-          if (!isEnergyMessage) {
-            self.events.messagesByIdDispatchHelper(self, 'buildStations');
-            isEnergyMessage = true;
-            setTimeout(() => {
-              isEnergyMessage = false;
-            }, 0);
-          }
-        }
-      },
-    );
-    watch(
-      () => store.getters['layout/energyNeed'],
-      (value) => {
-        if (energy.value < value) {
-          if (!isEnergyMessage) {
-            self.events.messagesByIdDispatchHelper(self, 'buildStations');
-            isEnergyMessage = true;
-            setTimeout(() => {
-              isEnergyMessage = false;
-            }, 0);
-          }
-        }
-      },
-    );
-
-    // Следим за энергией
-    const food = computed(() => store.getters['layout/food']);
-    const foodNeed = computed(() => store.getters['layout/foodNeed']);
-    let isFoodMessage = false;
-    watch(
-      () => store.getters['layout/energy'],
-      (value) => {
-        if (value < foodNeed.value) {
-          if (!isFoodMessage) {
-            self.events.messagesByIdDispatchHelper(self, 'buildPlants');
-            isFoodMessage = true;
-            setTimeout(() => {
-              isFoodMessage = false;
-            }, 0);
-          }
-        }
-      },
-    );
-    watch(
-      () => store.getters['layout/foodNeed'],
-      (value) => {
-        if (food.value < value) {
-          if (!isFoodMessage) {
-            self.events.messagesByIdDispatchHelper(self, 'buildPlants');
-            isFoodMessage = true;
-            setTimeout(() => {
-              isFoodMessage = false;
-            }, 0);
-          }
-        }
-      },
-    );
 
     // Нажатие на курсор мыши
     onPointerDown = (event) => {
@@ -708,7 +585,8 @@ export default defineComponent({
       if (isBuildingClock.value) {
         if (!clock.running) clock.start();
 
-        time += clock.getDelta();
+        slowdown = energyLess.value || foodLess.value ? 2 : 1;
+        time += clock.getDelta() / slowdown;
 
         if (time > OBJECTS[activeBuild.value].time) {
           clock.stop();
@@ -738,6 +616,7 @@ export default defineComponent({
       }
     };
 
+    // This is self )
     let self: ISelf = {
       // Utils
       helper,
@@ -751,6 +630,87 @@ export default defineComponent({
       listener,
       render,
     };
+
+    // Следим за паузой
+    watch(
+      () => store.getters['layout/isPause'],
+      (value) => {
+        if (value) {
+          events.pause();
+          if (isBuildingClock.value && clock.running) clock.stop();
+        } else {
+          events.start(self);
+        }
+        audio.toggle(value);
+      },
+    );
+
+    // Следим за активным объектом для постройки
+    watch(
+      () => store.getters['layout/activeBuild'],
+      (value) => {
+        if (value === Names.plates) {
+          box.geometry = getGeometryByName('build');
+          box.position.y = getPositionYByName('build');
+        } else {
+          box.geometry = getGeometryByName(value);
+          if (value === Names.walls) box.position.y = getPositionYByName(value);
+          else box.position.y = getPositionYByName(value) + 20;
+        }
+
+        build.geometry = box.geometry;
+        build.position.copy(box.position);
+
+        self.audio.replayHeroSound(Audios.zero);
+      },
+    );
+
+    // Следим за кнопкой продажи объектов
+    watch(
+      () => store.getters['game/isSell'],
+      (value) => {
+        if (value) {
+          is = false;
+          CAN_BUILD.forEach((build) => {
+            selected = selection.collection
+              .filter(
+                (item) =>
+                  item.name === build || item.name === `${PSEUDO}${build}`,
+              )
+              .map((item) => {
+                return item.uuid;
+              });
+            if (selected.length > 0) {
+              if (!is) is = true;
+              world.sell(self, selected, build);
+              self.audio.replayHeroSound(Audios.sell);
+            }
+          });
+          if (is) self.events.messagesByIdDispatchHelper(self, 'buildingsSold');
+        }
+      },
+    );
+
+    // Следим за энергией
+    if (energyLess.value)
+      self.events.messagesByIdDispatchHelper(self, 'buildStations');
+    watch(
+      () => store.getters['layout/energyLess'],
+      (value) => {
+        if (value)
+          self.events.messagesByIdDispatchHelper(self, 'buildStations');
+      },
+    );
+
+    // Следим за едой
+    if (foodLess.value)
+      self.events.messagesByIdDispatchHelper(self, 'buildPlants');
+    watch(
+      () => store.getters['layout/foodLess'],
+      (value) => {
+        if (value) self.events.messagesByIdDispatchHelper(self, 'buildPlants');
+      },
+    );
 
     onMounted(() => {
       init();

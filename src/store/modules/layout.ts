@@ -34,8 +34,10 @@ const initialState: ILayout = {
   cashLimit: null,
   energy: null,
   energyNeed: null,
+  energyLess: null,
   food: null,
   foodNeed: null,
+  foodLess: null,
   health: null,
 };
 
@@ -57,8 +59,10 @@ const layout: Module<ILayout, IStore> = {
     cashLimit: (state: ILayout) => state.cashLimit,
     energy: (state: ILayout) => state.energy,
     energyNeed: (state: ILayout) => state.energyNeed,
+    energyLess: (state: ILayout) => state.energyLess,
     food: (state: ILayout) => state.food,
     foodNeed: (state: ILayout) => state.foodNeed,
+    foodLess: (state: ILayout) => state.foodLess,
     health: (state: ILayout) => state.health,
   },
 
@@ -98,6 +102,8 @@ const layout: Module<ILayout, IStore> = {
       });
       state.energyNeed = number;
 
+      state.energyLess = state.energy < state.energyNeed;
+
       state.food =
         payload[Names.plants].length * OBJECTS[Names.plants].gives.food;
 
@@ -106,6 +112,8 @@ const layout: Module<ILayout, IStore> = {
         number += payload[name].length * OBJECTS[name].need.food;
       });
       state.foodNeed = number;
+
+      state.foodLess = state.food < state.foodNeed;
     },
 
     reload: (state: ILayout): void => {

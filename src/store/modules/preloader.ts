@@ -29,6 +29,11 @@ const initialState: IPreloader = {
   windIsLoaded: false,
   zeroIsLoaded: false,
   sellIsLoaded: false,
+  commandAudioIsLoaded: false,
+  stationsAudioIsLoaded: false,
+  plantsAudioIsLoaded: false,
+  storagesAudioIsLoaded: false,
+  factoriesAudioIsLoaded: false,
 
   // World build
   atmosphereIsBuild: false,

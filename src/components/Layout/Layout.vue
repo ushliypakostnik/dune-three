@@ -5,7 +5,7 @@
 
       <div class="layout__overlay" />
 
-      <ul class="layout__messages">
+      <transition-group name="fade2" tag="ul" class="layout__messages" >
         <li
           class="layout__message"
           v-for="(message, index) in messages"
@@ -13,7 +13,7 @@
         >
           {{ $t(`${message.text}`) }}
         </li>
-      </ul>
+      </transition-group>
 
       <transition name="fade2">
         <DesignPanel v-show="isDesignPanel" />
