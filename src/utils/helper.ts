@@ -152,6 +152,7 @@ export default class Helper {
     that: StaticModules | StaticModelModules,
   ): void {
     this._objects = [...self.store.getters['objects/objects'][that.name]];
+    console.log('AAAAAAAAAAAAAAAAa', this._objects);
     if (
       self.store.getters['objects/isStart'] &&
       (that.name === Names.plates || that.name === Names.command) // Плиты и командный пункт - есть на старте

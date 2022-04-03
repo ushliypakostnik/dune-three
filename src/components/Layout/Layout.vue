@@ -5,7 +5,7 @@
 
       <div class="layout__overlay" />
 
-      <transition-group name="fade2" tag="ul" class="layout__messages" >
+      <transition-group name="fade2" tag="ul" class="layout__messages">
         <li
           class="layout__message"
           v-for="(message, index) in messages"

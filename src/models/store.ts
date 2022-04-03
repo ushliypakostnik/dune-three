@@ -6,6 +6,10 @@ import { Names } from '@/utils/constants';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IStore {}
 
+interface IStoreModule {
+  [key: string]: any;
+}
+
 // Common
 
 export type TFieldPayload = {
@@ -39,15 +43,11 @@ export type TEventMessagePayload = {
   text: string;
 };
 
-export interface ILayout extends IStore {
-  [key: string]: any;
-}
+export interface ILayout extends IStoreModule {}
 
 // Objects
 
-export interface IObjects extends IStore {
-  [key: string]: any;
-}
+export interface IObjects extends IStoreModule {}
 
 export type TObject = {
   name: Names;

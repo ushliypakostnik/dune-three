@@ -128,12 +128,12 @@ export const DESIGN: TConfig = {
   },
   MESSAGES_TIMEOUT: 3000, // ms
   VOLUME: {
-    [Audios.wind]: 0.5,
-    [Audios.zero]: 1,
-    [Audios.build]: 0.75,
-    [Audios.sell]: 1,
+    [Audios.wind]: 0.2,
+    [Audios.zero]: 0.5,
+    [Audios.build]: 0.2,
+    [Audios.sell]: 0.5,
     [Audios.add]: 0.75,
-    [Audios.command]: 0.4,
+    [Audios.command]: 0.1,
     [Audios.stations]: 6,
     [Audios.plants]: 2,
     [Audios.storages]: 4,
@@ -268,7 +268,7 @@ export const OBJECTS: TConfig = {
   },
 };
 
-// Объекты модули которые можно строить
+// Объекты-модули которые можно строить
 export const MODULE_BUILD: string[] = [
   Names.stations,
   Names.plants,
