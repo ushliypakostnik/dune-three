@@ -682,7 +682,7 @@ export default defineComponent({
               });
             if (selected.length > 0) {
               if (!is) is = true;
-              world.sell(self, selected, build);
+              world.remove(self, selected, build as Names);
               self.audio.replayHeroSound(Audios.sell);
             }
           });

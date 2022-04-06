@@ -9,11 +9,13 @@ import type { TConfig, TMessages } from '@/models/utils';
 // Modules
 export enum Names {
   world = 'world',
+
   atmosphere = 'atmosphere',
   sand = 'sand',
   stones = 'stones',
   sands = 'sands',
   spices = 'spices',
+
   builds = 'builds',
   plates = 'plates',
   walls = 'walls',
@@ -22,6 +24,9 @@ export enum Names {
   plants = 'plants',
   storages = 'storages',
   factories = 'factories',
+
+  units = 'units',
+  tanks = 'tanks',
 }
 
 // GUI
@@ -36,6 +41,7 @@ export enum Textures {
   spice = 'spice',
   plates = 'plates',
   hole = 'hole',
+  player = 'player',
 }
 
 export enum Audios {
@@ -51,6 +57,9 @@ export enum Audios {
   plants = 'plants',
   storages = 'storages',
   factories = 'factories',
+
+  // Units
+  tanks = 'tanks',
 }
 
 export enum Colors {
@@ -79,6 +88,7 @@ export enum Colors {
   glass = 0xf9bf7d,
   sand2 = 0xffd564,
   spice = 0xdd2200,
+  player = 0xff66ff,
 }
 
 enum Breakpoints {
@@ -113,6 +123,7 @@ export const DESIGN: TConfig = {
   },
   // Дефолтные установки сцены
   START: {
+    [Names.command]: [{ x: 0, z: 0 }],
     [Names.plates]: [
       { x: -1, z: -1 },
       { x: -1, z: 0 },
@@ -124,20 +135,25 @@ export const DESIGN: TConfig = {
       { x: 1, z: 1 },
       { x: 1, z: -1 },
     ],
-    [Names.command]: [{ x: 0, z: 0 }],
+    [Names.tanks]: [
+      { x: -3, z: -3 },
+      { x: 3, z: 0 },
+      { x: -4, z: 2 },
+    ],
   },
   MESSAGES_TIMEOUT: 3000, // ms
   VOLUME: {
-    [Audios.wind]: 0.2,
-    [Audios.zero]: 0.5,
+    [Audios.wind]: 0.1,
+    [Audios.zero]: 0.3,
     [Audios.build]: 0.2,
-    [Audios.sell]: 0.5,
-    [Audios.add]: 0.75,
-    [Audios.command]: 0.1,
-    [Audios.stations]: 6,
-    [Audios.plants]: 2,
-    [Audios.storages]: 4,
-    [Audios.factories]: 1.5,
+    [Audios.sell]: 0.1,
+    [Audios.add]: 0.1,
+    [Audios.command]: 0.025,
+    [Audios.stations]: 1,
+    [Audios.plants]: 0.5,
+    [Audios.storages]: 1,
+    [Audios.factories]: 0.5,
+    [Audios.tanks]: 0.5,
   },
   ATMOSPHERE_ELEMENTS: {
     [Names.stones]: 8,
@@ -164,7 +180,6 @@ export const OBJECTS: TConfig = {
   },
   [Names.command]: {
     size: DESIGN.CELL * 3,
-    isStartRotate: false,
     need: {
       cash: 0,
       energy: 10,
@@ -178,7 +193,6 @@ export const OBJECTS: TConfig = {
   },
   [Names.plates]: {
     size: DESIGN.CELL,
-    isStartRotate: false,
     time: 1,
     need: {
       cash: 1,
@@ -193,7 +207,6 @@ export const OBJECTS: TConfig = {
   },
   [Names.walls]: {
     size: DESIGN.CELL,
-    isStartRotate: false,
     time: 1,
     need: {
       cash: 5,
@@ -208,7 +221,6 @@ export const OBJECTS: TConfig = {
   },
   [Names.stations]: {
     size: DESIGN.CELL * 3,
-    isStartRotate: false,
     time: 3,
     need: {
       cash: 15,
@@ -223,7 +235,6 @@ export const OBJECTS: TConfig = {
   },
   [Names.plants]: {
     size: DESIGN.CELL * 3,
-    isStartRotate: false,
     time: 3,
     need: {
       cash: 15,
@@ -238,7 +249,6 @@ export const OBJECTS: TConfig = {
   },
   [Names.storages]: {
     size: DESIGN.CELL * 3,
-    isStartRotate: false,
     time: 5,
     need: {
       cash: 25,
@@ -253,12 +263,25 @@ export const OBJECTS: TConfig = {
   },
   [Names.factories]: {
     size: DESIGN.CELL * 5,
-    isStartRotate: false,
     time: 10,
     need: {
       cash: 250,
       energy: 25,
       food: 25,
+    },
+    gives: {
+      cash: null,
+      energy: null,
+      food: null,
+    },
+  },
+  [Names.tanks]: {
+    size: DESIGN.CELL,
+    time: 10,
+    need: {
+      cash: 50,
+      energy: 10,
+      food: 5,
     },
     gives: {
       cash: null,
@@ -285,8 +308,14 @@ export const BUILDS = [Names.command, Names.walls, ...MODULE_BUILD];
 // Все строения
 export const BUILDS_ALL = BUILDS.concat(Names.plates);
 
+// Юниты
+export const UNITS = [Names.tanks];
+
 // Объекты которые можно выделять
-export const SELECTABLE_OBJECTS = [...CAN_BUILD];
+export const SELECTABLE_OBJECTS = [...CAN_BUILD, ...UNITS];
+
+// Звуки которые не запускаются сразу
+export const NOT_START_AUDIOS = [Audios.tanks];
 
 // Переводы
 
@@ -309,6 +338,8 @@ export const MESSAGES: TMessages = {
     sell: 'Sell',
     need: 'Requires',
     gives: 'Gives',
+    builds: 'Builds',
+    units: 'Units',
 
     [Names.command]: 'Command post',
     [Names.plates]: 'Plate',
@@ -317,6 +348,7 @@ export const MESSAGES: TMessages = {
     [Names.plants]: 'Greenhouse',
     [Names.storages]: 'Warehouse',
     [Names.factories]: 'Factory',
+    [Names.tanks]: 'Tank',
 
     // Messages
     impossibleToBuild: 'Impossible to build!',
@@ -343,6 +375,8 @@ export const MESSAGES: TMessages = {
     sell: 'Продать',
     need: 'Требует',
     gives: 'Дает',
+    builds: 'Здания',
+    units: 'Техника',
 
     [Names.command]: 'Командный пункт',
     [Names.plates]: 'Плита',
@@ -351,6 +385,7 @@ export const MESSAGES: TMessages = {
     [Names.plants]: 'Оранжерея',
     [Names.storages]: 'Склад',
     [Names.factories]: 'Завод',
+    [Names.tanks]: 'Танк',
 
     // Messages
     impossibleToBuild: 'Невозможно построить!',

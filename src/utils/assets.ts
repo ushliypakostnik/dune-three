@@ -25,6 +25,7 @@ export default class Assets {
   private _sand!: Texture;
   private _sand2!: Texture;
   private _plates!: Texture;
+  private _player!: Texture;
 
   // Audios
   private _command!: AudioBuffer;
@@ -32,6 +33,7 @@ export default class Assets {
   private _plants!: AudioBuffer;
   private _storages!: AudioBuffer;
   private _factories!: AudioBuffer;
+  private _tanks!: AudioBuffer;
 
   // Loaders
   public GLTFLoader: GLTFLoader;
@@ -54,6 +56,7 @@ export default class Assets {
     this._sand = self.helper.setMapHelper(self, Textures.sand);
     this._sand2 = self.helper.setMapHelper(self, Textures.sand2);
     this._plates = self.helper.setMapHelper(self, Textures.plates);
+    this._player = self.helper.setMapHelper(self, Textures.player);
 
     // Audio
     self.helper.setAudioToHeroHelper(self, Audios.wind);
@@ -108,6 +111,15 @@ export default class Assets {
       this._factories = buffer;
       self.audio.initAudioByName(self, Audios.factories);
     });
+
+    this.audioLoader.load(`./audio/${Audios.tanks}.mp3`, (buffer) => {
+      self.helper.loaderDispatchHelper(
+        self.store,
+        `${Audios.tanks}AudioIsLoaded`,
+      );
+      this._tanks = buffer;
+      self.audio.initAudioByName(self, Audios.tanks);
+    });
   }
 
   // Получить текстуру
@@ -129,6 +141,8 @@ export default class Assets {
         return this._sand2;
       case Textures.plates:
         return this._plates;
+      case Textures.player:
+        return this._player;
     }
     return this._concrette;
   }
@@ -171,6 +185,8 @@ export default class Assets {
         return this._storages;
       case Audios.factories:
         return this._factories;
+      case Audios.tanks:
+        return this._tanks;
     }
     return this._plants;
   }

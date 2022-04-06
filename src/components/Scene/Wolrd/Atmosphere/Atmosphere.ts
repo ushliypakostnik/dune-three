@@ -9,7 +9,7 @@ import type { TObjectField, TGrid } from '@/models/store';
 import type { HemisphereLight, Mesh, Group, GridHelper } from 'three';
 
 // Modules
-import { Module } from '@/models/modules';
+import { SimpleModule } from '@/models/modules';
 
 // Utils
 import {
@@ -18,10 +18,10 @@ import {
   randomInteger,
   getUniqueRandomPosition,
   getGridKey,
-  isNotStartPlates,
+  isNotStartPositions,
 } from '@/utils/utilities';
 
-export default class Atmosphere extends Module {
+export default class Atmosphere extends SimpleModule {
   private _light: HemisphereLight;
   private _sand!: Mesh;
   private _grid!: GridHelper;
@@ -162,7 +162,7 @@ export default class Atmosphere extends Module {
                   getGridKey(this._p),
                 ) && this._cells[getGridKey(this._p)].includes(Names.stones)
               ) &&
-              isNotStartPlates({ x: this._x, z: this._z })
+              isNotStartPositions({ x: this._x, z: this._z })
             ) {
               if (
                 Object.prototype.hasOwnProperty.call(

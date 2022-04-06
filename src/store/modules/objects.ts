@@ -33,6 +33,9 @@ const initialState: IObjects = {
     [`${Names.plants}`]: [],
     [`${Names.storages}`]: [],
     [`${Names.factories}`]: [],
+
+    // Units
+    [`${Names.tanks}`]: [],
   },
 };
 

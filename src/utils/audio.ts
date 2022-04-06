@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 
 // Constants
-import { Colors, Audios } from '@/utils/constants';
+import { Colors, Audios, NOT_START_AUDIOS } from '@/utils/constants';
 
 // Types
 import type { ISelf } from '@/models/modules';
@@ -166,9 +166,11 @@ export default class AudioBus {
         this._item = self.scene.getObjectByProperty('uuid', record.id) as Mesh;
         this._item.add(this._positionalAudio);
 
-        this._is = self.store.getters['layout/isPause'];
-        if (this._is) record.isStopped = true;
-        else this._positionalAudio.play();
+        if (!NOT_START_AUDIOS.includes(name)) {
+          this._is = self.store.getters['layout/isPause'];
+          if (this._is) record.isStopped = true;
+          else this._positionalAudio.play();
+        }
       });
   }
 
@@ -189,10 +191,12 @@ export default class AudioBus {
       this._item = self.scene.getObjectByProperty('uuid', id) as Mesh;
       this._item.add(this._positionalAudio);
 
-      this._is = self.store.getters['layout/isPause'];
-      if (this._is) this._record.isStopped = true;
-      else if (this._record?.audio && !this._record.audio.isPlaying)
-        this._record.audio.play();
+      if (!NOT_START_AUDIOS.includes(name)) {
+        this._is = self.store.getters['layout/isPause'];
+        if (this._is) this._record.isStopped = true;
+        else if (this._record?.audio && !this._record.audio.isPlaying)
+          this._record.audio.play();
+      }
     }
   }
 

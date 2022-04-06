@@ -6,7 +6,7 @@ import { Names } from '@/utils/constants';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IStore {}
 
-interface IStoreModule {
+interface IStoreModule extends IStore {
   [key: string]: any;
 }
 
@@ -52,7 +52,7 @@ export interface IObjects extends IStoreModule {}
 export type TObject = {
   name: Names;
   id: string;
-  data: { [key: string]: any };
+  data: IStoreModule;
 };
 export type TObjectField = Array<TObject>;
 export type TObjectsPayload = { name: string; objects: TObjectField };

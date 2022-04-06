@@ -4,13 +4,13 @@ import { Names } from '@/utils/constants';
 // Types
 import type {
   ISelf,
-  StaticSimpleModules,
-  StaticModelModules,
+  StaticSimpleBuilds,
+  StaticModelsBuilds,
 } from '@/models/modules';
 import type { Vector3 } from 'three';
 
 // Modules
-import { AnimatedModule } from '@/models/modules';
+import { Wrapper } from '@/models/modules';
 import Command from '@/components/Scene/Wolrd/Builds/Command';
 import Plates from '@/components/Scene/Wolrd/Builds/Plates';
 import Walls from '@/components/Scene/Wolrd/Builds/Walls';
@@ -19,14 +19,14 @@ import Plants from '@/components/Scene/Wolrd/Builds/Plants';
 import Storages from '@/components/Scene/Wolrd/Builds/Storages';
 import Factories from '@/components/Scene/Wolrd/Builds/Factories';
 
-export default class Builds extends AnimatedModule {
-  private _command: StaticModelModules;
-  private _plates: StaticSimpleModules;
-  private _walls: StaticSimpleModules;
-  private _stations: StaticModelModules;
-  private _plants: StaticModelModules;
-  private _storages: StaticModelModules;
-  private _factories: StaticModelModules;
+export default class Builds extends Wrapper {
+  private _command: StaticModelsBuilds;
+  private _plates: StaticSimpleBuilds;
+  private _walls: StaticSimpleBuilds;
+  private _stations: StaticModelsBuilds;
+  private _plants: StaticModelsBuilds;
+  private _storages: StaticModelsBuilds;
+  private _factories: StaticModelsBuilds;
 
   constructor() {
     super(Names.builds);
@@ -94,25 +94,25 @@ export default class Builds extends AnimatedModule {
   }
 
   // Продать строение
-  public sell(self: ISelf, items: string[], name: Names): void {
+  public remove(self: ISelf, items: string[], name: Names): void {
     switch (name) {
       case Names.plates:
-        this._plates.sell(self, items);
+        this._plates.remove(self, items);
         break;
       case Names.walls:
-        this._walls.sell(self, items);
+        this._walls.remove(self, items);
         break;
       case Names.stations:
-        this._stations.sell(self, items);
+        this._stations.remove(self, items);
         break;
       case Names.plants:
-        this._plants.sell(self, items);
+        this._plants.remove(self, items);
         break;
       case Names.storages:
-        this._storages.sell(self, items);
+        this._storages.remove(self, items);
         break;
       case Names.factories:
-        this._factories.sell(self, items);
+        this._factories.remove(self, items);
         break;
     }
   }

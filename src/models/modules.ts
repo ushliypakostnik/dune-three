@@ -6,7 +6,6 @@ import { Names, Colors } from '@/utils/constants';
 // Types
 import type { Store } from 'vuex';
 import type { State } from '@/store';
-import type { TPosition } from '@/models/utils';
 import type { TObject } from '@/models/store';
 import type {
   BoxBufferGeometry,
@@ -27,6 +26,7 @@ import { getGeometryByName } from '@/utils/utilities';
 // Interfaces
 ///////////////////////////////////////////////////////
 
+// Main object
 export interface ISelf {
   // Utils
   helper: Helper;
@@ -41,19 +41,38 @@ export interface ISelf {
   render: () => void;
 }
 
-export interface IModule {
+// Статичный модуль без копий - например Атмосфера
+export interface ISimpleModule {
   init(self: ISelf): void;
 }
 
-export interface IAnimatedModule extends IModule {
+// Модули
+interface IModule extends ISimpleModule {
+  isCanAdd(self: ISelf, vector: Vector3, name?: Names): boolean;
+  add(self: ISelf, vector: Vector3, name?: Names): void;
+  remove(self: ISelf, items: string[], name?: Names): void;
+}
+
+// Aнимированные модули
+interface IAnimatedModule extends IModule {
   animate(self: ISelf): void;
+}
+
+// Модули с копиями
+interface IModules extends IModule {
+  initItem(self: ISelf, item: TObject, isStart: boolean): void;
+}
+
+// Анимированные модули с копиями
+interface IAnimatedModules extends IAnimatedModule {
+  initItem(self: ISelf, item: TObject, isStart: boolean): void;
 }
 
 // Abstract
 ///////////////////////////////////////////////////////
 
 // Статичный модуль без копий - например Атмосфера
-export abstract class Module implements IModule {
+export abstract class SimpleModule implements ISimpleModule {
   constructor(public name: Names) {
     this.name = name;
   }
@@ -62,8 +81,8 @@ export abstract class Module implements IModule {
   public abstract init(self: ISelf): void;
 }
 
-// Статичный модуль с копиями
-abstract class ModuleItems extends Module {
+// Обертки и модули
+abstract class Module extends SimpleModule implements IModule {
   constructor(public name: Names) {
     super(name);
   }
@@ -74,29 +93,32 @@ abstract class ModuleItems extends Module {
   // Добавить новую единицу
   public abstract add(self: ISelf, vector: Vector3, name?: Names): void;
 
-  // Продать строение
-  public abstract sell(self: ISelf, items: string[], name?: string): void;
+  // Убрать объекты
+  public abstract remove(self: ISelf, items: string[], name?: Names): void;
+}
+
+// Анимированный модуль
+export abstract class AnimatedModule extends Module implements IAnimatedModule {
+  constructor(public name: Names) {
+    super(name);
+  }
+
+  // Анимация
+  public abstract animate(self: ISelf): void;
 }
 
 //  Модули
-abstract class Modules extends ModuleItems {
+abstract class Modules extends Module implements IModules {
   constructor(public name: Names) {
     super(name);
   }
 
   // Инициализировать новую единицу
-  public abstract initItem(
-    self: ISelf,
-    item: TPosition,
-    isStart: boolean,
-  ): void;
+  public abstract initItem(self: ISelf, item: TObject, isStart: boolean): void;
 }
 
 // Анимированные модули
-export abstract class AnimatedModule
-  extends ModuleItems
-  implements IAnimatedModule
-{
+abstract class AnimatedModules extends Modules implements IAnimatedModules {
   constructor(public name: Names) {
     super(name);
   }
@@ -108,21 +130,57 @@ export abstract class AnimatedModule
 // Real
 ///////////////////////////////////////////////////////
 
-export class StaticModules extends Modules {
+// Обертки
+export class Wrapper extends AnimatedModule implements IAnimatedModule {
   constructor(public name: Names) {
     super(name);
   }
 
   public init(self: ISelf): void {
-    console.log('modules.ts ', 'init ', this.name, self);
+    console.log('modules.ts', 'Wrapper', 'init ', this.name, self);
   }
 
-  public initItem(
-    self: ISelf,
-    item: TPosition | TObject,
-    isStart: boolean,
-  ): void {
-    console.log('modules.ts ', 'initItem ', this.name, self, item, isStart);
+  // Можно ли добавить новый объект?
+  public isCanAdd(self: ISelf, vector: Vector3, name?: Names): boolean {
+    console.log('modules.ts', 'Wrapper', 'isCanAdd ', vector, name);
+    return false;
+  }
+
+  // Добавить объект
+  public add(self: ISelf, vector: Vector3, name?: Names): void {
+    console.log('modules.ts', 'Wrapper', 'add ', vector, name);
+  }
+
+  // Удалить объекты
+  public remove(self: ISelf, items: string[], name?: Names): void {
+    console.log('modules.ts', 'Wrapper', 'remove ', items, name);
+  }
+
+  public animate(self: ISelf): void {
+    console.log('modules.ts', 'Wrapper', 'animate ', this.name, self);
+  }
+}
+
+// Строения
+export class Builds extends Modules implements IModules {
+  constructor(public name: Names) {
+    super(name);
+  }
+
+  public init(self: ISelf): void {
+    console.log('modules.ts', 'Builds', 'init ', this.name, self);
+  }
+
+  public initItem(self: ISelf, item: TObject, isStart: boolean): void {
+    console.log(
+      'modules.ts',
+      'Builds',
+      'initItem ',
+      this.name,
+      self,
+      item,
+      isStart,
+    );
   }
 
   // Можно ли добавить новый объект?
@@ -130,19 +188,74 @@ export class StaticModules extends Modules {
     return self.helper.isCanAddItemHelper(self, vector, this.name);
   }
 
+  // Удалить объекты
+  public remove(self: ISelf, items: string[]): void {
+    self.helper.sellHelper(self, items, this.name);
+  }
+
+  // Добавить объект
+  public add(self: ISelf, vector: Vector3): void {
+    self.helper.addItemHelper(self, this, vector);
+  }
+}
+
+// Юниты
+export class Units extends AnimatedModules implements IAnimatedModules {
+  public model!: GLTF;
+
+  constructor(public name: Names) {
+    super(name);
+  }
+
+  // Инициализация одного объекта
+  public initItem(self: ISelf, item: TObject, isStart: boolean): void {
+    self.helper.initItemFromModelHelper(
+      self,
+      this.name,
+      this.model,
+      item,
+      isStart,
+    );
+  }
+
+  public init(self: ISelf): void {
+    // Модель
+    self.assets.GLTFLoader.load(
+      `./images/models/${this.name}.glb`,
+      (model: GLTF) => {
+        // Прелоадер
+        self.helper.loaderDispatchHelper(self.store, `${this.name}IsLoaded`);
+        this.model = self.helper.traverseHelper(self, model, this.name);
+
+        // Инициализация
+        self.helper.initModulesHelper(self, this);
+        self.render();
+      },
+    );
+  }
+
+  // Можно ли добавить новый объект?
+  public isCanAdd(self: ISelf, vector: Vector3): boolean {
+    return self.helper.isCanAddItemHelper(self, vector, this.name);
+  }
+
+  // Удалить объекты
+  public remove(self: ISelf, items: string[]): void {
+    self.helper.sellHelper(self, items, this.name);
+  }
+
   // Добавить объект
   public add(self: ISelf, vector: Vector3): void {
     self.helper.addItemHelper(self, this, vector);
   }
 
-  // Продать строение
-  public sell(self: ISelf, items: string[]): void {
-    self.helper.sellHelper(self, items, this.name);
+  public animate(self: ISelf): void {
+    console.log('modules.ts', 'Units', 'animate ', this.name, self);
   }
 }
 
-// Статичные модули
-export class StaticSimpleModules extends StaticModules {
+// Статичные строения без моделей
+export class StaticSimpleBuilds extends Builds {
   public geometry!: BoxBufferGeometry;
   public material!: MeshStandardMaterial;
 
@@ -151,7 +264,7 @@ export class StaticSimpleModules extends StaticModules {
   }
 
   // Инициализация одного объекта
-  public initItem(self: ISelf, item: TPosition, isStart: boolean): void {
+  public initItem(self: ISelf, item: TObject, isStart: boolean): void {
     self.helper.initItemHelper(
       self,
       this.name,
@@ -177,8 +290,8 @@ export class StaticSimpleModules extends StaticModules {
   }
 }
 
-// Статичные модули c моделью
-export class StaticModelModules extends StaticModules {
+// Статичные строения c моделью
+export class StaticModelsBuilds extends Builds {
   public model!: GLTF;
 
   constructor(public name: Names) {
@@ -186,12 +299,12 @@ export class StaticModelModules extends StaticModules {
   }
 
   // Инициализация одного объекта
-  public initItem(self: ISelf, position: TPosition, isStart: boolean): void {
+  public initItem(self: ISelf, item: TObject, isStart: boolean): void {
     self.helper.initItemFromModelHelper(
       self,
       this.name,
       this.model,
-      position,
+      item,
       isStart,
     );
   }

@@ -74,7 +74,7 @@ export const getRandomPosition = (
   radius: number,
   isSafeCenter: boolean,
 ): TPosition => {
-  const safe = isSafeCenter ? 15 : 7;
+  const safe = isSafeCenter ? 16 : 8;
   const a = plusOrMinus();
   const b = plusOrMinus();
   return {
@@ -97,6 +97,15 @@ const isBadPosition = (
 export const isNotStartPlates = (position: TPosition): boolean => {
   return DESIGN.START[Names.plates].every(
     (item: TPosition) => !(item.x === position.x && item.z === position.z),
+  );
+};
+
+export const isNotStartPositions = (position: TPosition): boolean => {
+  return (
+    isNotStartPlates(position) &&
+    DESIGN.START[Names.tanks].every(
+      (item: TPosition) => !(item.x === position.x && item.z === position.z),
+    )
   );
 };
 
@@ -147,6 +156,7 @@ export const getRepeatByName = (name: Names | Textures): number => {
     case Textures.concrette:
       return 4;
     case Names.plates:
+    case Textures.player:
       return 2;
     case Textures.metall:
     case Textures.metall2:
@@ -188,6 +198,8 @@ export const getGeometryByName = (name: Names | string): BoxBufferGeometry => {
         DESIGN.CELL * 3,
         DESIGN.CELL * 5,
       );
+    case Names.tanks:
+      return new THREE.BoxGeometry(DESIGN.CELL, DESIGN.CELL, DESIGN.CELL);
     case Names.plates:
     default:
       return new THREE.BoxGeometry(DESIGN.CELL, 2, DESIGN.CELL);
@@ -204,6 +216,8 @@ export const getPositionYByName = (name: Names | string): number => {
       return OBJECTS.sand.positionY + 3;
     case Names.walls:
       return OBJECTS.sand.positionY + OBJECTS.walls.size + 4;
+    case Names.tanks:
+      return OBJECTS.sand.positionY + 1;
     case Names.command:
     case Names.stations:
     case Names.plants:
@@ -229,6 +243,7 @@ export const getIsLoopByName = (name: Audios): boolean => {
     case Audios.plants:
     case Audios.storages:
     case Audios.factories:
+    case Audios.tanks:
       return true;
     case Audios.zero:
     case Audios.sell:

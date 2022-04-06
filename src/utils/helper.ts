@@ -15,6 +15,7 @@ import {
   OBJECTS,
   BUILDS,
   MODULE_BUILD,
+  UNITS,
 } from '@/utils/constants';
 
 // Types
@@ -30,12 +31,7 @@ import {
 } from 'three';
 import type { Store } from 'vuex';
 import type { State } from '@/store';
-import type {
-  ISelf,
-  StaticModules,
-  StaticSimpleModules,
-  StaticModelModules,
-} from '@/models/modules';
+import type { ISelf, Builds } from '@/models/modules';
 import type { TObjectField } from '@/models/store';
 import type { TPosition, TPositions } from '@/models/utils';
 import type { TObject } from '@/models/store';
@@ -51,6 +47,8 @@ import {
   getGeometryByName,
   getPositionYByName,
   getAudioByName,
+  degreesToRadians,
+  randomInteger,
 } from '@/utils/utilities';
 
 export default class Helper {
@@ -58,6 +56,7 @@ export default class Helper {
   private _is = false;
   private _number = 0;
   private _counter = 0;
+  private _rotate = 0;
   private _item: Mesh | Group = new THREE.Mesh();
   private _pseudo: Mesh | Group = new THREE.Mesh();
   private _position: TPosition = { x: 0, z: 0 };
@@ -137,6 +136,8 @@ export default class Helper {
           child.material = self.assets.getMaterial(Textures.glass);
         } else if (child.name.includes(Textures.hole)) {
           child.material = self.assets.getMaterial(Textures.hole);
+        } else if (child.name.includes(Textures.player)) {
+          child.material = self.assets.getMaterial(Textures.player);
         }
 
         if (MODULE_BUILD.includes(name)) child.name = `${CHILD}${name}`;
@@ -147,18 +148,16 @@ export default class Helper {
   }
 
   // Помощник инициализации множественного модуля
-  public initModulesHelper(
-    self: ISelf,
-    that: StaticModules | StaticModelModules,
-  ): void {
+  public initModulesHelper(self: ISelf, that: Builds): void {
     this._objects = [...self.store.getters['objects/objects'][that.name]];
-    console.log('AAAAAAAAAAAAAAAAa', this._objects);
     if (
       self.store.getters['objects/isStart'] &&
-      (that.name === Names.plates || that.name === Names.command) // Плиты и командный пункт - есть на старте
+      (that.name === Names.plates ||
+        that.name === Names.command ||
+        that.name === Names.tanks) // Плиты и командный пункт, танки игрока - есть на старте
     ) {
-      DESIGN.START[that.name].forEach((item: TPosition) => {
-        that.initItem(self, item, true);
+      DESIGN.START[that.name].forEach((position: TPosition) => {
+        that.initItem(self, this._setItemHelper(that.name, position), true);
       });
       self.store.dispatch('objects/saveObjects', {
         name: that.name,
@@ -167,7 +166,7 @@ export default class Helper {
     } else {
       this._objects2 = [];
       this._objects.forEach((item: TObject) => {
-        that.initItem(self, { x: item.data.x, z: item.data.z }, false);
+        that.initItem(self, item, false);
       });
       self.store.dispatch('objects/saveObjects', {
         name: that.name,
@@ -179,11 +178,24 @@ export default class Helper {
     this.loaderDispatchHelper(self.store, `${that.name}IsBuild`);
   }
 
+  // Помощник создания объекта
+  private _setItemHelper(name: Names, position: TPosition): TObject {
+    return {
+      name,
+      id: '',
+      data: {
+        x: position.x,
+        z: position.z,
+      },
+    };
+  }
+
   // Помощник сохранения объекта
   private _saveItemHelper(
+    id: string,
     name: Names,
     position: TPosition,
-    id: string,
+    rotate?: number,
     modelId?: string,
   ): void {
     this._objects.push({
@@ -192,6 +204,7 @@ export default class Helper {
       data: {
         x: position.x,
         z: position.z,
+        rotate: rotate ? rotate : null,
         modelId: modelId ? modelId : null,
         health: 100,
       },
@@ -200,9 +213,10 @@ export default class Helper {
 
   // Помощник перезагрузки объекта
   private _updateItemHelper(
+    id: string,
     name: Names,
     position: TPosition,
-    id: string,
+    rotate?: number,
     modelId?: string,
   ): void {
     this._objects2.push({
@@ -211,6 +225,7 @@ export default class Helper {
       data: {
         x: position.x,
         z: position.z,
+        rotate: rotate ? rotate : null,
         modelId: modelId ? modelId : null,
         health: 100,
       },
@@ -259,12 +274,12 @@ export default class Helper {
     name: Names,
     geometry: BoxBufferGeometry,
     material: MeshStandardMaterial,
-    position: TPosition,
+    item: TObject,
     isStart: boolean,
   ): void {
     this._item = new THREE.Mesh(geometry, material.clone());
 
-    this._position = { x: position.x, z: position.z };
+    this._position = { x: item.data.x, z: item.data.z };
 
     this._item.position.x = this._position.x * DESIGN.CELL;
     this._item.position.z = this._position.z * DESIGN.CELL;
@@ -273,8 +288,8 @@ export default class Helper {
 
     // Если дефолтная инициализация или добавление нового объекта - сохраняем объект
     // если перезагрузка - обновляем uuid
-    if (isStart) this._saveItemHelper(name, this._position, this._item.uuid);
-    else this._updateItemHelper(name, this._position, this._item.uuid);
+    if (isStart) this._saveItemHelper(this._item.uuid, name, this._position);
+    else this._updateItemHelper(this._item.uuid, name, this._position);
 
     this._afterInit(self, name, this._position, this._item);
   }
@@ -284,17 +299,20 @@ export default class Helper {
     self: ISelf,
     name: Names,
     model: GLTF,
-    position: TPosition,
+    item: TObject,
     isStart: boolean,
   ): void {
     this._item = model.scene.clone();
     this._item.scale.set(0.5, 0.5, 0.5);
 
-    this._position = { x: position.x, z: position.z };
+    this._position = { x: item.data.x, z: item.data.z };
 
     this._item.position.x = this._position.x * DESIGN.CELL;
     this._item.position.z = this._position.z * DESIGN.CELL;
     this._item.position.y = getPositionYByName(name);
+
+    // Подгонка размера моделей
+    if (name === Names.tanks) this._item.scale.set(5, 5, 5);
 
     // Pseudo
 
@@ -311,11 +329,21 @@ export default class Helper {
     this._pseudo = new THREE.Mesh(this.geometry, this.material);
     this._pseudo.position.copy(this._item.position);
 
-    if (OBJECTS[name].size / DESIGN.CELL === 5) this._pseudo.position.y += 30;
-    else this._pseudo.position.y += 20;
+    if (!UNITS.includes(name)) {
+      if (OBJECTS[name].size / DESIGN.CELL === 5) this._pseudo.position.y += 30;
+      else this._pseudo.position.y += 20;
+    } else this._pseudo.position.y += 10;
 
     this._pseudo.name = `${PSEUDO}${name}`;
     this._pseudo.visible = false;
+
+    // Поворот
+    if (UNITS.includes(name)) {
+      if (isStart) this._rotate = degreesToRadians(randomInteger(-1, 360));
+      else this._rotate = item.data.rotate;
+      this._item.rotateY(this._rotate);
+      this._pseudo.rotateY(this._rotate);
+    } else this._rotate = 0;
 
     self.scene.add(this._pseudo);
 
@@ -331,16 +359,18 @@ export default class Helper {
     // если перезагрузка - обновляем uuid
     if (isStart)
       this._saveItemHelper(
+        this._pseudo.uuid,
         name,
         this._position,
-        this._pseudo.uuid,
+        this._rotate,
         this._item.uuid,
       );
     else
       this._updateItemHelper(
+        this._pseudo.uuid,
         name,
         this._position,
-        this._pseudo.uuid,
+        this._rotate,
         this._item.uuid,
       );
 
@@ -393,11 +423,7 @@ export default class Helper {
   }
 
   // Помощник добавления объекта
-  private _add(
-    self: ISelf,
-    that: StaticModules | StaticSimpleModules,
-    position: TPosition,
-  ): void {
+  private _add(self: ISelf, that: Builds, position: TPosition): void {
     this._number = self.store.getters['layout/cash'];
     self.store.dispatch('layout/setField', {
       field: 'cash',
@@ -410,7 +436,7 @@ export default class Helper {
       z: position.z - 1 * this._number,
     };
 
-    that.initItem(self, this._position, true);
+    that.initItem(self, this._setItemHelper(that.name, position), true);
 
     self.store
       .dispatch('objects/saveObjects', {
@@ -509,11 +535,7 @@ export default class Helper {
   }
 
   // Помощник добавления объекта
-  public addItemHelper(
-    self: ISelf,
-    that: StaticSimpleModules | StaticModules,
-    vector: Vector3,
-  ): void {
+  public addItemHelper(self: ISelf, that: Builds, vector: Vector3): void {
     this._objects = [...self.store.getters['objects/objects'][that.name]];
 
     if (that.name === Names.plates) {

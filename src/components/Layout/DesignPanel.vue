@@ -1,66 +1,95 @@
 <template>
   <div class="design-panel">
-    <button
-      class="design-panel__button"
-      :class="{ 'design-panel__button--disabled': !isSelected }"
-      type="button"
-      @click.prevent.stop="setSell"
-    >
-      {{ $t('sell') }}
-    </button>
-
-    <ul class="design-panel__builds" :class="{ 'design-panel__builds--active': !isBuildingClock }">
-      <li
-        v-for="value in CAN_BUILD"
-        :key="`builds${value}`"
-        class="design-panel__item"
-        :class="[value === active && 'design-panel__item--active']"
-        @click.prevent="changeActive(value)"
+    <div class="design-panel__tabs">
+      <button
+        class="design-panel__button"
+        :class="{ 'design-panel__button--disabled': !isBuilds }"
+        type="button"
+        @click.prevent.stop="setIsBuilds"
       >
-        <div
-          v-if="buildingProgress && value === active"
-          class="design-panel__progress"
-          :style="`height: ${buildingProgress}%`"
-        />
-        <div>
-          <div class="design-panel__header">{{ $t(`${value}`) }}</div>
-          <div class="design-panel__text design-panel__text--subheader">{{ $t('need') }}:</div>
-          <div class="design-panel__text">
-            {{ $t('cash') }}: {{ OBJECTS[value].need.cash }}
-          </div>
-          <div class="design-panel__text">
-            {{ $t('energy') }}: {{ OBJECTS[value].need.energy }}
-          </div>
-          <div class="design-panel__text">
-            {{ $t('food') }}: {{ OBJECTS[value].need.food }}
-          </div>
+        {{ $t('builds') }}
+      </button>
+
+      <button
+        class="design-panel__button"
+        :class="{ 'design-panel__button--disabled': isBuilds }"
+        type="button"
+        @click.prevent.stop="setIsBuilds"
+      >
+        {{ $t('units') }}
+      </button>
+    </div>
+
+    <div v-if="!isBuilds">
+      <button
+        class="design-panel__button"
+        :class="{ 'design-panel__button--disabled': !isSelected }"
+        type="button"
+        @click.prevent.stop="setSell"
+      >
+        {{ $t('sell') }}
+      </button>
+
+      <ul
+        class="design-panel__builds"
+        :class="{ 'design-panel__builds--active': !isBuildingClock }"
+      >
+        <li
+          v-for="value in CAN_BUILD"
+          :key="`builds${value}`"
+          class="design-panel__item"
+          :class="[value === active && 'design-panel__item--active']"
+          @click.prevent="changeActive(value)"
+        >
           <div
-            v-if="
-              OBJECTS[value].gives.cash ||
-              OBJECTS[value].gives.energy ||
-              OBJECTS[value].gives.food
-            "
-            class="design-panel__text design-panel__text--subheader"
-          >
-            {{ $t('gives') }}:
+            v-if="buildingProgress && value === active"
+            class="design-panel__progress"
+            :style="`height: ${buildingProgress}%`"
+          />
+          <div>
+            <div class="design-panel__header">{{ $t(`${value}`) }}</div>
+            <div class="design-panel__text design-panel__text--subheader">
+              {{ $t('need') }}:
+            </div>
+            <div class="design-panel__text">
+              {{ $t('cash') }}: {{ OBJECTS[value].need.cash }}
+            </div>
+            <div class="design-panel__text">
+              {{ $t('energy') }}: {{ OBJECTS[value].need.energy }}
+            </div>
+            <div class="design-panel__text">
+              {{ $t('food') }}: {{ OBJECTS[value].need.food }}
+            </div>
+            <div
+              v-if="
+                OBJECTS[value].gives.cash ||
+                OBJECTS[value].gives.energy ||
+                OBJECTS[value].gives.food
+              "
+              class="design-panel__text design-panel__text--subheader"
+            >
+              {{ $t('gives') }}:
+            </div>
+            <div v-if="OBJECTS[value].gives.cash" class="design-panel__text">
+              {{ $t('cash') }}: +{{ OBJECTS[value].gives.cash }}
+            </div>
+            <div v-if="OBJECTS[value].gives.energy" class="design-panel__text">
+              {{ $t('energy') }}: +{{ OBJECTS[value].gives.energy }}
+            </div>
+            <div v-if="OBJECTS[value].gives.food" class="design-panel__text">
+              {{ $t('food') }}: +{{ OBJECTS[value].gives.food }}
+            </div>
           </div>
-          <div v-if="OBJECTS[value].gives.cash" class="design-panel__text">
-            {{ $t('cash') }}: +{{ OBJECTS[value].gives.cash }}
-          </div>
-          <div v-if="OBJECTS[value].gives.energy" class="design-panel__text">
-            {{ $t('energy') }}: +{{ OBJECTS[value].gives.energy }}
-          </div>
-          <div v-if="OBJECTS[value].gives.food" class="design-panel__text">
-            {{ $t('food') }}: +{{ OBJECTS[value].gives.food }}
-          </div>
-        </div>
-      </li>
-    </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div v-else></div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, ref, Ref } from 'vue';
 import { useStore } from 'vuex';
 import { key } from '@/store';
 import { useI18n } from 'vue-i18n';
@@ -75,8 +104,11 @@ export default defineComponent({
 
     const store = useStore(key);
 
+    let isBuilds: Ref<boolean> = ref(false);
+
     let changeActive: (value: string) => void;
     let setSell: () => void;
+    let setIsBuilds: () => void;
 
     const active = computed(() => store.getters['layout/activeBuild']);
     const isBuildingClock = computed(
@@ -94,6 +126,10 @@ export default defineComponent({
       });
     };
 
+    setIsBuilds = () => {
+      isBuilds.value = !isBuilds.value;
+    };
+
     changeActive = (value: string) => {
       if (!isBuildingClock.value)
         store.dispatch('layout/setField', {
@@ -109,9 +145,11 @@ export default defineComponent({
       isBuildingClock,
       buildingProgress,
       isSelected,
+      isBuilds,
       t,
       changeActive,
       setSell,
+      setIsBuilds,
     };
   },
 });
@@ -141,7 +179,18 @@ $design-panel__width = 460px
 
     &--disabled
       pointer-events none
-      $opacity('psy')
+      $opacity("psy")
+
+  &__tabs
+    display flex
+
+    {$name}__button
+      margin-right 10px
+      $text("maria")
+
+      + {$name}__button
+        margin-right 0
+        margin-left 10px
 
   &__builds
     list-style none
