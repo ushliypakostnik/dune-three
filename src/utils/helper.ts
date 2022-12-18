@@ -436,7 +436,7 @@ export default class Helper {
       z: position.z - 1 * this._number,
     };
 
-    that.initItem(self, this._setItemHelper(that.name, position), true);
+    that.initItem(self, this._setItemHelper(that.name, this._position), true);
 
     self.store
       .dispatch('objects/saveObjects', {
