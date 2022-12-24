@@ -26,7 +26,7 @@ export enum Names {
   factories = 'factories',
 
   units = 'units',
-  tanks = 'tanks',
+  // tanks = 'tanks',
 }
 
 // GUI
@@ -59,7 +59,7 @@ export enum Audios {
   factories = 'factories',
 
   // Units
-  tanks = 'tanks',
+  // tanks = 'tanks',
 }
 
 export enum Colors {
@@ -135,11 +135,12 @@ export const DESIGN: TConfig = {
       { x: 1, z: 1 },
       { x: 1, z: -1 },
     ],
+    /*
     [Names.tanks]: [
       { x: -3, z: -3 },
       { x: 3, z: 0 },
       { x: -4, z: 2 },
-    ],
+    ], */
   },
   MESSAGES_TIMEOUT: 3000, // ms
   VOLUME: {
@@ -153,7 +154,7 @@ export const DESIGN: TConfig = {
     [Audios.plants]: 0.5,
     [Audios.storages]: 1,
     [Audios.factories]: 0.5,
-    [Audios.tanks]: 0.5,
+    // [Audios.tanks]: 0.5,
   },
   ATMOSPHERE_ELEMENTS: {
     [Names.stones]: 8,
@@ -275,6 +276,7 @@ export const OBJECTS: TConfig = {
       food: null,
     },
   },
+  /*
   [Names.tanks]: {
     size: DESIGN.CELL,
     time: 10,
@@ -288,7 +290,7 @@ export const OBJECTS: TConfig = {
       energy: null,
       food: null,
     },
-  },
+  }, */
 };
 
 // Объекты-модули которые можно строить
@@ -309,13 +311,17 @@ export const BUILDS = [Names.command, Names.walls, ...MODULE_BUILD];
 export const BUILDS_ALL = BUILDS.concat(Names.plates);
 
 // Юниты
-export const UNITS = [Names.tanks];
+export const UNITS = [
+  /* Names.tanks */
+];
 
 // Объекты которые можно выделять
 export const SELECTABLE_OBJECTS = [...CAN_BUILD, ...UNITS];
 
 // Звуки которые не запускаются сразу
-export const NOT_START_AUDIOS = [Audios.tanks];
+export const NOT_START_AUDIOS = [
+  /* Audios.tanks */
+];
 
 // Переводы
 
@@ -348,7 +354,7 @@ export const MESSAGES: TMessages = {
     [Names.plants]: 'Greenhouse',
     [Names.storages]: 'Warehouse',
     [Names.factories]: 'Factory',
-    [Names.tanks]: 'Tank',
+    // [Names.tanks]: 'Tank',
 
     // Messages
     impossibleToBuild: 'Impossible to build!',
@@ -385,7 +391,7 @@ export const MESSAGES: TMessages = {
     [Names.plants]: 'Оранжерея',
     [Names.storages]: 'Склад',
     [Names.factories]: 'Завод',
-    [Names.tanks]: 'Танк',
+    // [Names.tanks]: 'Танк',
 
     // Messages
     impossibleToBuild: 'Невозможно построить!',

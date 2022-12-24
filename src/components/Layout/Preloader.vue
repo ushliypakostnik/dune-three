@@ -29,9 +29,7 @@ export default defineComponent({
       () => store.getters['preloader/isGameLoaded'],
     );
 
-    const isReload = computed(
-      () => store.getters['layout/isReload'],
-    );
+    const isReload = computed(() => store.getters['layout/isReload']);
 
     // Следим загрузилась ли игра чтобы проверить с начала ли
     watch(

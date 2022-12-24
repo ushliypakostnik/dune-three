@@ -15,7 +15,7 @@ import {
   OBJECTS,
   BUILDS,
   MODULE_BUILD,
-  UNITS,
+  // UNITS,
 } from '@/utils/constants';
 
 // Types
@@ -47,8 +47,8 @@ import {
   getGeometryByName,
   getPositionYByName,
   getAudioByName,
-  degreesToRadians,
-  randomInteger,
+  // degreesToRadians,
+  // randomInteger,
 } from '@/utils/utilities';
 
 export default class Helper {
@@ -152,9 +152,8 @@ export default class Helper {
     this._objects = [...self.store.getters['objects/objects'][that.name]];
     if (
       self.store.getters['objects/isStart'] &&
-      (that.name === Names.plates ||
-        that.name === Names.command ||
-        that.name === Names.tanks) // Плиты и командный пункт, танки игрока - есть на старте
+      (that.name === Names.plates || that.name === Names.command) /* ||
+        that.name === Names.tanks */ // Плиты и командный пункт, танки игрока - есть на старте
     ) {
       DESIGN.START[that.name].forEach((position: TPosition) => {
         that.initItem(self, this._setItemHelper(that.name, position), true);
@@ -312,7 +311,7 @@ export default class Helper {
     this._item.position.y = getPositionYByName(name);
 
     // Подгонка размера моделей
-    if (name === Names.tanks) this._item.scale.set(5, 5, 5);
+    // if (name === Names.tanks) this._item.scale.set(5, 5, 5);
 
     // Pseudo
 
@@ -329,21 +328,23 @@ export default class Helper {
     this._pseudo = new THREE.Mesh(this.geometry, this.material);
     this._pseudo.position.copy(this._item.position);
 
-    if (!UNITS.includes(name)) {
+    /* if (!UNITS.includes(name)) {
       if (OBJECTS[name].size / DESIGN.CELL === 5) this._pseudo.position.y += 30;
       else this._pseudo.position.y += 20;
-    } else this._pseudo.position.y += 10;
+    } else this._pseudo.position.y += 10; */
+    this._pseudo.position.y += 10;
 
     this._pseudo.name = `${PSEUDO}${name}`;
     this._pseudo.visible = false;
 
     // Поворот
-    if (UNITS.includes(name)) {
+    /* if (UNITS.includes(name)) {
       if (isStart) this._rotate = degreesToRadians(randomInteger(-1, 360));
       else this._rotate = item.data.rotate;
       this._item.rotateY(this._rotate);
       this._pseudo.rotateY(this._rotate);
-    } else this._rotate = 0;
+    } else this._rotate = 0; */
+    this._rotate = 0;
 
     self.scene.add(this._pseudo);
 

@@ -29,10 +29,10 @@ import { getGeometryByName } from '@/utils/utilities';
 // Main object
 export interface ISelf {
   // Utils
-  helper: Helper;
-  assets: Assets;
-  events: Events;
-  audio: AudioBus;
+  helper: Helper; // "наше все" - набор рабочих функций, инкапсулирующий всю бизнес-логику и тем самым - "экономящий память" ))
+  assets: Assets; // модуль собирающий все ассеты
+  events: Events; // шина событий
+  audio: AudioBus; // аудиомикшер
 
   // Core
   store: Store<State>;

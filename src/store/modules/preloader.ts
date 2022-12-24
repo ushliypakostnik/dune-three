@@ -24,7 +24,7 @@ const initialState: IPreloader = {
   commandIsLoaded: false,
   stationsIsLoaded: false,
   plantsIsLoaded: false,
-  tanksIsLoaded: false,
+  // tanksIsLoaded: false,
 
   // Audio
   windIsLoaded: false,
@@ -35,7 +35,7 @@ const initialState: IPreloader = {
   plantsAudioIsLoaded: false,
   storagesAudioIsLoaded: false,
   factoriesAudioIsLoaded: false,
-  tanksAudioIsLoaded: false,
+  // tanksAudioIsLoaded: false,
 
   // World build
   atmosphereIsBuild: false,

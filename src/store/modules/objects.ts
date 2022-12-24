@@ -35,7 +35,7 @@ const initialState: IObjects = {
     [`${Names.factories}`]: [],
 
     // Units
-    [`${Names.tanks}`]: [],
+    // [`${Names.tanks}`]: [],
   },
 };
 

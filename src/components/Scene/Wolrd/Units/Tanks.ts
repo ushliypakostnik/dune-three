@@ -5,7 +5,7 @@ import { Names } from '@/utils/constants';
 import { Units } from '@/models/modules';
 
 export default class Tanks extends Units {
-  constructor() {
+  /* constructor() {
     super(Names.tanks);
-  }
+  } */
 }
